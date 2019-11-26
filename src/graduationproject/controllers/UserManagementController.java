@@ -9,7 +9,6 @@ import graduationproject.data.DataManager;
 import graduationproject.data.models.RecoveryQuestion;
 import graduationproject.data.models.User;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -25,6 +24,12 @@ public class UserManagementController {
     
     public boolean processCreatingUser(List<String> data) {
         ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
+        
+        if (data.get(DataOrders.ACCOUNT.getValue()).isEmpty() || data.get(DataOrders.PASSWORD.getValue()).isEmpty() 
+                || data.get(DataOrders.CONFIRM.getValue()).isEmpty()) {
+            this.resultMessage = messageGenerator.CREATING_FAILED_DATA;
+            return false;
+        }
         
         if (!data.get(DataOrders.PASSWORD.getValue()).equals(data.get(DataOrders.CONFIRM.getValue()))) {
             this.resultMessage = messageGenerator.CREATING_FAILED_CONFIRM;
@@ -98,7 +103,8 @@ public class UserManagementController {
         public String CREATING_FAILED_CONDITION = "Please accept our terms and conditions in order to use this application.";
         public String CREATING_FAILED_CONFIRM = "Your confirmation is mismatched. Please input again.";
         public String CREATING_FAILED_ACCOUNT = "This account has already been created. Choose other name for your account.";
-        public String CREATING_FAILED_OTHER = "Some error happened when saving user data. Please try again.";
+        public String CREATING_FAILED_DATA = "Please fill all the required information such account, password and confirm.";
+        public String CREATING_FAILED_OTHER = "Some error happened when saving user data. Please try again.";        
     }   
     
 }

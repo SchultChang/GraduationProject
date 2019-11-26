@@ -5,10 +5,17 @@
  */
 package graduationproject.gui;
 
+import graduationproject.controllers.UserManagementController;
 import java.awt.Color;
 import static java.awt.SystemColor.text;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -17,6 +24,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -34,7 +42,7 @@ import org.netbeans.lib.awtextra.AbsoluteConstraints;
  */
 public class PanelInitial extends JPanel {
 
-    private JButton buttonCancel;
+    private JButton buttonCancelRegistration;
     private JButton buttonCancelSubmission;
     private JButton buttonLogin;
     private JButton buttonRegister;
@@ -110,11 +118,12 @@ public class PanelInitial extends JPanel {
     private JPanel panelOverlay;
     private JPanel panelRegister;
     private JPanel panelSubmitQuestions;
-    
+
     private JPanel currentDisplayedPanel;
 
     private MouseAdapter listenerLabel;
-    
+    private ActionListener listenerButton;
+
     public enum PANELS {
         PANEL_LOGIN,
         PANEL_REGISTER,
@@ -144,7 +153,7 @@ public class PanelInitial extends JPanel {
         label10 = new JLabel();
         label11 = new JLabel();
         buttonRegister = new JButton();
-        buttonCancel = new JButton();
+        buttonCancelRegistration = new JButton();
         labelAddQuestions = new JLabel();
         checkboxTerms = new JCheckBox();
         labelTerms = new JLabel();
@@ -205,7 +214,7 @@ public class PanelInitial extends JPanel {
 
         scrollpaneAccountList.setBorder(null);
         scrollpaneAccountList.setOpaque(false);
-        
+
         listAccount.setBorder(null);
         listAccount.setOpaque(false);
         scrollpaneAccountList.setViewportView(listAccount);
@@ -376,12 +385,12 @@ public class PanelInitial extends JPanel {
         buttonRegister.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         panelRegister.add(buttonRegister, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 670, 80, 30));
 
-        buttonCancel.setBackground(new java.awt.Color(20, 99, 236));
-        buttonCancel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        buttonCancel.setForeground(java.awt.Color.white);
-        buttonCancel.setText("Cancel");
-        buttonCancel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        panelRegister.add(buttonCancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 670, 80, 30));
+        buttonCancelRegistration.setBackground(new java.awt.Color(20, 99, 236));
+        buttonCancelRegistration.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonCancelRegistration.setForeground(java.awt.Color.white);
+        buttonCancelRegistration.setText("Cancel");
+        buttonCancelRegistration.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        panelRegister.add(buttonCancelRegistration, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 670, 80, 30));
 
         labelAddQuestions.setFont(new java.awt.Font("SansSerif", 1, 13)); // NOI18N
         labelAddQuestions.setForeground(new java.awt.Color(254, 13, 13));
@@ -406,7 +415,7 @@ public class PanelInitial extends JPanel {
 
         tfieldRegisterPhone.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         tfieldRegisterPhone.setFormatterFactory(new DefaultFormatterFactory(new NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
-        ((NumberFormatter) tfieldRegisterPhone.getFormatter()).setAllowsInvalid(false);        
+        ((NumberFormatter) tfieldRegisterPhone.getFormatter()).setAllowsInvalid(false);
         tfieldRegisterPhone.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
         tfieldRegisterPhone.setOpaque(false);
         panelRegister.add(tfieldRegisterPhone, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 490, 300, 30));
@@ -632,40 +641,64 @@ public class PanelInitial extends JPanel {
                 if (source == labelBackSubmittingQuestions) {
                     PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_LOGIN, false);
                 }
-                
+
                 if (source == labelOpenAccountList) {
                     if (!scrollpaneAccountList.isEnabled()) {
                         scrollpaneAccountList.setEnabled(true);
                         scrollpaneAccountList.setVisible(true);
-                        panelLogin.add(scrollpaneAccountList, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, 330, 230));                        
+                        panelLogin.add(scrollpaneAccountList, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, 330, 230));
                     } else {
                         panelLogin.remove(scrollpaneAccountList);
                         scrollpaneAccountList.setVisible(false);
                         scrollpaneAccountList.setEnabled(false);
                     }
-                    
+
                     PanelInitial.this.revalidate();
                     PanelInitial.this.repaint();
-                }                
+                }
             }
         };
-        
+
         this.labelOpenAccountList.addMouseListener(this.listenerLabel);
         this.labelRegister.addMouseListener(this.listenerLabel);
         this.labelAddQuestions.addMouseListener(this.listenerLabel);
         this.labelRecoverPassword.addMouseListener(this.listenerLabel);
         this.labelBackAddingQuestions.addMouseListener(this.listenerLabel);
         this.labelBackSubmittingQuestions.addMouseListener(this.listenerLabel);
-        
-    };
-    
+
+        this.listenerButton = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JButton source = (JButton) e.getSource();
+                if (source == buttonRegister) {
+                    UserManagementController userController = new UserManagementController();
+                    if (!userController.processCreatingUser(PanelInitial.this.getDataForRegistration())) {
+                        JOptionPane.showMessageDialog(null, userController.getResultMessage());
+                    } else {
+                        PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_LOGIN, true);
+                    }
+                }
+                if (source == buttonCancelRegistration) {
+                    PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_LOGIN, true);
+                }
+
+            }
+        };
+
+        this.buttonRegister.addActionListener(this.listenerButton);
+        this.buttonCancelRegistration.addActionListener(this.listenerButton);
+        this.buttonLogin.addActionListener(this.listenerButton);
+        this.buttonCancelSubmission.addActionListener(this.listenerButton);
+        this.buttonSubmitAnswers.addActionListener(this.listenerButton);
+    }
+
     public void switchDisplayedPanel(PANELS newPanel, boolean shouldRefresh) {
         this.panelOverlay.remove(this.currentDisplayedPanel);
         this.currentDisplayedPanel.setVisible(false);
         this.currentDisplayedPanel.setEnabled(false);
-        
+
         switch (newPanel) {
-            case PANEL_LOGIN:                                
+            case PANEL_LOGIN:
                 this.displayPanel(panelLogin, 620, 250, 420, 560);
                 if (shouldRefresh) {
                     this.refreshPanelLogin();
@@ -687,47 +720,73 @@ public class PanelInitial extends JPanel {
                 this.displayPanel(panelSubmitQuestions, 520, 140, 620, 750);
                 break;
         }
-        
+
         this.revalidate();
         this.repaint();
     }
-    
+
     private void displayPanel(JPanel panel, int x, int y, int width, int height) {
         panel.setEnabled(true);
         panel.setVisible(true);
-        
+
         this.panelOverlay.add(panel, new AbsoluteConstraints(x, y, width, height));
         this.currentDisplayedPanel = panel;
     }
-    
+
     private void refreshPanelRegister() {
         this.tfieldRegisterName.setText("");
-        this.tfieldRegisterAge.setText("");
+        this.tfieldRegisterAge.setValue(null);
         this.tfieldRegisterEmail.setText("");
         this.tfieldRegisterPosition.setText("");
-        this.tfieldRegisterPhone.setText("");
+        this.tfieldRegisterPhone.setValue(null);
         
         this.tfieldRegisterAccount.setText("");
         this.pfieldRegisterPassword.setText("");
         this.pfieldRegisterConfirm.setText("");
-        
+
         this.checkboxTerms.setSelected(false);
     }
-    
+
     private void refreshPanelAddQuestions() {
         this.tfieldAddQuestion1.setText("");
         this.tfieldAddQuestion2.setText("");
         this.tfieldAddQuestion3.setText("");
-        
+
         this.tareaAddAnswer1.setText("");
         this.tareaAddAnswer2.setText("");
         this.tareaAddAnswer3.setText("");
     }
-    
+
     private void refreshPanelLogin() {
         this.tfieldAccount.setText("");
         this.pfieldPassword.setText("");
         this.checkboxRememberPassword.setSelected(false);
     }
-    
+
+    public List<String> getDataForRegistration() {
+        List<String> result = new ArrayList<String>();
+
+        result.add(UserManagementController.DataOrders.ACCOUNT.getValue(), this.tfieldRegisterAccount.getText());
+        result.add(UserManagementController.DataOrders.PASSWORD.getValue(), String.valueOf(this.pfieldRegisterPassword.getPassword()));
+        result.add(UserManagementController.DataOrders.CONFIRM.getValue(), String.valueOf(this.pfieldRegisterConfirm.getPassword()));
+        result.add(UserManagementController.DataOrders.NAME.getValue(), this.tfieldRegisterName.getText());
+        result.add(UserManagementController.DataOrders.AGE.getValue(), this.tfieldRegisterAge.getText());
+        result.add(UserManagementController.DataOrders.POSITION.getValue(), this.tfieldRegisterPosition.getText());
+        result.add(UserManagementController.DataOrders.EMAIL.getValue(), this.tfieldRegisterEmail.getText());
+        result.add(UserManagementController.DataOrders.PHONE.getValue(), this.tfieldRegisterPhone.getText());
+        result.add(UserManagementController.DataOrders.CONDITION.getValue(), String.valueOf(this.checkboxTerms.isSelected()));
+
+        int tempCount = 0;
+        JTextField[] questFields = {this.tfieldAddQuestion1, this.tfieldAddQuestion2, this.tfieldAddQuestion3};
+        JTextArea[] answerFields = {this.tareaAddAnswer1, this.tareaAddAnswer2, this.tareaAddAnswer3};
+        for (int i = 0; i < questFields.length; i++) {
+            if (!questFields[i].getText().trim().isEmpty()) {
+                result.add(UserManagementController.DataOrders.QUESTION_ANSWER.getValue() + tempCount, questFields[i].getText());
+                result.add(UserManagementController.DataOrders.QUESTION_ANSWER.getValue() + tempCount + 1, answerFields[i].getText());
+                tempCount += 2;
+            }
+        }
+
+        return result;
+    }
 }

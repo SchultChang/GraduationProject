@@ -15,7 +15,7 @@ import org.hibernate.cfg.Configuration;
  * @author cloud
  */
 public class DataManager {
-    private final String HIBERNATE_CONFIG_FILE = "graduationproject.data.configs.hibernate.cfg.xml";
+    private final String HIBERNATE_CONFIG_FILE = "graduationproject/data/configs/hibernate.cfg.xml";
     SessionFactory sessionFactory;
 
     private UserManager userManager;

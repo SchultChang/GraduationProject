@@ -15,10 +15,10 @@
       
       <property name = "hibernate.connection.password">caothanhhuyen123</property>
       <!--auto create can only be used once to create the tables, later use update to avoid dropping the current tables-->
-      <property name = "hibernate.hbm2ddl.auto">create</property>
+      <property name = "hibernate.hbm2ddl.auto">create-drop</property>
       
       <!-- List of XML mapping files -->
-      <mapping resource = "graduationproject.data.configs.User_RecoveryQuestion_Setting.cfg.xml"/>
+      <mapping resource = "graduationproject/data/configs/User_RecoveryQuestion_Setting.cfg.xml"/>
       
    </session-factory>
 </hibernate-configuration>
