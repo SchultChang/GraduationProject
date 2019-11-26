@@ -18,7 +18,7 @@
       <property name = "hibernate.hbm2ddl.auto">create</property>
       
       <!-- List of XML mapping files -->
-      <mapping resource = "hibernate/configs/Person.hbm.xml"/>
+      <mapping resource = "graduationproject.data.configs.User_RecoveryQuestion_Setting.cfg.xml"/>
       
    </session-factory>
 </hibernate-configuration>

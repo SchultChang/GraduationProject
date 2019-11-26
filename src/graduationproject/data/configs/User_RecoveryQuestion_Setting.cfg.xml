@@ -1,0 +1,48 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+<hibernate-mapping>
+    <class name="graduationproject.data.models.Setting" table="SETTINGS">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="language" column="language" type="string"/>
+        <property name="theme" column="theme" type="string"/>
+        <property name="deviceCheckingPeriod" column="device_checking_period" type="int"/>
+        <property name="interfaceCheckingPeriod" column="interface_checking_period" type="int"/>
+        <property name="monitoringQueryPeriod" column="monitoring_query_period" type="int"/>
+        <property name="maxTableIndex" column="max_table_index" type="int"/>
+        <property name="hasPasswordRemembered" column="has_password_remembered" type="boolean"/>
+    </class>
+    
+    <class name="graduationproject.data.models.RecoveryQuestion" table="RECOVERY_QUESTIONS">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="question" type="string" column="question"/>
+        <property name="answer" type="string" column="answer"/>
+    </class>
+    
+    <class name="graduationproject.data.models.User" table="USERS">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+
+        <list name="recoveryQuestionList" casecade="all">
+            <key column="user_id"/>
+            <list-index name="idx"/>
+            <one-to-many class="graduationproject.data.models.RecoveryQuestion"/>            
+        </list>
+        
+        <many-to-one name="setting" column="setting_id" unique="true" class="graduationproject.data.models.Setting" cascade="all"/> 
+        
+        <property name="account" column="account" type="string"/>
+        <property name="password" column="password" type="string"/>
+        <property name="name" column="name" type="string"/>
+        <property name="age" column="age" type="int"/>
+        <property name="position" column="position" type="string"/>
+        <property name="email" column="email" type="string"/>
+        <property name="phone" column="phone" type="string"/>
+    </class>
+</hibernate-mapping>
