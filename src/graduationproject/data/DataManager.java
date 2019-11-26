@@ -5,6 +5,7 @@
  */
 package graduationproject.data;
 
+import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.UserManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -19,6 +20,7 @@ public class DataManager {
     SessionFactory sessionFactory;
 
     private UserManager userManager;
+    private RecoveryQuestionManager recoveryQuestionManager;
     
     private static DataManager instance;
     
@@ -27,6 +29,7 @@ public class DataManager {
         this.sessionFactory = new Configuration().configure(HIBERNATE_CONFIG_FILE).buildSessionFactory();
         
         this.userManager = new UserManager(this.sessionFactory);
+//        this.recoveryQuestionManager = new RecoveryQuestionManager(this.sessionFactory);
     }
     
     public static DataManager getInstance() {
@@ -38,6 +41,10 @@ public class DataManager {
 
     public UserManager getUserManager() {
         return userManager;
+    }
+
+    public RecoveryQuestionManager getRecoveryQuestionManager() {
+        return recoveryQuestionManager;
     }
     
     

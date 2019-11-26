@@ -124,6 +124,8 @@ public class PanelInitial extends JPanel {
     private MouseAdapter listenerLabel;
     private ActionListener listenerButton;
 
+    private int accountId;
+
     public enum PANELS {
         PANEL_LOGIN,
         PANEL_REGISTER,
@@ -399,6 +401,7 @@ public class PanelInitial extends JPanel {
 
         checkboxTerms.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
         checkboxTerms.setText("I aggree to the");
+        checkboxTerms.setOpaque(false);
         panelRegister.add(checkboxTerms, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 580, -1, 30));
 
         labelTerms.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
@@ -630,10 +633,21 @@ public class PanelInitial extends JPanel {
                     PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_REGISTER, true);
                 }
                 if (source == labelRecoverPassword) {
-                    PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_SUBMITQUESTIONS, true);
+                    UserManagementController userController = new UserManagementController();
+                    List<String> inputData = new ArrayList<String>();
+                    inputData.add(UserManagementController.DataOrders.ACCOUNT.getValue(), tfieldAccount.getText());
+
+                    List<String> questions = userController.processGettingQuestionsForRecovery(inputData);
+                    if (questions == null) {
+                        JOptionPane.showMessageDialog(null, userController.getResultMessage());
+                    } else {
+                        PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_SUBMITQUESTIONS, true);
+                        PanelInitial.this.updatePanelRecoveryQuestions(questions);
+                        PanelInitial.this.accountId = userController.getCheckingAccountId();
+                    }
                 }
                 if (source == labelAddQuestions) {
-                    PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_ADDQUESTIONS, true);
+                    PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_ADDQUESTIONS, false);
                 }
                 if (source == labelBackAddingQuestions) {
                     PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_REGISTER, false);
@@ -682,6 +696,18 @@ public class PanelInitial extends JPanel {
                     PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_LOGIN, true);
                 }
 
+                if (source == buttonSubmitAnswers) {
+                    UserManagementController userController =new UserManagementController();
+                    String inform = userController.processRecoveringPassword(accountId, getDataForRecovery());
+                    if (inform != null) {
+                        JOptionPane.showMessageDialog(null, inform);
+                    } else {
+                        JOptionPane.showMessageDialog(null, userController.getResultMessage());
+                    }
+                }
+                if (source == buttonCancelSubmission) {
+                    PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_LOGIN, false);
+                }
             }
         };
 
@@ -702,6 +728,7 @@ public class PanelInitial extends JPanel {
                 this.displayPanel(panelLogin, 620, 250, 420, 560);
                 if (shouldRefresh) {
                     this.refreshPanelLogin();
+                    this.refreshPanelAddQuestions();
                 }
                 break;
             case PANEL_REGISTER:
@@ -718,6 +745,9 @@ public class PanelInitial extends JPanel {
                 break;
             case PANEL_SUBMITQUESTIONS:
                 this.displayPanel(panelSubmitQuestions, 520, 140, 620, 750);
+                if (shouldRefresh) {
+                    this.refreshPanelRecovery();
+                }
                 break;
         }
 
@@ -739,7 +769,7 @@ public class PanelInitial extends JPanel {
         this.tfieldRegisterEmail.setText("");
         this.tfieldRegisterPosition.setText("");
         this.tfieldRegisterPhone.setValue(null);
-        
+
         this.tfieldRegisterAccount.setText("");
         this.pfieldRegisterPassword.setText("");
         this.pfieldRegisterConfirm.setText("");
@@ -761,6 +791,36 @@ public class PanelInitial extends JPanel {
         this.tfieldAccount.setText("");
         this.pfieldPassword.setText("");
         this.checkboxRememberPassword.setSelected(false);
+    }
+
+    private void refreshPanelRecovery() {
+        this.labelSubmitQuestion1.setText("");
+        this.labelSubmitQuestion2.setText("");
+        this.labelSubmitQuestion3.setText("");
+
+        this.tareaSubmitAnswer1.setText("");
+        this.tareaSubmitAnswer1.setEditable(true);
+        this.tareaSubmitAnswer2.setText("");
+        this.tareaSubmitAnswer2.setEditable(true);
+        this.tareaSubmitAnswer3.setText("");
+        this.tareaSubmitAnswer3.setEditable(true);
+    }
+
+    public void updatePanelRecoveryQuestions(List<String> data) {
+        JLabel[] labelQuestions = {this.labelSubmitQuestion1, this.labelSubmitQuestion2, this.labelSubmitQuestion3};
+        for (int i = 0; i < data.size(); i++) {
+            labelQuestions[i].setText(data.get(i));
+        }
+
+        if (data.size() < labelQuestions.length) {
+            JTextArea[] answerAreas = {this.tareaSubmitAnswer1, this.tareaSubmitAnswer2, this.tareaSubmitAnswer3};
+            for (int i = data.size(); i < labelQuestions.length; i++) {
+                answerAreas[i].setEditable(false);
+            }
+        }
+
+        this.revalidate();
+        this.repaint();
     }
 
     public List<String> getDataForRegistration() {
@@ -787,6 +847,26 @@ public class PanelInitial extends JPanel {
             }
         }
 
+        return result;
+    }
+
+    public String[] getDataForRecovery() {
+        JTextArea[] answerAreas = {this.tareaSubmitAnswer1, this.tareaSubmitAnswer2, this.tareaSubmitAnswer3};
+        int count = -1;
+        for (count = 0; count < answerAreas.length; count++) {
+            if (!answerAreas[count].isEditable()) {
+                break;
+            }
+        }
+
+        String[] result = null;
+        if (count > 0) {
+            result = new String[count];
+            for (int i = 0; i < count; i++) {
+                result[i] = answerAreas[i].getText();
+            }
+        } 
+        
         return result;
     }
 }

@@ -17,7 +17,13 @@ import java.util.List;
  */
 public class UserManagementController {
     private String resultMessage;
-    
+    private int checkingAccountId;
+    private final int DEFAULT_USER_AGE = 0;
+
+    public int getCheckingAccountId() {
+        return checkingAccountId;
+    }
+        
     public String getResultMessage() {
         return this.resultMessage;
     }
@@ -61,7 +67,7 @@ public class UserManagementController {
                 data.get(DataOrders.ACCOUNT.getValue()),
                 data.get(DataOrders.PASSWORD.getValue()),
                 data.get(DataOrders.NAME.getValue()),
-                Integer.parseInt(data.get(DataOrders.AGE.getValue())),
+                data.get(DataOrders.AGE.getValue()).isEmpty() ? DEFAULT_USER_AGE : Integer.parseInt(data.get(DataOrders.AGE.getValue())),
                 data.get(DataOrders.POSITION.getValue()),
                 data.get(DataOrders.EMAIL.getValue()),
                 data.get(DataOrders.PHONE.getValue()),
@@ -75,6 +81,60 @@ public class UserManagementController {
         
         return true;
     }   
+    
+    public List<String> processGettingQuestionsForRecovery(List<String> data) {
+        List<User> users = DataManager.getInstance().getUserManager().getUsers(data.get(DataOrders.ACCOUNT.getValue()));
+        ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
+        
+        if (users == null) { 
+            this.resultMessage = messageGenerator.RECOVERY_FAILED_OTHER;
+            return null;
+        }
+        
+        if  (users.size() == 0) {
+            this.resultMessage = messageGenerator.RECOVERY_FAILED_NON_EXISTED_ACCOUNT;
+            return null;
+        }
+    
+        User foundUser = users.get(0);        
+        if (foundUser.getRecoveryQuestionList().size() == 0) {
+            this.resultMessage = messageGenerator.RECOVERY_FAILED_NO_QUESTIONS;
+            return null;
+        }
+        
+        List<String> result = new ArrayList<String>();   
+        this.checkingAccountId = foundUser.getId();
+        
+        for (int i = 0; i < foundUser.getRecoveryQuestionList().size(); i++) {
+            result.add(foundUser.getRecoveryQuestionList().get(i).getQuestion());            
+        }      
+        
+        return result;
+    }
+    
+    public String processRecoveringPassword(int accountId, String... answers) {
+        ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
+        User checkingUser = DataManager.getInstance().getUserManager().getUser(accountId);
+
+        if (checkingUser == null) {
+            this.resultMessage = messageGenerator.RECOVERY_FAILED_OTHER;
+            return null;
+        }
+        
+        if (answers == null || answers.length < checkingUser.getRecoveryQuestionList().size()) {
+            this.resultMessage = messageGenerator.RECOVERY_FAILED_LACK_ANSWER;
+            return null;
+        }
+        
+        for (int i = 0; i < answers.length; i++) {
+            if (!answers[i].equals(checkingUser.getRecoveryQuestionList().get(i).getAnswer())) {
+                this.resultMessage = messageGenerator.RECOVERY_FAILED_INCORRECT_ANSWER;
+                return null;
+            }
+        }
+        
+        return messageGenerator.RECOVERY_SUCCESS_INFORM_PREFIX + checkingUser.getPassword();
+    }    
     
     public enum DataOrders {
         ACCOUNT(0),
@@ -105,6 +165,13 @@ public class UserManagementController {
         public String CREATING_FAILED_ACCOUNT = "This account has already been created. Choose other name for your account.";
         public String CREATING_FAILED_DATA = "Please fill all the required information such account, password and confirm.";
         public String CREATING_FAILED_OTHER = "Some error happened when saving user data. Please try again.";        
+        
+        public String RECOVERY_FAILED_NON_EXISTED_ACCOUNT = "This account has not been registered.";
+        public String RECOVERY_FAILED_NO_QUESTIONS = "This account doesn't contains any recovery questions";
+        public String RECOVERY_FAILED_INCORRECT_ANSWER = "Your answer is incorrect, please try again.";
+        public String RECOVERY_FAILED_LACK_ANSWER = "Please answer all the displayed questions in order to recover your password.";
+        public String RECOVERY_FAILED_OTHER = "Some error happened when processing your input data. Please try again.";
+        public String RECOVERY_SUCCESS_INFORM_PREFIX = "Recovering is success. Your password is ";
     }   
     
 }
