@@ -33,6 +33,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -124,6 +126,7 @@ public class PanelInitial extends JPanel {
 
     private MouseAdapter listenerLabel;
     private ActionListener listenerButton;
+    private ListSelectionListener listenerList;
 
     private int accountId;
     private int[] rememberedAccountIds;
@@ -220,6 +223,7 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setBorder(null);
         scrollpaneAccountList.setOpaque(false);
 
+        listAccounts.setModel(new DefaultListModel());
         listAccounts.setBorder(null);
         listAccounts.setOpaque(false);
         scrollpaneAccountList.setViewportView(listAccounts);
@@ -270,7 +274,6 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setVisible(false);
         scrollpaneAccountList.setEnabled(false);
 
-        
         labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/resources/account_icon.png"))); // NOI18N
         panelLogin.add(labelIconAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 80, -1, -1));
 
@@ -701,7 +704,7 @@ public class PanelInitial extends JPanel {
                 }
 
                 if (source == buttonSubmitAnswers) {
-                    UserManagementController userController =new UserManagementController();
+                    UserManagementController userController = new UserManagementController();
                     String inform = userController.processRecoveringPassword(accountId, getDataForRecovery());
                     if (inform != null) {
                         JOptionPane.showMessageDialog(null, inform);
@@ -712,6 +715,18 @@ public class PanelInitial extends JPanel {
                 if (source == buttonCancelSubmission) {
                     PanelInitial.this.switchDisplayedPanel(PANELS.PANEL_LOGIN, false);
                 }
+
+                if (source == buttonLogin) {
+                    UserManagementController userController = new UserManagementController();
+                    if (!userController.processLogin(
+                            tfieldAccount.getText(),
+                            String.valueOf(pfieldPassword.getPassword()),
+                            checkboxRememberPassword.isSelected())) {
+                        JOptionPane.showMessageDialog(null, userController.getResultMessage());
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Login success");
+                    }
+                }
             }
         };
 
@@ -720,32 +735,61 @@ public class PanelInitial extends JPanel {
         this.buttonLogin.addActionListener(this.listenerButton);
         this.buttonCancelSubmission.addActionListener(this.listenerButton);
         this.buttonSubmitAnswers.addActionListener(this.listenerButton);
+
+        this.listenerList = new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (listAccounts.getSelectedIndex() >= 0) {
+                    accountId = rememberedAccountIds[listAccounts.getSelectedIndex()];
+                    
+                    tfieldAccount.setText(listAccounts.getModel().getElementAt(listAccounts.getSelectedIndex()));                    
+                    scrollpaneAccountList.setVisible(false);
+                    scrollpaneAccountList.setEnabled(false);
+                    checkboxRememberPassword.setSelected(true);
+
+                    UserManagementController userController = new UserManagementController();
+                    String password = userController.processGettingPassword(accountId);
+                    System.out.println(password);
+                    if (password != null) {
+                        PanelInitial.this.pfieldPassword.setText(password);
+                    } else {
+                        JOptionPane.showMessageDialog(null, userController.getResultMessage());
+                    }
+
+                    listAccounts.clearSelection();
+                    PanelInitial.this.revalidate();
+                    PanelInitial.this.repaint();
+                }
+            }
+        };
+
+        this.listAccounts.addListSelectionListener(this.listenerList);
     }
 
     private void initData() {
-        initDataPanelLogin();        
+        initDataPanelLogin();
     }
-    
+
     private void initDataPanelLogin() {
         UserManagementController userController = new UserManagementController();
         List<String> accounts = userController.processGettingRememberedAccounts();
-        
+
         if (accounts != null && accounts.size() > 0) {
             DefaultListModel listModel = (DefaultListModel) this.listAccounts.getModel();
             listModel.removeAllElements();
-            
+
             int tempSize = accounts.size();
             for (int i = 0; i < tempSize; i++) {
                 listModel.addElement(accounts.get(i));
             }
-            
+
             this.listAccounts.revalidate();
             this.listAccounts.repaint();
-            
+
             this.rememberedAccountIds = userController.getAccountIds();
         }
     }
-    
+
     public void switchDisplayedPanel(PANELS newPanel, boolean shouldRefresh) {
         this.panelOverlay.remove(this.currentDisplayedPanel);
         this.currentDisplayedPanel.setVisible(false);
@@ -817,6 +861,7 @@ public class PanelInitial extends JPanel {
     }
 
     private void refreshPanelLogin() {
+        this.initData();
         this.tfieldAccount.setText("");
         this.pfieldPassword.setText("");
         this.checkboxRememberPassword.setSelected(false);
@@ -894,8 +939,8 @@ public class PanelInitial extends JPanel {
             for (int i = 0; i < count; i++) {
                 result[i] = answerAreas[i].getText();
             }
-        } 
-        
+        }
+
         return result;
     }
 }

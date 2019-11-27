@@ -5,6 +5,7 @@
  */
 package graduationproject;
 
+import graduationproject.data.DataManager;
 import graduationproject.gui.ApplicationWindow;
 
 /**
@@ -35,11 +36,12 @@ public class GraduationProject {
             java.util.logging.Logger.getLogger(GraduationProject.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                ApplicationWindow.getInstance().setVisible(true);
-//            }
-//        });
+        Runtime.getRuntime().addShutdownHook(new Thread() { 
+            @Override
+            public void run() {
+                DataManager.getInstance().close();
+            }
+        });
 
         ApplicationWindow.getInstance().setVisible(true);
     }

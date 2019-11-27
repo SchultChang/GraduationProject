@@ -22,6 +22,10 @@ public class SettingManager {
 
     private SessionFactory sessionFactory;
 
+    public SettingManager(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+    
     public boolean updateSetting(Setting setting, boolean hasPasswordRemembered) {
         Session session = null;
         Transaction transaction = null;

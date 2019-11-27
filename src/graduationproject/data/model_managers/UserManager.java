@@ -22,24 +22,25 @@ import org.hibernate.criterion.Restrictions;
  * @author cloud
  */
 public class UserManager {
+
     private SessionFactory sessionFactory;
 
     public UserManager(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
-    public int createUser(String account, String password, 
+    public int createUser(String account, String password,
             String name, int age, String position, String email, String phone, List<RecoveryQuestion> queryList) {
         Session session = null;
-        Transaction transaction = null;        
-        int result = -1; 
-        
+        Transaction transaction = null;
+        int result = -1;
+
         try {
             session = this.sessionFactory.openSession();
-            transaction = session.beginTransaction();            
-            
+            transaction = session.beginTransaction();
+
             result = Integer.parseInt(session.save(new User(account, password, name, age, position, email, phone, queryList)).toString());
-            
+
             transaction.commit();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -49,23 +50,23 @@ public class UserManager {
                 session.close();
             }
         }
-        
+
         return result;
     }
-    
+
     public List<User> getUsers(String account) {
         Session session = null;
-        Transaction transaction = null;        
+        Transaction transaction = null;
         List<User> result = null;
-        
+
         try {
             session = this.sessionFactory.openSession();
             transaction = session.beginTransaction();
-            
+
             Criteria criteria = session.createCriteria(User.class);
-            criteria.add(Restrictions.eq("account", account));            
+            criteria.add(Restrictions.eq("account", account));
             result = criteria.list();
-            
+
             transaction.commit();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -75,23 +76,23 @@ public class UserManager {
                 session.close();
             }
         }
-        
+
         return result;
     }
-    
+
     public User getUser(int accountId) {
         Session session = null;
-        Transaction transaction = null;        
+        Transaction transaction = null;
         User result = null;
-        
+
         try {
             session = this.sessionFactory.openSession();
             transaction = session.beginTransaction();
-            
+
             Criteria criteria = session.createCriteria(User.class);
-            criteria.add(Restrictions.eq("id", accountId)); 
+            criteria.add(Restrictions.eq("id", accountId));
             result = (User) criteria.list().get(0);
-            
+
             transaction.commit();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -101,25 +102,36 @@ public class UserManager {
                 session.close();
             }
         }
-        
+
         return result;
     }
-    
+
     public List<User> getUsers(boolean hasPasswordRemembered) {
         Session session = null;
         Transaction transaction = null;
         List<User> result = null;
-        
+
         try {
             session = this.sessionFactory.openSession();
             transaction = session.beginTransaction();
+
+//            String param1 = ":value";
+//            String hql = "FROM " + User.class.getSimpleName() + " INNER JOIN " + 
+//                    User.class.getSimpleName() + ".setting WHERE " + User.class.getSimpleName() + ".setting.hasPasswordRemembered=" + param1;
+//            if (session == null) {
+//                System.out.println("hello world");
+//            }
+//            System.out.println(hql);
+//            Query query = session.createQuery(hql);
+//            query.setParameter(param1, hasPasswordRemembered);
+//            result = query.list();
             
-            String param1 = ":value";
-            String hql = "FROM " + User.class.getName() + " INNER JOIN " + User.class.getName() + ".setting AS T WHERE T.hasPasswordRemembered=" + param1;
-            Query query = session.createQuery(hql);
-            query.setParameter(param1, hasPasswordRemembered);
-            result = query.list();
-            
+            Criteria cri = session.createCriteria(User.class, "user");
+            cri.createAlias("user.setting", "setting");
+            //cri.createAlias("setting.hasPasswordRemembered", "hPR");
+            cri.add(Restrictions.eq("setting.hasPasswordRemembered", hasPasswordRemembered));
+            result = cri.list();
+
             transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,8 +141,8 @@ public class UserManager {
                 session.close();
             }
         }
-        
+
         return result;
     }
-    
+
 }
