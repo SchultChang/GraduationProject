@@ -47,5 +47,10 @@ public class DataManager {
         return recoveryQuestionManager;
     }
     
+//    public class TableName { 
+//        public static final String USER = "USERS";
+//        public static final String SETTING = "SETTINGS";
+//        public static final String RQUESTION = "RECOVERY_QUESTIONS";
+//    }
     
 }

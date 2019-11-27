@@ -5,11 +5,13 @@
  */
 package graduationproject.data.model_managers;
 
+import graduationproject.data.DataManager;
 import graduationproject.data.models.RecoveryQuestion;
 import graduationproject.data.models.User;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -89,12 +91,38 @@ public class UserManager {
             Criteria criteria = session.createCriteria(User.class);
             criteria.add(Restrictions.eq("id", accountId)); 
             result = (User) criteria.list().get(0);
-            //Hibernate.initialize(result.getRecoveryQuestionList());
-            //result.getRecoveryQuestionList();
             
             transaction.commit();
         } catch (Exception ex) {
             ex.printStackTrace();
+            transaction.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        
+        return result;
+    }
+    
+    public List<User> getUsers(boolean hasPasswordRemembered) {
+        Session session = null;
+        Transaction transaction = null;
+        List<User> result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            
+            String param1 = ":value";
+            String hql = "FROM " + User.class.getName() + " INNER JOIN " + User.class.getName() + ".setting AS T WHERE T.hasPasswordRemembered=" + param1;
+            Query query = session.createQuery(hql);
+            query.setParameter(param1, hasPasswordRemembered);
+            result = query.list();
+            
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
             transaction.rollback();
         } finally {
             if (session != null) {

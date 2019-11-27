@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -84,7 +85,7 @@ public class PanelInitial extends JPanel {
     private JLabel labelSubmitQuestion2;
     private JLabel labelSubmitQuestion3;
     private JLabel labelTerms;
-    private JList<String> listAccount;
+    private JList<String> listAccounts;
 
     private JPasswordField pfieldPassword;
     private JPasswordField pfieldRegisterConfirm;
@@ -125,6 +126,7 @@ public class PanelInitial extends JPanel {
     private ActionListener listenerButton;
 
     private int accountId;
+    private int[] rememberedAccountIds;
 
     public enum PANELS {
         PANEL_LOGIN,
@@ -136,11 +138,12 @@ public class PanelInitial extends JPanel {
     public PanelInitial() {
         initComponents();
         initListeners();
+        initData();
     }
 
     private void initComponents() {
         scrollpaneAccountList = new JScrollPane();
-        listAccount = new JList<>();
+        listAccounts = new JList<>();
         panelRegister = new JPanel();
         label4 = new JLabel();
         tfieldRegisterName = new JTextField();
@@ -217,11 +220,9 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setBorder(null);
         scrollpaneAccountList.setOpaque(false);
 
-        listAccount.setBorder(null);
-        listAccount.setOpaque(false);
-        scrollpaneAccountList.setViewportView(listAccount);
-        scrollpaneAccountList.setVisible(false);
-        scrollpaneAccountList.setEnabled(false);
+        listAccounts.setBorder(null);
+        listAccounts.setOpaque(false);
+        scrollpaneAccountList.setViewportView(listAccounts);
 
         setBackground(new java.awt.Color(0, 0, 0));
         setPreferredSize(new java.awt.Dimension(1600, 1000));
@@ -265,6 +266,11 @@ public class PanelInitial extends JPanel {
         panelLogin.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         panelLogin.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        panelLogin.add(scrollpaneAccountList, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, 330, 230));
+        scrollpaneAccountList.setVisible(false);
+        scrollpaneAccountList.setEnabled(false);
+
+        
         labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/resources/account_icon.png"))); // NOI18N
         panelLogin.add(labelIconAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 80, -1, -1));
 
@@ -660,9 +666,7 @@ public class PanelInitial extends JPanel {
                     if (!scrollpaneAccountList.isEnabled()) {
                         scrollpaneAccountList.setEnabled(true);
                         scrollpaneAccountList.setVisible(true);
-                        panelLogin.add(scrollpaneAccountList, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 290, 330, 230));
                     } else {
-                        panelLogin.remove(scrollpaneAccountList);
                         scrollpaneAccountList.setVisible(false);
                         scrollpaneAccountList.setEnabled(false);
                     }
@@ -718,6 +722,30 @@ public class PanelInitial extends JPanel {
         this.buttonSubmitAnswers.addActionListener(this.listenerButton);
     }
 
+    private void initData() {
+        initDataPanelLogin();        
+    }
+    
+    private void initDataPanelLogin() {
+        UserManagementController userController = new UserManagementController();
+        List<String> accounts = userController.processGettingRememberedAccounts();
+        
+        if (accounts != null && accounts.size() > 0) {
+            DefaultListModel listModel = (DefaultListModel) this.listAccounts.getModel();
+            listModel.removeAllElements();
+            
+            int tempSize = accounts.size();
+            for (int i = 0; i < tempSize; i++) {
+                listModel.addElement(accounts.get(i));
+            }
+            
+            this.listAccounts.revalidate();
+            this.listAccounts.repaint();
+            
+            this.rememberedAccountIds = userController.getAccountIds();
+        }
+    }
+    
     public void switchDisplayedPanel(PANELS newPanel, boolean shouldRefresh) {
         this.panelOverlay.remove(this.currentDisplayedPanel);
         this.currentDisplayedPanel.setVisible(false);
@@ -726,6 +754,7 @@ public class PanelInitial extends JPanel {
         switch (newPanel) {
             case PANEL_LOGIN:
                 this.displayPanel(panelLogin, 620, 250, 420, 560);
+                this.initDataPanelLogin();
                 if (shouldRefresh) {
                     this.refreshPanelLogin();
                     this.refreshPanelAddQuestions();

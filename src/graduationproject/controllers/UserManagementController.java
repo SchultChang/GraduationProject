@@ -17,13 +17,17 @@ import java.util.List;
  */
 public class UserManagementController {
     private String resultMessage;
-    private int checkingAccountId;
+    private int[] accountIds;
     private final int DEFAULT_USER_AGE = 0;
 
     public int getCheckingAccountId() {
-        return checkingAccountId;
+        return accountIds[0];
     }
         
+    public int[] getAccountIds(){
+        return this.accountIds;
+    }
+    
     public String getResultMessage() {
         return this.resultMessage;
     }
@@ -103,7 +107,8 @@ public class UserManagementController {
         }
         
         List<String> result = new ArrayList<String>();   
-        this.checkingAccountId = foundUser.getId();
+        this.accountIds = new int[1];
+        this.accountIds[0] = foundUser.getId();
         
         for (int i = 0; i < foundUser.getRecoveryQuestionList().size(); i++) {
             result.add(foundUser.getRecoveryQuestionList().get(i).getQuestion());            
@@ -135,6 +140,56 @@ public class UserManagementController {
         
         return messageGenerator.RECOVERY_SUCCESS_INFORM_PREFIX + checkingUser.getPassword();
     }    
+    
+    public List<String> processGettingRememberedAccounts() {
+        List<String> result = new ArrayList<String>();
+        List<User> rememberedUsers = DataManager.getInstance().getUserManager().getUsers(true);
+        
+        int tempSize = rememberedUsers.size();
+        this.accountIds = new int[tempSize];
+        
+        for (int i = 0; i < tempSize; i++) {
+            result.add(rememberedUsers.get(i).getAccount());
+            this.accountIds[i] = rememberedUsers.get(i).getId();
+        }
+        
+        return result;
+    }
+    
+    public String processGettingPassword(int accountId) {
+        User user = DataManager.getInstance().getUserManager().getUser(accountId);
+        ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
+        
+        if (user == null) {
+            this.resultMessage = messageGenerator.LOGIN_FAILED_OTHER;
+            return null;
+        }
+        
+        return user.getPassword();
+    }
+    
+    public boolean processLogin(String account, String password, boolean checkboxRemember) {
+        List<User> users = DataManager.getInstance().getUserManager().getUsers(account);
+        ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
+        
+        if (users == null) {
+            this.resultMessage = messageGenerator.LOGIN_FAILED_OTHER;
+            return false;
+        }
+        
+        if (users.size() == 0) {
+            this.resultMessage = messageGenerator.LOGIN_FAILED_NON_EXISTED_ACCOUNT;
+            return false;
+        }
+        
+        User checkingUser = users.get(0);
+        if (!checkingUser.getPassword().equals(password)) {
+            this.resultMessage = messageGenerator.LOGIN_FAILED_ACCOUNT_PASSWORD;
+            return false;
+        }
+        
+        return true;
+    }
     
     public enum DataOrders {
         ACCOUNT(0),
@@ -171,7 +226,11 @@ public class UserManagementController {
         public String RECOVERY_FAILED_INCORRECT_ANSWER = "Your answer is incorrect, please try again.";
         public String RECOVERY_FAILED_LACK_ANSWER = "Please answer all the displayed questions in order to recover your password.";
         public String RECOVERY_FAILED_OTHER = "Some error happened when processing your input data. Please try again.";
-        public String RECOVERY_SUCCESS_INFORM_PREFIX = "Recovering is success. Your password is ";
+        public String RECOVERY_SUCCESS_INFORM_PREFIX = "Recovering is success. Your password is ";       
+        
+        public String LOGIN_FAILED_NON_EXISTED_ACCOUNT = "This account has not been registered. Register it please.";
+        public String LOGIN_FAILED_ACCOUNT_PASSWORD = "Your account or password is not correct. Please try again.";
+        public String LOGIN_FAILED_OTHER = "Some error happend when getting this account data. Please try again.";
     }   
     
 }
