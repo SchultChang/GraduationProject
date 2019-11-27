@@ -223,7 +223,7 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setBorder(null);
         scrollpaneAccountList.setOpaque(false);
 
-        listAccounts.setFont(new java.awt.Font("SansSerif", 0, 12));
+        listAccounts.setFont(new java.awt.Font("SansSerif", 0, 15));
         listAccounts.setModel(new DefaultListModel());
         listAccounts.setBorder(null);
         listAccounts.setOpaque(false);
@@ -327,6 +327,7 @@ public class PanelInitial extends JPanel {
         checkboxRememberPassword.setFont(new java.awt.Font("SansSerif", 0, 14)); 
         checkboxRememberPassword.setForeground(new java.awt.Color(236, 46, 20));
         checkboxRememberPassword.setText("Remember me");
+        checkboxRememberPassword.setOpaque(false);
         panelLogin.add(checkboxRememberPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 390, 130, -1));
     }
 
@@ -836,6 +837,10 @@ public class PanelInitial extends JPanel {
         this.currentDisplayedPanel = panel;
     }
 
+    public void refreshPanel() {
+        this.switchDisplayedPanel(PANELS.PANEL_LOGIN, true);
+    }
+    
     private void refreshPanelRegister() {
         this.tfieldRegisterName.setText("");
         this.tfieldRegisterAge.setValue(null);

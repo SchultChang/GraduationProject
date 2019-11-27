@@ -7,6 +7,7 @@ package graduationproject.controllers;
 
 import graduationproject.data.DataManager;
 import graduationproject.data.models.RecoveryQuestion;
+import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,6 @@ public class UserManagementController {
     private final int DEFAULT_USER_AGE = 0;
     private final String DEFAULT_USER_STRING_DATA = "";
     private boolean accountRemembered;
-    
 
     public int getCheckingAccountId() {
         return accountIds[0];
@@ -38,7 +38,7 @@ public class UserManagementController {
 
     public boolean isAccountRemembered() {
         return accountRemembered;
-    }       
+    }
 
     public boolean processCreatingUser(List<String> data) {
         ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
@@ -163,7 +163,7 @@ public class UserManagementController {
                 this.accountIds[i] = rememberedUsers.get(i).getId();
             }
         }
-        
+
         return result;
     }
 
@@ -186,9 +186,9 @@ public class UserManagementController {
             this.resultMessage = messageGenerator.LOGIN_FAILED_LACK_DATA;
             return false;
         }
-        
+
         List<User> users = DataManager.getInstance().getUserManager().getUsers(account);
-        
+
         if (users == null) {
             this.resultMessage = messageGenerator.LOGIN_FAILED_OTHER;
             return false;
@@ -204,8 +204,13 @@ public class UserManagementController {
             this.resultMessage = messageGenerator.LOGIN_FAILED_ACCOUNT_PASSWORD;
             return false;
         }
-        
-        DataManager.getInstance().getSettingManager().updateSetting(checkingUser.getSetting(), accountRemembered);
+
+        Setting setting = checkingUser.getSetting();
+        if (setting != null) {
+            setting.setHasPasswordRemembered(accountRemembered);
+            DataManager.getInstance().getSettingManager().updateSetting(setting);
+        }
+
         DataManager.getInstance().setActiveAccountId(checkingUser.getId());
         return true;
     }
@@ -213,10 +218,10 @@ public class UserManagementController {
     public List<String> processGettingUserProfile(int accountId) {
         User user = DataManager.getInstance().getUserManager().getUser(accountId);
         if (user == null) {
-            this.resultMessage = new ResultMessageGenerator().EDITING_PROFILE_FAILED_OTHER;
+            this.resultMessage = new ResultMessageGenerator().GETTING_PROFILE_FAILED_OTHER;
             return null;
         }
-        
+
         List<String> result = new ArrayList<String>();
         result.add(DataOrders.ACCOUNT.getValue(), user.getAccount());
         result.add(DataOrders.PASSWORD.getValue(), DEFAULT_USER_STRING_DATA);
@@ -231,6 +236,82 @@ public class UserManagementController {
         this.accountRemembered = user.getSetting().isHasPasswordRemembered();
         return result;
     }
+
+    public boolean processUpdatingUserProfile(int accountId, List<String> data) {
+        User user = DataManager.getInstance().getUserManager().getUser(accountId);
+
+        if (user == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_PROFILE_FAILED_OTHER;
+            return false;
+        }
+
+        user.setName(data.get(DataOrders.NAME.getValue()));
+        user.setAge(Integer.valueOf(data.get(DataOrders.AGE.getValue())));
+        user.setPosition(data.get(DataOrders.POSITION.getValue()));
+        user.setEmail(data.get(DataOrders.EMAIL.getValue()));
+        user.setPhone(data.get(DataOrders.PHONE.getValue()));
+
+        if (!DataManager.getInstance().getUserManager().updateUser(user)) {
+            this.resultMessage = new ResultMessageGenerator().EDITING_PROFILE_FAILED_OTHER;
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean processSwitchingAutoLogin(int accountId) {
+        User user = DataManager.getInstance().getUserManager().getUser(accountId);
+        if (user == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_PROFILE_FAILED_OTHER;
+            return false;
+        }
+
+        Setting setting = user.getSetting();
+        if (setting == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_PROFILE_FAILED_OTHER;
+            return false;
+        }
+
+        boolean newValue = !setting.isHasPasswordRemembered();
+        setting.setHasPasswordRemembered(newValue);
+        if (!DataManager.getInstance().getSettingManager().updateSetting(setting)) {
+            this.resultMessage = new ResultMessageGenerator().EDITING_PROFILE_FAILED_OTHER;
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean processChangingPassword(int accountId, String oldPassword, String newPassword, String confirmPassword) {
+        User user = DataManager.getInstance().getUserManager().getUser(accountId);
+        
+        if (user == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_PROFILE_FAILED_OTHER;
+            return false;
+        }
+        
+        if (!oldPassword.equals(user.getPassword())) {
+            this.resultMessage = new ResultMessageGenerator().CHANGING_PASSWORD_FAILED_OLDP_INCORRECT;
+            return false;
+        }
+        
+        if (!newPassword.equals(confirmPassword)) {
+            this.resultMessage = new ResultMessageGenerator().CHANGING_PASSWORD_FAILED_MISMATCH;
+            return false;
+        }
+        
+        user.setPassword(newPassword);
+        if (!DataManager.getInstance().getUserManager().updateUser(user)) {
+            this.resultMessage = new ResultMessageGenerator().CHANGING_PASSWORD_FAILED_OTHER;
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public void processLogout() {
+        DataManager.getInstance().onLogout();
+    }
     
     public enum DataOrders {
         ACCOUNT(0),
@@ -242,7 +323,8 @@ public class UserManagementController {
         EMAIL(6),
         PHONE(7),
         CONDITION(8),
-        QUESTION_ANSWER(9); //after this enum, each question will be followed by an answer
+        QUESTION_ANSWER(9),
+        END(10); //after this enum, each question will be followed by an answer
 
         private final int value;
 
@@ -275,8 +357,13 @@ public class UserManagementController {
         public String LOGIN_FAILED_NON_EXISTED_ACCOUNT = "This account has not been registered. Register it please.";
         public String LOGIN_FAILED_ACCOUNT_PASSWORD = "Your account or password is not correct. Please try again.";
         public String LOGIN_FAILED_OTHER = "Some errors happened when getting this account data. Please try again.";
-        
-        public String EDITING_PROFILE_FAILED_OTHER = "Some errors happened when getting user profile from database.";
+
+        public String GETTING_PROFILE_FAILED_OTHER = "Some errors happened when getting user profile from database.";
+        public String EDITING_PROFILE_FAILED_OTHER = "Some errors happened when saving the user profile to database.";
+
+        public String CHANGING_PASSWORD_FAILED_OLDP_INCORRECT = "Your old password is incorrect. Please input again.";
+        public String CHANGING_PASSWORD_FAILED_MISMATCH = "Your confirmation is mismatched. Please input it again.";
+        public String CHANGING_PASSWORD_FAILED_OTHER = "Some errors happened when updating password to the current user. Please try again later.";
     }
 
 }

@@ -5,6 +5,8 @@
  */
 package graduationproject.gui;
 
+import graduationproject.controllers.UserManagementController;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
@@ -12,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import org.netbeans.lib.awtextra.AbsoluteLayout;
 
 /**
  *
@@ -28,28 +31,37 @@ public class PanelMain extends JPanel {
     private JLabel labelIconAccount;
     private JLabel labelIconSettings;
     private JLabel labelImportedDevices;
-    private JLabel labelLogout;
     private JLabel labelProfile;
+    private JLabel labelLogout;
     private JLabel labelScannedDevices;
     private JLabel labelSingularTemplates;
     private JLabel labelTabularTemplates;
     private JPanel panelAccountMenu;
     private JPanel panelDeviceMenu;
+    private JPanel panelTemplateMenu;
+
     private JPanel panelOptionDevices;
     private JPanel panelOptionTemplates;
     private JPanel panelOptionTraps;
     private JPanel panelOptionsBar;
-    private JPanel panelTemplateMenu;
     private JSeparator separator1;
     private JSeparator separator2;
     private JSeparator separator3;
 
+    private JPanel currentDisplayedPanel;
+    private PanelUserProfile panelUserProfile;
+
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
-    
+
+    public enum PANELS {
+        PANEL_USER_PROFILE
+    }
+
     public PanelMain() {
         initComponents();
         initListeners();
+        initChildPanels();
     }
 
     private void initComponents() {
@@ -62,8 +74,8 @@ public class PanelMain extends JPanel {
         labelSingularTemplates = new JLabel();
         separator2 = new JSeparator();
         panelAccountMenu = new JPanel();
-        labelProfile = new JLabel();
         labelLogout = new JLabel();
+        labelProfile = new JLabel();
         separator3 = new JSeparator();
         panelOptionsBar = new JPanel();
         panelOptionTraps = new JPanel();
@@ -91,7 +103,7 @@ public class PanelMain extends JPanel {
         labelImportedDevices.setHorizontalAlignment(SwingConstants.CENTER);
         labelImportedDevices.setText("Imported Devices");
         labelImportedDevices.setBorder(null);
-        panelDeviceMenu.add(labelImportedDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 0, 198, 49));
+        panelDeviceMenu.add(labelImportedDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 198, 49));
 
         labelScannedDevices.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         labelScannedDevices.setForeground(java.awt.Color.white);
@@ -130,21 +142,22 @@ public class PanelMain extends JPanel {
         panelAccountMenu.setBackground(new java.awt.Color(39, 87, 159));
         panelAccountMenu.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        labelProfile.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        labelProfile.setForeground(java.awt.Color.white);
-        labelProfile.setHorizontalAlignment(SwingConstants.CENTER);
-        labelProfile.setText("Logout");
-        labelProfile.setBorder(null);
-        panelAccountMenu.add(labelProfile, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 198, 44));
-
         labelLogout.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         labelLogout.setForeground(java.awt.Color.white);
         labelLogout.setHorizontalAlignment(SwingConstants.CENTER);
-        labelLogout.setText("Profile");
+        labelLogout.setText("Logout");
         labelLogout.setBorder(null);
-        panelAccountMenu.add(labelLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 0, 198, 49));
+        panelAccountMenu.add(labelLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 198, 44));
+
+        labelProfile.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        labelProfile.setForeground(java.awt.Color.white);
+        labelProfile.setHorizontalAlignment(SwingConstants.CENTER);
+        labelProfile.setText("Profile");
+        labelProfile.setBorder(null);
+        panelAccountMenu.add(labelProfile, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 0, 198, 49));
         panelAccountMenu.add(separator3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 200, 10));
 
+        panelAccountMenu.setPreferredSize(new Dimension(200, 110));
         add(panelAccountMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(1400, 60, 200, 110));
         panelAccountMenu.setVisible(false);
         panelAccountMenu.setEnabled(false);
@@ -211,21 +224,38 @@ public class PanelMain extends JPanel {
 
         labelIconAccount.setHorizontalAlignment(SwingConstants.CENTER);
         labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/resources/icon_account_40.png"))); // NOI18N
+        labelIconAccount.setPreferredSize(new Dimension(60, 60));
         panelOptionsBar.add(labelIconAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(1540, 0, 60, 60));
 
         labelIconSettings.setHorizontalAlignment(SwingConstants.CENTER);
         labelIconSettings.setIcon(new ImageIcon(getClass().getResource("/resources/icon_settings_40.png"))); // NOI18N
-        labelIconSettings.setToolTipText("");
+        labelIconSettings.setPreferredSize(new Dimension(60, 60));
         panelOptionsBar.add(labelIconSettings, new org.netbeans.lib.awtextra.AbsoluteConstraints(1480, 0, 60, 60));
 
         add(panelOptionsBar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
     }
-    
+
     private void initListeners() {
+        this.listenerLabel = new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                JLabel source = (JLabel) e.getSource();
+                if (source == labelIconAccount) {
+                    showMenu(panelAccountMenu);
+                }
+                if (source == labelIconSettings) {
+                }
+
+            }
+        };
+
+        this.labelIconAccount.addMouseListener(this.listenerLabel);
+        this.labelIconSettings.addMouseListener(this.listenerLabel);
+
         this.listenerPanel = new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseReleased(MouseEvent e) {
                 JPanel source = (JPanel) e.getSource();
                 if (source == panelOptionDevices) {
                     showMenu(panelDeviceMenu);
@@ -233,47 +263,114 @@ public class PanelMain extends JPanel {
                 if (source == panelOptionTemplates) {
                     showMenu(panelTemplateMenu);
                 }
+                if (source == panelAccountMenu) {
+                    processMouseOnPanelAccountMenu(e.getX(), e.getY());
+                }
             }
-            
+
+            @Override
             public void mouseExited(MouseEvent e) {
-                JPanel source = (JPanel) e.getSource();                
-                if (source == panelDeviceMenu) {
+                JPanel source = (JPanel) e.getSource();
+                if (panelDeviceMenu.isVisible() && source == panelDeviceMenu) {
                     hideMenu(panelDeviceMenu);
                 }
-                if (source == panelTemplateMenu) {
+                if (panelTemplateMenu.isVisible() && source == panelTemplateMenu) {
                     hideMenu(panelTemplateMenu);
                 }
-                if (source == panelAccountMenu) {
+                if (panelAccountMenu.isVisible() && source == panelAccountMenu) {
                     hideMenu(panelAccountMenu);
                 }
             }
         };
-        
+
         this.panelOptionDevices.addMouseListener(this.listenerPanel);
         this.panelOptionTemplates.addMouseListener(this.listenerPanel);
         this.panelDeviceMenu.addMouseListener(this.listenerPanel);
         this.panelTemplateMenu.addMouseListener(this.listenerPanel);
         this.panelAccountMenu.addMouseListener(this.listenerPanel);
-        
-        this.listenerLabel = new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                JLabel source = (JLabel) e.getSource();
-                if (source == labelIconAccount) {
-                    showMenu(panelAccountMenu);
-                }
-            }
-        };
-        
-        this.labelIconAccount.addMouseListener(this.listenerLabel);
     }
-    
+
+    private void processMouseOnPanelAccountMenu(int x, int y) {
+        JLabel[] labels = {this.labelProfile, this.labelLogout};
+        int temp;
+        for (temp = 0; temp < labels.length; temp++) {
+            if (this.isMouseOnLabel(labels[temp], x, y)) {
+                break;
+            }
+        }
+        if (temp < labels.length) {
+            if (labels[temp] == this.labelProfile) {
+                this.switchDisplayedPanel(PANELS.PANEL_USER_PROFILE);
+            }
+            if (labels[temp] == this.labelLogout) {
+                ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_INITIAL);
+                new UserManagementController().processLogout();
+            }
+        }
+    }
+
+    private boolean isMouseOnLabel(JLabel label, int xMouse, int yMouse) {
+        Dimension size = label.getSize();
+        if (label.getX() <= xMouse && xMouse <= label.getX() + size.width) {
+            if (label.getY() <= yMouse && yMouse <= label.getY() + size.height) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void showMenu(JPanel panelMenu) {
         panelMenu.setEnabled(true);
         panelMenu.setVisible(true);
     }
-    
+
     private void hideMenu(JPanel panelMenu) {
         panelMenu.setVisible(false);
         panelMenu.setEnabled(false);
+    }
+
+    private void initChildPanels() {
+        this.panelUserProfile = new PanelUserProfile();
+        this.panelUserProfile.setVisible(false);
+        this.panelUserProfile.setEnabled(false);
+    }
+
+    public void switchDisplayedPanel(PANELS panel) {
+        if (this.currentDisplayedPanel != null) {
+            this.remove(this.currentDisplayedPanel);
+            this.currentDisplayedPanel.setEnabled(false);
+            this.currentDisplayedPanel.setVisible(false);
+        }
+
+        switch (panel) {
+            case PANEL_USER_PROFILE:
+                this.displayPanel(this.panelUserProfile, 0, 60, -1, -1);
+                this.panelUserProfile.initData();
+                break;
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void displayPanel(JPanel panel, int x, int y, int width, int height) {
+        panel.setEnabled(true);
+        panel.setVisible(true);
+
+        add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(x, y, width, height));
+        this.currentDisplayedPanel = panel;
+    }
+
+    public PanelUserProfile getPanelUserProfile() {
+        return panelUserProfile;
+    }
+
+    public void refreshPanel() {
+        if (this.currentDisplayedPanel != null) {
+            this.remove(this.currentDisplayedPanel);
+            this.currentDisplayedPanel.setVisible(false);
+            this.currentDisplayedPanel.setEnabled(false);
+            this.currentDisplayedPanel = null;
+        }
     }
 }

@@ -114,20 +114,8 @@ public class UserManager {
             session = this.sessionFactory.openSession();
             transaction = session.beginTransaction();
 
-//            String param1 = ":value";
-//            String hql = "FROM " + User.class.getSimpleName() + " INNER JOIN " + 
-//                    User.class.getSimpleName() + ".setting WHERE " + User.class.getSimpleName() + ".setting.hasPasswordRemembered=" + param1;
-//            if (session == null) {
-//                System.out.println("hello world");
-//            }
-//            System.out.println(hql);
-//            Query query = session.createQuery(hql);
-//            query.setParameter(param1, hasPasswordRemembered);
-//            result = query.list();
-            
             Criteria cri = session.createCriteria(User.class, "user");
             cri.createAlias("user.setting", "setting");
-            //cri.createAlias("setting.hasPasswordRemembered", "hPR");
             cri.add(Restrictions.eq("setting.hasPasswordRemembered", hasPasswordRemembered));
             result = cri.list();
 
@@ -142,6 +130,32 @@ public class UserManager {
         }
 
         return result;
+    }
+    
+    public boolean updateUser(User user) {
+        Session session = null;
+        Transaction transaction = null;
+        boolean result = false;
+
+        try {
+            session = this.sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            
+            session.update(user);
+            transaction.commit();
+            
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            transaction.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        return result;
+        
     }
 
 }

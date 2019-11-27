@@ -73,9 +73,11 @@ public class ApplicationWindow extends JFrame {
         switch (panelId) {
             case PANEL_INITIAL:
                 this.displayPanel(this.panelInitial, 0, 0, -1, -1);
+                this.panelInitial.refreshPanel();
                 break;
             case PANEL_MAIN:
                 this.displayPanel(this.panelMain, 0, 0, -1, -1);
+                this.panelMain.refreshPanel();
                 break;
         }
         
@@ -90,4 +92,14 @@ public class ApplicationWindow extends JFrame {
         this.panelContent.add(panel, new AbsoluteConstraints(x, y, width, height));
         this.currentDisplayedPanel = panel;
     }
+
+    public PanelInitial getPanelInitial() {
+        return panelInitial;
+    }
+
+    public PanelMain getPanelMain() {
+        return panelMain;
+    }
+    
+    
 }

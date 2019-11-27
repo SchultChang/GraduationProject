@@ -70,5 +70,7 @@ public class DataManager {
         this.activeAccountId = activeAccountId;
     }
 
-     
+    public void onLogout() {
+        this.activeAccountId = -1;
+    }
 }

@@ -26,7 +26,7 @@ public class SettingManager {
         this.sessionFactory = sessionFactory;
     }
     
-    public boolean updateSetting(Setting setting, boolean hasPasswordRemembered) {
+    public boolean updateSetting(Setting setting) {
         Session session = null;
         Transaction transaction = null;
         boolean result = false;
@@ -35,7 +35,6 @@ public class SettingManager {
             session = this.sessionFactory.openSession();
             transaction = session.beginTransaction();
 
-            setting.setHasPasswordRemembered(hasPasswordRemembered);
             session.update(setting);
             
             result = true;
