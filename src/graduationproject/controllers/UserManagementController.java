@@ -20,6 +20,9 @@ public class UserManagementController {
     private String resultMessage;
     private int[] accountIds;
     private final int DEFAULT_USER_AGE = 0;
+    private final String DEFAULT_USER_STRING_DATA = "";
+    private boolean accountRemembered;
+    
 
     public int getCheckingAccountId() {
         return accountIds[0];
@@ -32,6 +35,10 @@ public class UserManagementController {
     public String getResultMessage() {
         return this.resultMessage;
     }
+
+    public boolean isAccountRemembered() {
+        return accountRemembered;
+    }       
 
     public boolean processCreatingUser(List<String> data) {
         ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
@@ -172,7 +179,7 @@ public class UserManagementController {
         return user.getPassword();
     }
 
-    public boolean processLogin(String account, String password, boolean isRemembered) {
+    public boolean processLogin(String account, String password, boolean accountRemembered) {
         ResultMessageGenerator messageGenerator = new ResultMessageGenerator();
 
         if (account.trim().isEmpty() || password.trim().isEmpty()) {
@@ -198,10 +205,33 @@ public class UserManagementController {
             return false;
         }
         
-        DataManager.getInstance().getSettingManager().updateSetting(checkingUser.getSetting(), isRemembered);
+        DataManager.getInstance().getSettingManager().updateSetting(checkingUser.getSetting(), accountRemembered);
+        DataManager.getInstance().setActiveAccountId(checkingUser.getId());
         return true;
     }
 
+    public List<String> processGettingUserProfile(int accountId) {
+        User user = DataManager.getInstance().getUserManager().getUser(accountId);
+        if (user == null) {
+            this.resultMessage = new ResultMessageGenerator().EDITING_PROFILE_FAILED_OTHER;
+            return null;
+        }
+        
+        List<String> result = new ArrayList<String>();
+        result.add(DataOrders.ACCOUNT.getValue(), user.getAccount());
+        result.add(DataOrders.PASSWORD.getValue(), DEFAULT_USER_STRING_DATA);
+        result.add(DataOrders.CONFIRM.getValue(), DEFAULT_USER_STRING_DATA);
+        result.add(DataOrders.NAME.getValue(), user.getName());
+        result.add(DataOrders.AGE.getValue(), String.valueOf(user.getAge()));
+        result.add(DataOrders.POSITION.getValue(), user.getPosition());
+        result.add(DataOrders.EMAIL.getValue(), user.getEmail());
+        result.add(DataOrders.PHONE.getValue(), user.getPhone());
+        //result.add(DataOrders.CONDITION.getValue(), String.valueOfuser.getSetting().isHasPasswordRemembered());
+
+        this.accountRemembered = user.getSetting().isHasPasswordRemembered();
+        return result;
+    }
+    
     public enum DataOrders {
         ACCOUNT(0),
         PASSWORD(1),
@@ -232,19 +262,21 @@ public class UserManagementController {
         public String CREATING_FAILED_CONFIRM = "Your confirmation is mismatched. Please input again.";
         public String CREATING_FAILED_ACCOUNT = "This account has already been created. Choose other name for your account.";
         public String CREATING_FAILED_DATA = "Please fill all the required information such account, password and confirm.";
-        public String CREATING_FAILED_OTHER = "Some error happened when saving user data. Please try again.";
+        public String CREATING_FAILED_OTHER = "Some errors happened when saving user data. Please try again.";
 
         public String RECOVERY_FAILED_NON_EXISTED_ACCOUNT = "This account has not been registered.";
         public String RECOVERY_FAILED_NO_QUESTIONS = "This account doesn't contains any recovery questions";
         public String RECOVERY_FAILED_INCORRECT_ANSWER = "Your answer is incorrect, please try again.";
         public String RECOVERY_FAILED_LACK_ANSWER = "Please answer all the displayed questions in order to recover your password.";
-        public String RECOVERY_FAILED_OTHER = "Some error happened when processing your input data. Please try again.";
+        public String RECOVERY_FAILED_OTHER = "Some errors happened when processing your input data. Please try again.";
         public String RECOVERY_SUCCESS_INFORM_PREFIX = "Recovering is success. Your password is ";
 
         public String LOGIN_FAILED_LACK_DATA = "Please input all the required information.";
         public String LOGIN_FAILED_NON_EXISTED_ACCOUNT = "This account has not been registered. Register it please.";
         public String LOGIN_FAILED_ACCOUNT_PASSWORD = "Your account or password is not correct. Please try again.";
-        public String LOGIN_FAILED_OTHER = "Some error happend when getting this account data. Please try again.";
+        public String LOGIN_FAILED_OTHER = "Some errors happened when getting this account data. Please try again.";
+        
+        public String EDITING_PROFILE_FAILED_OTHER = "Some errors happened when getting user profile from database.";
     }
 
 }

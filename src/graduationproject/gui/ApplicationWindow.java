@@ -20,8 +20,16 @@ public class ApplicationWindow extends JFrame {
     private final int WINDOW_WIDTH = 1600;
     private final int WINDOW_HEIGHT = 1000;
 
-    private JPanel contentPanel;    
+    private JPanel panelContent;    
+    private JPanel currentDisplayedPanel;
+
     private PanelInitial panelInitial;    
+    private PanelMain panelMain;
+
+    public enum PANELS {
+        PANEL_INITIAL,
+        PANEL_MAIN
+    }
     
     private static ApplicationWindow instance = null;    
     
@@ -31,8 +39,8 @@ public class ApplicationWindow extends JFrame {
         setSize(new java.awt.Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         setResizable(false);
         
-        this.contentPanel = (JPanel) this.getContentPane();
-        this.contentPanel.setLayout(new AbsoluteLayout());
+        this.panelContent = (JPanel) this.getContentPane();
+        this.panelContent.setLayout(new AbsoluteLayout());
         
         this.initChildPanels();
         this.revalidate();
@@ -41,7 +49,13 @@ public class ApplicationWindow extends JFrame {
 
     private void initChildPanels() {
         this.panelInitial = new PanelInitial();
-        this.contentPanel.add(this.panelInitial, new AbsoluteConstraints(0, 0, -1, -1));
+        this.panelContent.add(this.panelInitial, new AbsoluteConstraints(0, 0, -1, -1));
+        this.currentDisplayedPanel = this.panelInitial;
+        
+        this.panelMain = new PanelMain();
+        this.panelMain.setVisible(false);
+        this.panelMain.setEnabled(false);
+//        this.panelContent.add(this.panelInitial, new AbsoluteConstraints(0, 0, -1, -1));        
     }
     
     public static ApplicationWindow getInstance() {
@@ -51,6 +65,29 @@ public class ApplicationWindow extends JFrame {
         return instance;
     }
     
-    
+    public void switchPanel(PANELS panelId) {
+        this.panelContent.remove(this.currentDisplayedPanel);
+        this.currentDisplayedPanel.setVisible(false);
+        this.currentDisplayedPanel.setEnabled(false);
+        
+        switch (panelId) {
+            case PANEL_INITIAL:
+                this.displayPanel(this.panelInitial, 0, 0, -1, -1);
+                break;
+            case PANEL_MAIN:
+                this.displayPanel(this.panelMain, 0, 0, -1, -1);
+                break;
+        }
+        
+        this.revalidate();
+        this.repaint();
+    }
 
+    private void displayPanel(JPanel panel, int x, int y, int width, int height) {
+        panel.setEnabled(true);
+        panel.setVisible(true);
+        
+        this.panelContent.add(panel, new AbsoluteConstraints(x, y, width, height));
+        this.currentDisplayedPanel = panel;
+    }
 }

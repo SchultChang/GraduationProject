@@ -24,6 +24,8 @@ public class DataManager {
     private RecoveryQuestionManager recoveryQuestionManager;
     private SettingManager settingManager;
     
+    private int activeAccountId;
+    
     private static DataManager instance;
     
     
@@ -59,5 +61,14 @@ public class DataManager {
     public SettingManager getSettingManager() {
         return settingManager;
     }
-    
+
+    public int getActiveAccountId() {
+        return activeAccountId;
+    }
+
+    public void setActiveAccountId(int activeAccountId) {
+        this.activeAccountId = activeAccountId;
+    }
+
+     
 }

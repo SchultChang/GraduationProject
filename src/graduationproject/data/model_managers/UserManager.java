@@ -22,7 +22,6 @@ import org.hibernate.criterion.Restrictions;
  * @author cloud
  */
 public class UserManager {
-
     private SessionFactory sessionFactory;
 
     public UserManager(SessionFactory sessionFactory) {

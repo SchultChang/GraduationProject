@@ -223,6 +223,7 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setBorder(null);
         scrollpaneAccountList.setOpaque(false);
 
+        listAccounts.setFont(new java.awt.Font("SansSerif", 0, 12));
         listAccounts.setModel(new DefaultListModel());
         listAccounts.setBorder(null);
         listAccounts.setOpaque(false);
@@ -241,7 +242,7 @@ public class PanelInitial extends JPanel {
         add(panelOverlay, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         labelBackground.setBackground(java.awt.Color.black);
-        labelBackground.setIcon(new ImageIcon(getClass().getResource("/resources/login_background.jpg"))); // NOI18N
+        labelBackground.setIcon(new ImageIcon(getClass().getResource("/resources/login_background.jpg"))); 
         add(labelBackground, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
     }
@@ -274,56 +275,56 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setVisible(false);
         scrollpaneAccountList.setEnabled(false);
 
-        labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/resources/account_icon.png"))); // NOI18N
+        labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/resources/account_icon.png"))); 
         panelLogin.add(labelIconAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 80, -1, -1));
 
-        label1.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label1.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label1.setForeground(new java.awt.Color(20, 99, 236));
         label1.setText("account");
         panelLogin.add(label1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, -1, -1));
 
-        labelRecoverPassword.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        labelRecoverPassword.setFont(new java.awt.Font("SansSerif", 0, 12)); 
         labelRecoverPassword.setForeground(new java.awt.Color(236, 46, 20));
         labelRecoverPassword.setText("Recover password");
         panelLogin.add(labelRecoverPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 480, -1, -1));
 
         buttonLogin.setBackground(new java.awt.Color(20, 99, 236));
-        buttonLogin.setFont(new java.awt.Font("SansSerif", 1, 16)); // NOI18N
+        buttonLogin.setFont(new java.awt.Font("SansSerif", 1, 16)); 
         buttonLogin.setForeground(java.awt.Color.white);
         buttonLogin.setText("Login");
         buttonLogin.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         panelLogin.add(buttonLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 430, 170, 30));
 
-        label2.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label2.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label2.setForeground(new java.awt.Color(20, 99, 236));
         label2.setText("password");
         panelLogin.add(label2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 320, -1, -1));
 
-        label3.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        label3.setFont(new java.awt.Font("SansSerif", 0, 12)); 
         label3.setText("or");
         panelLogin.add(label3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 480, -1, -1));
 
-        labelRegister.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        labelRegister.setFont(new java.awt.Font("SansSerif", 0, 12)); 
         labelRegister.setForeground(new java.awt.Color(236, 46, 20));
         labelRegister.setText("Register");
         panelLogin.add(labelRegister, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 480, -1, -1));
 
         labelOpenAccountList.setBackground(java.awt.Color.white);
-        labelOpenAccountList.setIcon(new ImageIcon(getClass().getResource("/resources/down_arrow_icon.png"))); // NOI18N
+        labelOpenAccountList.setIcon(new ImageIcon(getClass().getResource("/resources/down_arrow_icon.png"))); 
         labelOpenAccountList.setOpaque(true);
         panelLogin.add(labelOpenAccountList, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 260, 30, 30));
 
         pfieldPassword.setBackground(java.awt.Color.white);
-        pfieldPassword.setFont(new java.awt.Font("SansSerif", 0, 20)); // NOI18N
+        pfieldPassword.setFont(new java.awt.Font("SansSerif", 0, 20)); 
         pfieldPassword.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         panelLogin.add(pfieldPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 340, 330, 30));
 
         tfieldAccount.setBackground(java.awt.Color.white);
-        tfieldAccount.setFont(new java.awt.Font("SansSerif", 0, 20)); // NOI18N
+        tfieldAccount.setFont(new java.awt.Font("SansSerif", 0, 20)); 
         tfieldAccount.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         panelLogin.add(tfieldAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 260, 300, 30));
 
-        checkboxRememberPassword.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        checkboxRememberPassword.setFont(new java.awt.Font("SansSerif", 0, 14)); 
         checkboxRememberPassword.setForeground(new java.awt.Color(236, 46, 20));
         checkboxRememberPassword.setText("Remember me");
         panelLogin.add(checkboxRememberPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 390, 130, -1));
@@ -333,87 +334,87 @@ public class PanelInitial extends JPanel {
         panelRegister.setBackground(new java.awt.Color(255, 255, 255));
         panelRegister.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        label4.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label4.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label4.setForeground(new java.awt.Color(20, 99, 236));
         label4.setText("Name");
         panelRegister.add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 290, -1, 30));
 
-        tfieldRegisterName.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldRegisterName.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldRegisterName.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         panelRegister.add(tfieldRegisterName, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 290, 300, 30));
 
-        label5.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label5.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label5.setForeground(new java.awt.Color(20, 99, 236));
         label5.setText("Age");
         panelRegister.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 340, -1, 30));
 
-        tfieldRegisterPosition.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldRegisterPosition.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldRegisterPosition.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         panelRegister.add(tfieldRegisterPosition, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 390, 300, 30));
 
-        label6.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label6.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label6.setForeground(new java.awt.Color(20, 99, 236));
         label6.setText("Position");
         panelRegister.add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 390, -1, 30));
 
-        tfieldRegisterEmail.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldRegisterEmail.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldRegisterEmail.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         panelRegister.add(tfieldRegisterEmail, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 440, 300, 30));
 
-        label7.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label7.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label7.setForeground(new java.awt.Color(20, 99, 236));
         label7.setText("Email");
         panelRegister.add(label7, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 440, -1, 30));
 
-        label8.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label8.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label8.setForeground(new java.awt.Color(20, 99, 236));
         label8.setText("Phone");
         panelRegister.add(label8, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 490, -1, 30));
 
-        label9.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label9.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label9.setForeground(new java.awt.Color(20, 99, 236));
         label9.setText("Account");
         panelRegister.add(label9, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, -1, 30));
 
-        tfieldRegisterAccount.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldRegisterAccount.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldRegisterAccount.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         panelRegister.add(tfieldRegisterAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 100, 300, 30));
 
-        label10.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label10.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label10.setForeground(new java.awt.Color(20, 99, 236));
         label10.setText("Password");
         panelRegister.add(label10, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 150, -1, 30));
 
-        label11.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label11.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label11.setForeground(new java.awt.Color(20, 99, 236));
         label11.setText("Confirm");
         panelRegister.add(label11, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 200, -1, 30));
 
         buttonRegister.setBackground(new java.awt.Color(20, 99, 236));
-        buttonRegister.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonRegister.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         buttonRegister.setForeground(java.awt.Color.white);
         buttonRegister.setText("Register");
         buttonRegister.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         panelRegister.add(buttonRegister, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 670, 80, 30));
 
         buttonCancelRegistration.setBackground(new java.awt.Color(20, 99, 236));
-        buttonCancelRegistration.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonCancelRegistration.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         buttonCancelRegistration.setForeground(java.awt.Color.white);
         buttonCancelRegistration.setText("Cancel");
         buttonCancelRegistration.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         panelRegister.add(buttonCancelRegistration, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 670, 80, 30));
 
-        labelAddQuestions.setFont(new java.awt.Font("SansSerif", 1, 13)); // NOI18N
+        labelAddQuestions.setFont(new java.awt.Font("SansSerif", 1, 13)); 
         labelAddQuestions.setForeground(new java.awt.Color(254, 13, 13));
         labelAddQuestions.setText("Add questions to recover password later?");
         panelRegister.add(labelAddQuestions, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 620, 390, -1));
 
-        checkboxTerms.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        checkboxTerms.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         checkboxTerms.setText("I aggree to the");
         checkboxTerms.setOpaque(false);
         panelRegister.add(checkboxTerms, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 580, -1, 30));
 
-        labelTerms.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        labelTerms.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         labelTerms.setForeground(new java.awt.Color(20, 99, 236));
         labelTerms.setText("terms and conditions");
         panelRegister.add(labelTerms, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 580, -1, 30));
@@ -421,24 +422,24 @@ public class PanelInitial extends JPanel {
         tfieldRegisterAge.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         tfieldRegisterAge.setFormatterFactory(new DefaultFormatterFactory(new NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
         ((NumberFormatter) tfieldRegisterAge.getFormatter()).setAllowsInvalid(false);
-        tfieldRegisterAge.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldRegisterAge.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldRegisterAge.setOpaque(false);
         panelRegister.add(tfieldRegisterAge, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 340, 300, 30));
 
         tfieldRegisterPhone.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         tfieldRegisterPhone.setFormatterFactory(new DefaultFormatterFactory(new NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
         ((NumberFormatter) tfieldRegisterPhone.getFormatter()).setAllowsInvalid(false);
-        tfieldRegisterPhone.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldRegisterPhone.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldRegisterPhone.setOpaque(false);
         panelRegister.add(tfieldRegisterPhone, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 490, 300, 30));
 
-        pfieldRegisterPassword.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        pfieldRegisterPassword.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         pfieldRegisterPassword.setText("");
         pfieldRegisterPassword.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         pfieldRegisterPassword.setOpaque(false);
         panelRegister.add(pfieldRegisterPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 150, 300, 30));
 
-        pfieldRegisterConfirm.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        pfieldRegisterConfirm.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         pfieldRegisterConfirm.setText("");
         pfieldRegisterConfirm.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(20, 99, 236)));
         pfieldRegisterConfirm.setOpaque(false);
@@ -449,17 +450,17 @@ public class PanelInitial extends JPanel {
         panelAddQuestions.setBackground(java.awt.Color.white);
         panelAddQuestions.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        label12.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label12.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label12.setForeground(new java.awt.Color(12, 73, 197));
         label12.setText("Question 1:");
         panelAddQuestions.add(label12, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 130, -1, 30));
 
         tfieldAddQuestion1.setBackground(java.awt.Color.white);
-        tfieldAddQuestion1.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldAddQuestion1.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldAddQuestion1.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         panelAddQuestions.add(tfieldAddQuestion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 130, 330, 30));
 
-        label13.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label13.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label13.setForeground(new java.awt.Color(216, 23, 23));
         label13.setText("Answer:");
         panelAddQuestions.add(label13, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 170, -1, 30));
@@ -468,7 +469,7 @@ public class PanelInitial extends JPanel {
 
         tareaAddAnswer1.setBackground(java.awt.Color.white);
         tareaAddAnswer1.setColumns(20);
-        tareaAddAnswer1.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tareaAddAnswer1.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tareaAddAnswer1.setLineWrap(true);
         tareaAddAnswer1.setRows(5);
         tareaAddAnswer1.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -476,17 +477,17 @@ public class PanelInitial extends JPanel {
 
         panelAddQuestions.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 170, 330, -1));
 
-        label14.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label14.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label14.setForeground(new java.awt.Color(12, 73, 197));
         label14.setText("Question 2:");
         panelAddQuestions.add(label14, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 300, -1, 30));
 
         tfieldAddQuestion2.setBackground(java.awt.Color.white);
-        tfieldAddQuestion2.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldAddQuestion2.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldAddQuestion2.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         panelAddQuestions.add(tfieldAddQuestion2, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 300, 330, 30));
 
-        label15.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label15.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label15.setForeground(new java.awt.Color(216, 23, 23));
         label15.setText("Answer:");
         panelAddQuestions.add(label15, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 340, -1, 30));
@@ -495,7 +496,7 @@ public class PanelInitial extends JPanel {
 
         tareaAddAnswer2.setBackground(java.awt.Color.white);
         tareaAddAnswer2.setColumns(20);
-        tareaAddAnswer2.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tareaAddAnswer2.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tareaAddAnswer2.setLineWrap(true);
         tareaAddAnswer2.setRows(5);
         tareaAddAnswer2.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -503,17 +504,17 @@ public class PanelInitial extends JPanel {
 
         panelAddQuestions.add(scrollpane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 340, 330, -1));
 
-        label16.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label16.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label16.setForeground(new java.awt.Color(216, 23, 23));
         label16.setText("Answer:");
         panelAddQuestions.add(label16, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 520, -1, 30));
 
         tfieldAddQuestion3.setBackground(java.awt.Color.white);
-        tfieldAddQuestion3.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldAddQuestion3.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldAddQuestion3.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         panelAddQuestions.add(tfieldAddQuestion3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 480, 330, 30));
 
-        label17.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label17.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label17.setForeground(new java.awt.Color(12, 73, 197));
         label17.setText("Question 3:");
         panelAddQuestions.add(label17, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 480, -1, 30));
@@ -522,7 +523,7 @@ public class PanelInitial extends JPanel {
 
         tareaAddAnswer3.setBackground(java.awt.Color.white);
         tareaAddAnswer3.setColumns(20);
-        tareaAddAnswer3.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tareaAddAnswer3.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tareaAddAnswer3.setLineWrap(true);
         tareaAddAnswer3.setRows(5);
         tareaAddAnswer3.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -530,7 +531,7 @@ public class PanelInitial extends JPanel {
 
         panelAddQuestions.add(scrollpane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 520, 330, -1));
 
-        labelBackAddingQuestions.setIcon(new ImageIcon(getClass().getResource("/resources/icon_arrow_back80.png"))); // NOI18N
+        labelBackAddingQuestions.setIcon(new ImageIcon(getClass().getResource("/resources/icon_arrow_back80.png"))); 
         panelAddQuestions.add(labelBackAddingQuestions, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, -1, -1));
 
     }
@@ -539,12 +540,12 @@ public class PanelInitial extends JPanel {
         panelSubmitQuestions.setBackground(java.awt.Color.white);
         panelSubmitQuestions.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        label18.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label18.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label18.setForeground(new java.awt.Color(12, 73, 197));
         label18.setText("Question 1:");
         panelSubmitQuestions.add(label18, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, -1, 30));
 
-        label19.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label19.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label19.setForeground(new java.awt.Color(216, 23, 23));
         label19.setText("Answer:");
         panelSubmitQuestions.add(label19, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 160, -1, 30));
@@ -553,7 +554,7 @@ public class PanelInitial extends JPanel {
 
         tareaSubmitAnswer1.setBackground(java.awt.Color.white);
         tareaSubmitAnswer1.setColumns(20);
-        tareaSubmitAnswer1.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tareaSubmitAnswer1.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tareaSubmitAnswer1.setLineWrap(true);
         tareaSubmitAnswer1.setRows(5);
         tareaSubmitAnswer1.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -561,12 +562,12 @@ public class PanelInitial extends JPanel {
 
         panelSubmitQuestions.add(scrollpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 160, 330, -1));
 
-        label20.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label20.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label20.setForeground(new java.awt.Color(12, 73, 197));
         label20.setText("Question 2:");
         panelSubmitQuestions.add(label20, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 290, -1, 30));
 
-        label21.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label21.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label21.setForeground(new java.awt.Color(216, 23, 23));
         label21.setText("Answer:");
         panelSubmitQuestions.add(label21, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 330, -1, 30));
@@ -575,7 +576,7 @@ public class PanelInitial extends JPanel {
 
         tareaSubmitAnswer2.setBackground(java.awt.Color.white);
         tareaSubmitAnswer2.setColumns(20);
-        tareaSubmitAnswer2.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tareaSubmitAnswer2.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tareaSubmitAnswer2.setLineWrap(true);
         tareaSubmitAnswer2.setRows(5);
         tareaSubmitAnswer2.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -583,12 +584,12 @@ public class PanelInitial extends JPanel {
 
         panelSubmitQuestions.add(scrollpane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 330, 330, -1));
 
-        label22.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label22.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label22.setForeground(new java.awt.Color(216, 23, 23));
         label22.setText("Answer:");
         panelSubmitQuestions.add(label22, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 510, -1, 30));
 
-        label23.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label23.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         label23.setForeground(new java.awt.Color(12, 73, 197));
         label23.setText("Question 3:");
         panelSubmitQuestions.add(label23, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 470, -1, 30));
@@ -597,7 +598,7 @@ public class PanelInitial extends JPanel {
 
         tareaSubmitAnswer3.setBackground(java.awt.Color.white);
         tareaSubmitAnswer3.setColumns(20);
-        tareaSubmitAnswer3.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tareaSubmitAnswer3.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tareaSubmitAnswer3.setLineWrap(true);
         tareaSubmitAnswer3.setRows(5);
         tareaSubmitAnswer3.setBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -606,29 +607,29 @@ public class PanelInitial extends JPanel {
         panelSubmitQuestions.add(scrollpane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 510, 330, -1));
 
         buttonSubmitAnswers.setBackground(new java.awt.Color(119, 119, 255));
-        buttonSubmitAnswers.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        buttonSubmitAnswers.setFont(new java.awt.Font("SansSerif", 1, 14)); 
         buttonSubmitAnswers.setForeground(new java.awt.Color(255, 255, 255));
         buttonSubmitAnswers.setText("Submit");
         buttonSubmitAnswers.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         panelSubmitQuestions.add(buttonSubmitAnswers, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 640, 100, 40));
 
         buttonCancelSubmission.setBackground(new java.awt.Color(119, 119, 255));
-        buttonCancelSubmission.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        buttonCancelSubmission.setFont(new java.awt.Font("SansSerif", 1, 14)); 
         buttonCancelSubmission.setForeground(new java.awt.Color(255, 255, 255));
         buttonCancelSubmission.setText("Cancel");
         buttonCancelSubmission.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         panelSubmitQuestions.add(buttonCancelSubmission, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 640, 100, 40));
 
-        labelSubmitQuestion3.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        labelSubmitQuestion3.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         panelSubmitQuestions.add(labelSubmitQuestion3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 470, 330, 30));
 
-        labelSubmitQuestion1.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        labelSubmitQuestion1.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         panelSubmitQuestions.add(labelSubmitQuestion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 120, 330, 30));
 
-        labelSubmitQuestion2.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        labelSubmitQuestion2.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         panelSubmitQuestions.add(labelSubmitQuestion2, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 290, 330, 30));
 
-        labelBackSubmittingQuestions.setIcon(new ImageIcon(getClass().getResource("/resources/icon_back_arrow_16.png"))); // NOI18N
+        labelBackSubmittingQuestions.setIcon(new ImageIcon(getClass().getResource("/resources/icon_back_arrow_16.png"))); 
         panelSubmitQuestions.add(labelBackSubmittingQuestions, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 30, 30));
 
     }
@@ -724,7 +725,7 @@ public class PanelInitial extends JPanel {
                             checkboxRememberPassword.isSelected())) {
                         JOptionPane.showMessageDialog(null, userController.getResultMessage());
                     } else {
-                        JOptionPane.showMessageDialog(null, "Login success");
+                        ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_MAIN);
                     }
                 }
             }
@@ -749,7 +750,6 @@ public class PanelInitial extends JPanel {
 
                     UserManagementController userController = new UserManagementController();
                     String password = userController.processGettingPassword(accountId);
-                    System.out.println(password);
                     if (password != null) {
                         PanelInitial.this.pfieldPassword.setText(password);
                     } else {

@@ -5,12 +5,13 @@
  */
 package graduationproject.gui;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
-
 
 /**
  *
@@ -43,8 +44,12 @@ public class PanelMain extends JPanel {
     private JSeparator separator2;
     private JSeparator separator3;
 
+    private MouseAdapter listenerPanel;
+    private MouseAdapter listenerLabel;
+    
     public PanelMain() {
         initComponents();
+        initListeners();
     }
 
     private void initComponents() {
@@ -73,6 +78,10 @@ public class PanelMain extends JPanel {
         labelIconAccount = new JLabel();
         labelIconSettings = new JLabel();
 
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setBackground(java.awt.Color.white);
+        setPreferredSize(new java.awt.Dimension(1600, 1000));
+
         panelDeviceMenu.setBackground(new java.awt.Color(39, 87, 159));
         panelDeviceMenu.setBorder(null);
         panelDeviceMenu.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -96,7 +105,6 @@ public class PanelMain extends JPanel {
         panelDeviceMenu.setVisible(false);
         panelDeviceMenu.setEnabled(false);
 
-        
         panelTemplateMenu.setBackground(new java.awt.Color(39, 87, 159));
         panelTemplateMenu.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -118,7 +126,7 @@ public class PanelMain extends JPanel {
         add(panelTemplateMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 60, 200, 110));
         panelTemplateMenu.setVisible(false);
         panelTemplateMenu.setEnabled(false);
-        
+
         panelAccountMenu.setBackground(new java.awt.Color(39, 87, 159));
         panelAccountMenu.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -140,10 +148,6 @@ public class PanelMain extends JPanel {
         add(panelAccountMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(1400, 60, 200, 110));
         panelAccountMenu.setVisible(false);
         panelAccountMenu.setEnabled(false);
-        
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        setBackground(java.awt.Color.white);
-        setPreferredSize(new java.awt.Dimension(1600, 1000));
 
         panelOptionsBar.setBackground(new java.awt.Color(20, 62, 125));
         panelOptionsBar.setForeground(new java.awt.Color(34, 52, 143));
@@ -156,7 +160,7 @@ public class PanelMain extends JPanel {
         panelOptionTraps.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         label5.setHorizontalAlignment(SwingConstants.CENTER);
-        label5.setIcon(new ImageIcon(getClass().getResource("/images/icon_traps_40.png"))); // NOI18N
+        label5.setIcon(new ImageIcon(getClass().getResource("/resources/icon_traps_40.png"))); // NOI18N
         label5.setFocusable(false);
         panelOptionTraps.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 60));
 
@@ -175,7 +179,7 @@ public class PanelMain extends JPanel {
         panelOptionDevices.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         label1.setHorizontalAlignment(SwingConstants.CENTER);
-        label1.setIcon(new ImageIcon(getClass().getResource("/images/icon_network_40.png"))); // NOI18N
+        label1.setIcon(new ImageIcon(getClass().getResource("/resources/icon_network_40.png"))); // NOI18N
         label1.setFocusable(false);
         panelOptionDevices.add(label1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 60));
 
@@ -199,22 +203,77 @@ public class PanelMain extends JPanel {
         panelOptionTemplates.add(label3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 0, 130, 60));
 
         label4.setHorizontalAlignment(SwingConstants.CENTER);
-        label4.setIcon(new ImageIcon(getClass().getResource("/images/icon_template2_40.png"))); // NOI18N
+        label4.setIcon(new ImageIcon(getClass().getResource("/resources/icon_template2_40.png"))); // NOI18N
         label4.setFocusable(false);
         panelOptionTemplates.add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 60));
 
         panelOptionsBar.add(panelOptionTemplates, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 0, -1, -1));
 
         labelIconAccount.setHorizontalAlignment(SwingConstants.CENTER);
-        labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/images/icon_account_40.png"))); // NOI18N
+        labelIconAccount.setIcon(new ImageIcon(getClass().getResource("/resources/icon_account_40.png"))); // NOI18N
         panelOptionsBar.add(labelIconAccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(1540, 0, 60, 60));
 
         labelIconSettings.setHorizontalAlignment(SwingConstants.CENTER);
-        labelIconSettings.setIcon(new ImageIcon(getClass().getResource("/images/icon_settings_40.png"))); // NOI18N
+        labelIconSettings.setIcon(new ImageIcon(getClass().getResource("/resources/icon_settings_40.png"))); // NOI18N
         labelIconSettings.setToolTipText("");
         panelOptionsBar.add(labelIconSettings, new org.netbeans.lib.awtextra.AbsoluteConstraints(1480, 0, 60, 60));
 
         add(panelOptionsBar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
+    }
+    
+    private void initListeners() {
+        this.listenerPanel = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JPanel source = (JPanel) e.getSource();
+                if (source == panelOptionDevices) {
+                    showMenu(panelDeviceMenu);
+                }
+                if (source == panelOptionTemplates) {
+                    showMenu(panelTemplateMenu);
+                }
+            }
+            
+            public void mouseExited(MouseEvent e) {
+                JPanel source = (JPanel) e.getSource();                
+                if (source == panelDeviceMenu) {
+                    hideMenu(panelDeviceMenu);
+                }
+                if (source == panelTemplateMenu) {
+                    hideMenu(panelTemplateMenu);
+                }
+                if (source == panelAccountMenu) {
+                    hideMenu(panelAccountMenu);
+                }
+            }
+        };
+        
+        this.panelOptionDevices.addMouseListener(this.listenerPanel);
+        this.panelOptionTemplates.addMouseListener(this.listenerPanel);
+        this.panelDeviceMenu.addMouseListener(this.listenerPanel);
+        this.panelTemplateMenu.addMouseListener(this.listenerPanel);
+        this.panelAccountMenu.addMouseListener(this.listenerPanel);
+        
+        this.listenerLabel = new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                JLabel source = (JLabel) e.getSource();
+                if (source == labelIconAccount) {
+                    showMenu(panelAccountMenu);
+                }
+            }
+        };
+        
+        this.labelIconAccount.addMouseListener(this.listenerLabel);
+    }
+    
+    private void showMenu(JPanel panelMenu) {
+        panelMenu.setEnabled(true);
+        panelMenu.setVisible(true);
+    }
+    
+    private void hideMenu(JPanel panelMenu) {
+        panelMenu.setVisible(false);
+        panelMenu.setEnabled(false);
     }
 }
