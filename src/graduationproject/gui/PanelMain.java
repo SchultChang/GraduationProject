@@ -50,12 +50,14 @@ public class PanelMain extends JPanel {
 
     private JPanel currentDisplayedPanel;
     private PanelUserProfile panelUserProfile;
+    private PanelImportedDevices panelImportedDevices;
 
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
 
     public enum PANELS {
-        PANEL_USER_PROFILE
+        PANEL_USER_PROFILE,
+        PANEL_IMPORTED_DEVICES;
     }
 
     public PanelMain() {
@@ -266,6 +268,9 @@ public class PanelMain extends JPanel {
                 if (source == panelAccountMenu) {
                     processMouseOnPanelAccountMenu(e.getX(), e.getY());
                 }
+                if (source == panelDeviceMenu) {
+                    processMouseOnPanelDeviceMenu(e.getX(), e.getY());
+                }                
             }
 
             @Override
@@ -289,15 +294,22 @@ public class PanelMain extends JPanel {
         this.panelTemplateMenu.addMouseListener(this.listenerPanel);
         this.panelAccountMenu.addMouseListener(this.listenerPanel);
     }
+    
+    private void processMouseOnPanelDeviceMenu(int x, int y) {
+        JLabel[] labels = {this.labelImportedDevices, this.labelScannedDevices};
+        int temp = this.getPressedLabelId(labels, x, y);
+        
+        if (temp < labels.length) {
+            if (labels[temp] == this.labelImportedDevices) {
+                this.switchDisplayedPanel(PANELS.PANEL_IMPORTED_DEVICES);
+            }
+        }
+    }
 
     private void processMouseOnPanelAccountMenu(int x, int y) {
         JLabel[] labels = {this.labelProfile, this.labelLogout};
-        int temp;
-        for (temp = 0; temp < labels.length; temp++) {
-            if (this.isMouseOnLabel(labels[temp], x, y)) {
-                break;
-            }
-        }
+        int temp = this.getPressedLabelId(labels, x, y);
+        
         if (temp < labels.length) {
             if (labels[temp] == this.labelProfile) {
                 this.switchDisplayedPanel(PANELS.PANEL_USER_PROFILE);
@@ -309,6 +321,17 @@ public class PanelMain extends JPanel {
         }
     }
 
+    private int getPressedLabelId(JLabel[] labels, int x, int y) {
+        int temp = 0;
+        for (temp = 0; temp < labels.length; temp++) {
+            if (this.isMouseOnLabel(labels[temp], x, y)) {
+                break;
+            }
+        }
+        
+        return temp;
+    }
+    
     private boolean isMouseOnLabel(JLabel label, int xMouse, int yMouse) {
         Dimension size = label.getSize();
         if (label.getX() <= xMouse && xMouse <= label.getX() + size.width) {
@@ -333,6 +356,10 @@ public class PanelMain extends JPanel {
         this.panelUserProfile = new PanelUserProfile();
         this.panelUserProfile.setVisible(false);
         this.panelUserProfile.setEnabled(false);
+        
+        this.panelImportedDevices = new PanelImportedDevices();
+        this.panelImportedDevices.setVisible(false);
+        this.panelImportedDevices.setEnabled(false);
     }
 
     public void switchDisplayedPanel(PANELS panel) {
@@ -346,6 +373,10 @@ public class PanelMain extends JPanel {
             case PANEL_USER_PROFILE:
                 this.displayPanel(this.panelUserProfile, 0, 60, -1, -1);
                 this.panelUserProfile.initData();
+                break;
+                
+            case PANEL_IMPORTED_DEVICES:
+                this.displayPanel(this.panelImportedDevices, 0, 60, -1, -1);
                 break;
         }
 
@@ -372,5 +403,9 @@ public class PanelMain extends JPanel {
             this.currentDisplayedPanel.setEnabled(false);
             this.currentDisplayedPanel = null;
         }
+        
+        this.hideMenu(this.panelAccountMenu);
+        this.hideMenu(this.panelDeviceMenu);
+        this.hideMenu(this.panelTemplateMenu);
     }
 }

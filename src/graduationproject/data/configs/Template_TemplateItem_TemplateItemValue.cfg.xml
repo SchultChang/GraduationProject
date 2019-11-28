@@ -1,0 +1,47 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+<hibernate-mapping>
+    <class name="graduationproject.data.models.Template" table="TEMPLATES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="name" column="name" type="string"/>
+        <property name="description" column="description" type="string"/>
+        <property name="snmpVersion" column="snmp_version" type="string"/>
+        <property name="isTable" column="is_table" type="boolean"/>
+        <property name="importedTime" column="imported_time" type="date"/>
+        
+        <list name="templateItems" cascade="all">
+            <key column="template_id"/> 
+            <list-index column="idx"/>
+            <one-to-many class="graduationproject.data.models.TemplateItem"/>
+        </list>
+
+    </class>
+    
+    <class name="graduationproject.data.models.TemplateItem" table="TEMPLATE_ITEMS">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="mibName" column="mib_name" type="string"/>
+        <property name="oid" column="oid" type="string"/>
+        <property name="displayName" column="display_name" type="string"/>
+        <property name="valueType" column="value_type" type="string"/>
+        <property name="accessType" column="access_type" type="string"/>
+        <property name="isEnabled" column="is_enabled" type="boolean"/>
+    </class>
+    
+    <class name="graduationproject.data.models.TemplateItemValue" table="TEMPLATE_ITEM_VALUES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="value" column="value" type="string"/>
+        <property name="updatedTime" column="updated_time" type="date"/>
+        
+        <many-to-one name="device" column="device_id" class="graduationproject.data.models.Device" cascade="save-update"/> 
+        <many-to-one name="templateItem" column="template_item_id" class="graduationproject.data.models.TemplateItem" cascade="save-update"/>
+    </class>
+</hibernate-mapping>

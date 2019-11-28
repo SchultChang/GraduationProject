@@ -1,0 +1,24 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+<hibernate-mapping>
+    <class name="graduationproject.data.models.Trap" table="TRAPS">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+
+        <property name="trapType" column="trap_type" type="string"/>
+        <property name="receivedTime" column="received_time" type="date"/>                
+    </class>
+    
+    <class name="graduationproject.data.models.TrapContentValue" table="TRAP_CONTENT_VALUES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+
+        <property name="value" column="value" type="string"/>
+        <property name="oid" column="oid" type="string"/>
+        
+        <many-to-one name="trap" column="trap_id" class="graduationproject.data.models.Trap" cascade="save-update"/>
+        <many-to-one name="templateItem" column="template_id" class="graduationproject.data.models.TemplateItem" cascade="save-update"/>
+    </class>
+</hibernate-mapping>

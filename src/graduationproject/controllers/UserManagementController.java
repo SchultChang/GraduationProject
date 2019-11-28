@@ -109,7 +109,7 @@ public class UserManagementController {
         }
 
         User foundUser = users.get(0);
-        if (foundUser.getRecoveryQuestionList().size() == 0) {
+        if (foundUser.getRecoveryQuestions().size() == 0) {
             this.resultMessage = messageGenerator.RECOVERY_FAILED_NO_QUESTIONS;
             return null;
         }
@@ -118,8 +118,8 @@ public class UserManagementController {
         this.accountIds = new int[1];
         this.accountIds[0] = foundUser.getId();
 
-        for (int i = 0; i < foundUser.getRecoveryQuestionList().size(); i++) {
-            result.add(foundUser.getRecoveryQuestionList().get(i).getQuestion());
+        for (int i = 0; i < foundUser.getRecoveryQuestions().size(); i++) {
+            result.add(foundUser.getRecoveryQuestions().get(i).getQuestion());
         }
 
         return result;
@@ -134,13 +134,13 @@ public class UserManagementController {
             return null;
         }
 
-        if (answers == null || answers.length < checkingUser.getRecoveryQuestionList().size()) {
+        if (answers == null || answers.length < checkingUser.getRecoveryQuestions().size()) {
             this.resultMessage = messageGenerator.RECOVERY_FAILED_LACK_ANSWER;
             return null;
         }
 
         for (int i = 0; i < answers.length; i++) {
-            if (!answers[i].equals(checkingUser.getRecoveryQuestionList().get(i).getAnswer())) {
+            if (!answers[i].equals(checkingUser.getRecoveryQuestions().get(i).getAnswer())) {
                 this.resultMessage = messageGenerator.RECOVERY_FAILED_INCORRECT_ANSWER;
                 return null;
             }
@@ -323,8 +323,7 @@ public class UserManagementController {
         EMAIL(6),
         PHONE(7),
         CONDITION(8),
-        QUESTION_ANSWER(9),
-        END(10); //after this enum, each question will be followed by an answer
+        QUESTION_ANSWER(9); //after this enum, each question will be followed by an answer
 
         private final int value;
 

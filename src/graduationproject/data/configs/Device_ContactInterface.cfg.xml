@@ -1,0 +1,41 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+<hibernate-mapping>
+    <class name="graduationproject.data.models.Device" table="DEVICES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="label" column="label" type="string"/>
+        <property name="name" column="name" type="string"/>
+        <property name="type" column="type" type="string"/>
+        <property name="description" column="description" type="string"/>
+        <property name="location" column="location" type="string"/>
+        <property name="snmpVersion" column="snmp_version" type="string"/>
+        <property name="importedTime" column="imported_time" type="date"/>
+        <property name="lastAccess" column="last_access" type="date"/>
+        
+        <list  name="traps" cascade="all">
+            <key column="device_id"/>
+            <list-index column="idx"/>
+            <one-to-many class="graduationproject.data.models.Trap"/>
+            
+        </list>
+            
+        <many-to-one name="contactInterface" column="contact_interface_id" unique="true" class="graduationproject.data.models.ContactNetworkInterface" cascade="all"/> 
+
+    </class>
+    
+    <class name="graduationproject.data.models.ContactNetworkInterface" table="CONTACT_NETWORK_INTERFACES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="ipAddress" column="ip_address" type="string"/>
+        <property name="community" column="community" type="string"/>
+        <property name="updatedTime" column="updated_time" type="date"/>
+
+    </class>
+    
+    
+</hibernate-mapping>
