@@ -377,6 +377,7 @@ public class PanelMain extends JPanel {
                 
             case PANEL_IMPORTED_DEVICES:
                 this.displayPanel(this.panelImportedDevices, 0, 60, -1, -1);
+                this.panelImportedDevices.initData();
                 break;
         }
 
@@ -396,6 +397,10 @@ public class PanelMain extends JPanel {
         return panelUserProfile;
     }
 
+    public PanelImportedDevices getPanelImportedDevices() {
+        return panelImportedDevices;
+    }
+        
     public void refreshPanel() {
         if (this.currentDisplayedPanel != null) {
             this.remove(this.currentDisplayedPanel);
