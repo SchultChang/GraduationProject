@@ -21,7 +21,13 @@
             <one-to-many class="graduationproject.data.models.Trap"/>
             
         </list>
-            
+    
+        <list name="networkInterfaces" cascade="all">
+            <key column="device_id"/>
+            <list-index column="idx"/>
+            <one-to-many class="graduationproject.data.models.DeviceNetworkInterface"/>
+        </list>    
+                            
         <many-to-one name="contactInterface" column="contact_interface_id" unique="true" class="graduationproject.data.models.ContactNetworkInterface" cascade="all"/> 
 
     </class>
@@ -37,5 +43,40 @@
 
     </class>
     
+    <class name="graduationproject.data.models.DeviceNetworkInterface" table="DEVICE_NETWORK_INTERFACES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="name" column="name" type="string"/>
+        <property name="macAddress" column="mac_address" type="string"/>
+        <property name="type" column="type" type="type"/>
+        
+    </class>
+
+    <class name="graduationproject.data.models.NetworkInterfaceDynamicData" table="NETWORK_INTERFACE_DYNAMIC_DATA">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="ipAddress" column="ip_address" type="string"/>
+        <property name="netmask" column="netmask" type="string"/>
+        <property name="mtu" column="mtu" type="long"/>
+        <property name="bandwidth" column="bandwidth" type="long"/>
+        <property name="inboundPacketNumber" column="inbound_packet_number" type="long"/>
+        <property name="outboundPacketNumber" column="outbound_packet_number" type="long"/>
+        <property name="inboundBytes" column="inbound_bytes" type="long"/>
+        <property name="outboundBytes" column="outbound_bytes" type="long"/>
+        <property name="inboundErrorPacketNumber" column="inbound_error_packet_number" type="long"/>
+        <property name="outboundErrorPacketNumber" column="outbound_error_packet_number" type="long"/>
+        <property name="nextNodeName" column="next_node_name" type="string"/>
+        <property name="nextNodeLabel" column="next_node_label" type="string"/>
+        <property name="nextNodeIPAddress" column="next_node_ip_address" type="string"/>
+        <property name="nextNodeMacAddress" column="next_node_mac_address" type="string"/>
+
+        
+        <many-to-one name="networkInterface" column="network_interface_id" unique="true" 
+                     class="graduationproject.data.models.DeviceNetworkInterface" cascade="save-update"/>        
+    </class>
     
 </hibernate-mapping>

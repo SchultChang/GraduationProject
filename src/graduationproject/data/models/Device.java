@@ -28,6 +28,7 @@ public class Device {
     
     private ContactNetworkInterface contactInterface;
     private List<Trap> traps;
+    private List<DeviceNetworkInterface> networkInterfaces;
     
     public Device() {
     }

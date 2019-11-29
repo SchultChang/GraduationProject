@@ -4,6 +4,8 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/TemplateItem.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/QueryTimerManager.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelDeviceInfo.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/RecoveryQuestion.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/GraduationProject.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/SettingManager.java</file>
@@ -20,10 +22,14 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/User.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/UserManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/TrapContentValue.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/DeviceNetworkInterface.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/InterfaceManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/RecoveryQuestionManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelMain.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelUserProfile.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/DeviceActiveCheckingCallback.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/DeviceInterfaceDynamicData.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/DataConverter.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelImportedDevices.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/TemplateItemValue.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/UserManager.java</file>
