@@ -22,9 +22,12 @@ import org.soulwing.snmp.SnmpTarget;
 public class SnmpManager {
 
     private final String[] MIB_MODULES = {"SNMPv2-MIB", "IP-MIB", "IF-MIB", "RFC1213-MIB"};
+    private final SnmpVersion[] SNMP_VERSIONS = {
+        SnmpVersion.VERSION_1, SnmpVersion.VERSION_2, SnmpVersion.VERSION_2_COMMUNITY, SnmpVersion.VERSION_3};
+
     private Mib mib;
     private QueryTimerManager queryTimerManager;
-    
+
     private static SnmpManager instance;
 
     private SnmpManager() {
@@ -82,13 +85,21 @@ public class SnmpManager {
     }
 
     public SnmpVersion parseVersionString(String input) {
-        SnmpVersion[] temp = {SnmpVersion.VERSION_1, SnmpVersion.VERSION_2, SnmpVersion.VERSION_2_COMMUNITY, SnmpVersion.VERSION_3};
-        for (int i = 0; i < temp.length; i++) {
-            if (temp[i].getValue().equalsIgnoreCase(input)) {
-                return temp[i];
+        
+        for (int i = 0; i < SNMP_VERSIONS.length; i++) {
+            if (SNMP_VERSIONS[i].getValue().equalsIgnoreCase(input)) {
+                return SNMP_VERSIONS[i];
             }
         }
         return null;
+    }
+    
+    public String[] getVersionStrings() {
+        String[] result = new String[SNMP_VERSIONS.length];
+        for (int i = 0; i < SNMP_VERSIONS.length; i++) {
+            result[i] = SNMP_VERSIONS[i].getValue();
+        }
+        return result;
     }
 
     public void close() {

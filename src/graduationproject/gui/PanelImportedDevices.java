@@ -15,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,7 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
+import org.netbeans.lib.awtextra.AbsoluteConstraints;
 
 /**
  *
@@ -47,13 +50,28 @@ public class PanelImportedDevices extends JPanel {
     private JScrollPane scrollpane1;
     private JTextField tfieldSearch;
 
+    private JPanel currentDisplayedPanel;
+    private PanelDeviceInfo panelDeviceInfo;
+
     private List<LabelDevice> labelDevices;
 
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
+    private MouseAdapter listenerListDevices;
 
     private final String ICON_ACTIVE_PATH = "/resources/icon_active_30.png";
     private final String ICON_DEACTIVE_PATH = "/resources/icon_deactive_30.png";
+
+    //some action constants
+    private final int LABEL_HOVER = 1;
+    private final int LABEL_CLICK = 2;
+
+    private LabelDevice currentChosenLabelDevice;
+    private DataOrders currentDataOrder;
+
+    public enum PANELS {
+        PANEL_DEVICE_INFO
+    }
 
 //    private List<DeviceStates> deviceStates;
     public PanelImportedDevices() {
@@ -73,6 +91,7 @@ public class PanelImportedDevices extends JPanel {
 
         setPreferredSize(new java.awt.Dimension(1600, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setBackground(Color.white);
 
         panelDevices.setBackground(new java.awt.Color(20, 51, 125));
         panelDevices.setPreferredSize(new java.awt.Dimension(280, 940));
@@ -111,6 +130,13 @@ public class PanelImportedDevices extends JPanel {
 
         add(panelDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 440, -1));
 
+        initChildPanels();
+    }
+
+    public void initChildPanels() {
+        this.panelDeviceInfo = new PanelDeviceInfo();
+        this.panelDeviceInfo.setVisible(false);
+        this.panelDeviceInfo.setEnabled(false);
     }
 
     private void initListeners() {
@@ -138,7 +164,7 @@ public class PanelImportedDevices extends JPanel {
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     DeviceManagementController deviceController = new DeviceManagementController();
-                    List<String> data = deviceController.processSearchingDevices(DataOrders.LABEL, tfieldSearch.getText());
+                    List<String> data = deviceController.processSearchingDevices(currentDataOrder, tfieldSearch.getText());
 
                     updateDeviceList(deviceController.getDeviceIds(), data);
                     if (data != null) {
@@ -150,6 +176,38 @@ public class PanelImportedDevices extends JPanel {
             }
         };
         this.tfieldSearch.addKeyListener(this.listenerField);
+
+        this.listenerListDevices = new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                LabelDevice source = (LabelDevice) e.getSource();
+                source.switchBackground(LABEL_HOVER);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (currentChosenLabelDevice != null) {
+                    currentChosenLabelDevice.switchBackground(-LABEL_CLICK);
+                }
+
+                LabelDevice source = (LabelDevice) e.getSource();
+                if (!panelDeviceInfo.isVisible()) {
+                    switchDisplayedPanel(PANELS.PANEL_DEVICE_INFO);
+                }
+                panelDeviceInfo.initData(source.getDeviceId());
+
+                currentChosenLabelDevice = source;
+                currentChosenLabelDevice.switchBackground(LABEL_CLICK);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                LabelDevice source = (LabelDevice) e.getSource();
+                if (source != currentChosenLabelDevice) {
+                    source.switchBackground(-LABEL_HOVER);
+                }
+            }
+        };
     }
 
     public void initOtherComponents() {
@@ -161,28 +219,16 @@ public class PanelImportedDevices extends JPanel {
     }
 
     public void initDeviceList() {
+        this.currentDataOrder = DataOrders.LABEL;
+
         DeviceManagementController deviceController = new DeviceManagementController();
-        List<String> data = deviceController.processGettingImportedDevices(DataOrders.LABEL);
+        List<String> data = deviceController.processGettingImportedDevices(this.currentDataOrder);
 
         if (data == null) {
             JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
             return;
         }
 
-//        int[] deviceIds = deviceController.getDeviceIds();
-//        synchronized (this) {
-//            this.panelDeviceList.removeAll();
-//            this.labelDevices.clear();            
-//            System.gc();
-//            for (int i = 0; i < deviceIds.length; i++) {
-//                LabelDevice temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.DEACTIVE);
-//                this.labelDevices.add(temp);
-//                this.panelDeviceList.add(temp);
-//            }
-//            
-//            this.revalidate();
-//            this.repaint();
-//        }       
         this.updateDeviceList(deviceController.getDeviceIds(), data);
         if (data != null) {
             deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
@@ -197,6 +243,7 @@ public class PanelImportedDevices extends JPanel {
         if (data != null) {
             for (int i = 0; i < deviceIds.length; i++) {
                 LabelDevice temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.DEACTIVE);
+                temp.addMouseListener(this.listenerListDevices);
                 this.labelDevices.add(temp);
                 this.panelDeviceList.add(temp);
             }
@@ -214,6 +261,57 @@ public class PanelImportedDevices extends JPanel {
                 break;
             }
         }
+    }
+
+    public synchronized void updateLabelDeviceText(int deviceId, String text) {
+//        int tempSize = this.labelDevices.size();
+//        for (int i = 0; i < tempSize; i++) {
+//            if (this.labelDevices.get(i).getDeviceId() == deviceId) {
+//                this.labelDevices.get(i).setText(text);
+//                break;
+//            }
+//        }
+        if (this.currentChosenLabelDevice != null) {
+            this.currentChosenLabelDevice.setText(text);
+        }
+    }
+
+    public void switchDisplayedPanel(PANELS panel) {
+        this.hideDisplayedPanel();
+
+        switch (panel) {
+            case PANEL_DEVICE_INFO:
+                this.displayPanel(panelDeviceInfo, 440, 30, -1, -1);
+                break;
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void hideDisplayedPanel() {
+        if (currentDisplayedPanel != null) {
+            this.remove(this.currentDisplayedPanel);
+            this.currentDisplayedPanel.setVisible(false);
+            this.currentDisplayedPanel.setEnabled(false);
+            this.currentDisplayedPanel = null;
+        }
+    }
+
+    private void displayPanel(JPanel panel, int x, int y, int width, int height) {
+        panel.setEnabled(true);
+        panel.setVisible(true);
+
+        this.add(panel, new AbsoluteConstraints(x, y, width, height));
+        this.currentDisplayedPanel = panel;
+    }
+
+    public void refreshPanel() {
+        this.hideDisplayedPanel();
+    }
+
+    public DataOrders getCurrentDataOrder() {
+        return currentDataOrder;
     }
 
     public class LabelDevice extends JLabel {
@@ -268,6 +366,14 @@ public class PanelImportedDevices extends JPanel {
                 this.repaint();
             }
             this.deviceState = deviceState;
+        }
+
+        public void switchBackground(int action) {
+            if (action == LABEL_HOVER || action == LABEL_CLICK) {
+                this.setBackground(new Color(194, 217, 255));
+            } else {
+                this.setBackground(Color.WHITE);
+            }
         }
 
     }

@@ -6,11 +6,13 @@
 package graduationproject.controllers;
 
 import com.opencsv.CSVReader;
+import graduationproject.data.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;
 import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
+import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
 import java.io.File;
@@ -33,10 +35,11 @@ import org.soulwing.snmp.VarbindCollection;
 public class DeviceManagementController {
 
     private String resultMessage;
+    private String extraStringData;
     private int[] deviceIds;
 
     public static final String[] DEVICE_TYPES = {"Router", "Switch", "End Host"};
-
+    
     public enum DeviceStates {
         ACTIVE,
         DEACTIVE
@@ -51,7 +54,8 @@ public class DeviceManagementController {
         SNMP_VERSION(5),
         LAST_ACCESS(6),
         IMPORTED_TIME(7),
-        CONTACT_INTERFACE(8);
+        CI_IP_ADDRESS(8),
+        CI_COMMUNITY(9);
 
         private final int value;
 
@@ -71,6 +75,12 @@ public class DeviceManagementController {
     public int[] getDeviceIds() {
         return deviceIds;
     }
+
+    public String getExtraStringData() {
+        return extraStringData;
+    }
+    
+    
     
     private String normalizeDeviceType(String inputType) {
         for (int i = 0; i < DEVICE_TYPES.length; i++) {
@@ -210,7 +220,7 @@ public class DeviceManagementController {
     
     public List<String> processSearchingDevices(DataOrders order, String prefix) {
         List<Device> devices = DataManager.getInstance().getDeviceManager().getDevices(order, prefix);
-        if (devices == null || devices.size() == 0) {
+        if (devices == null || devices.isEmpty()) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
            return null;
         }
@@ -227,6 +237,65 @@ public class DeviceManagementController {
         return result;
     }
 
+    public List<String> processGettingDeviceInfo(int deviceId) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return null;
+        }
+        
+        List<String> result = new ArrayList<String>(); 
+        result.add(DataOrders.NAME.getValue(), device.getName());
+        result.add(DataOrders.LABEL.getValue(), device.getLabel());
+        result.add(DataOrders.TYPE.getValue(), device.getType());
+        result.add(DataOrders.DESCRIPTION.getValue(), device.getDescription());
+        result.add(DataOrders.LOCATION.getValue(), device.getLocation());
+        result.add(DataOrders.SNMP_VERSION.getValue(), device.getSnmpVersion());
+        
+        DataConverter dataConverter = new DataConverter();
+        result.add(DataOrders.LAST_ACCESS.getValue(), dataConverter.convertDateToString(device.getLastAccess()));
+        result.add(DataOrders.IMPORTED_TIME.getValue(), dataConverter.convertDateToString(device.getImportedTime()));
+        
+        result.add(DataOrders.CI_IP_ADDRESS.getValue(), device.getContactInterface().getIpAddress());
+        result.add(DataOrders.CI_COMMUNITY.getValue(), device.getContactInterface().getCommunity());
+        
+        return result;
+    }
+    
+    public boolean processSavingDeviceInfo(int deviceId, List<String> data) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_OTHER;
+            return false;
+        }
+        
+        if (data.get(DataOrders.LABEL.getValue()).trim().isEmpty()) {
+            this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_NON_LABEL;
+            return false;
+        }
+        
+        device.setName(data.get(DataOrders.NAME.getValue()));
+        device.setLabel(data.get(DataOrders.LABEL.getValue()));
+        device.setType(data.get(DataOrders.TYPE.getValue()));
+        device.setDescription(data.get(DataOrders.DESCRIPTION.getValue()));
+        device.setLocation(data.get(DataOrders.LOCATION.getValue()));
+        device.setSnmpVersion(data.get(DataOrders.SNMP_VERSION.getValue()));
+        device.getContactInterface().setCommunity(data.get(DataOrders.CI_COMMUNITY.getValue()));
+        device.getContactInterface().setIpAddress(data.get(DataOrders.CI_IP_ADDRESS.getValue()));
+        device.getContactInterface().setUpdatedTime(new Date());
+        
+        if (!DataManager.getInstance().getDeviceManager().updateDevice(device)) {
+            this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_OTHER;
+            return false;
+        }
+
+        this.extraStringData = (String) device.getData(
+                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getCurrentDataOrder());
+        return true;
+    }
+    
+    
+    
     public class ResultMessageGenerator {
 
         public String IMPORTING_FAILED_FILE_NOT_FOUND = "The chosen file is not found. Please try again.";
@@ -236,6 +305,8 @@ public class DeviceManagementController {
 
         public String GETTING_FAILED_OTHER = "Some errors happened when getting device data from database. Please try again later";
 
+        public String UPDATING_FAILED_OTHER = "Some errors happened when updaing device info into database.";
+        public String UPDATING_FAILED_NON_LABEL = "Label field should not be left empty, otherwise you can not find that device later.";
     }
 
 }

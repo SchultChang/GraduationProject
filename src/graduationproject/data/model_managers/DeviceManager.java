@@ -125,7 +125,7 @@ public class DeviceManager {
                     .setProjection(Projections.projectionList().add(Projections.property("id"), "id")
                     .add(Projections.property(Device.getColumnName(order)), Device.getColumnName(order)));                    
             cri.setResultTransformer(Transformers.aliasToBean(Device.class));
-            if (order != DataOrders.CONTACT_INTERFACE) {
+            if (order != DataOrders.CI_IP_ADDRESS && order != DataOrders.CI_COMMUNITY) {
                 cri.add(Restrictions.like(Device.getColumnName(order), value + "%"));
             }
             
@@ -145,18 +145,19 @@ public class DeviceManager {
 
     }
     
-    public synchronized int updateDevice(Device device) {
+    public synchronized boolean updateDevice(Device device) {
         Session session = null;
         Transaction tx = null;
-        int result = -1;
+        boolean result = false;
 
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
             
             session.update(device);
-
             tx.commit();
+            
+            result = true;
         } catch (Exception e) {
             e.printStackTrace();
             tx.rollback();
@@ -167,7 +168,6 @@ public class DeviceManager {
         }
 
         return result;
-
     }
     
 }

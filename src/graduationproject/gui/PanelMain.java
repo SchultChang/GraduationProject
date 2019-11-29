@@ -51,7 +51,7 @@ public class PanelMain extends JPanel {
     private JPanel currentDisplayedPanel;
     private PanelUserProfile panelUserProfile;
     private PanelImportedDevices panelImportedDevices;
-
+    
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
 
@@ -377,6 +377,7 @@ public class PanelMain extends JPanel {
                 
             case PANEL_IMPORTED_DEVICES:
                 this.displayPanel(this.panelImportedDevices, 0, 60, -1, -1);
+                this.panelImportedDevices.refreshPanel();
                 this.panelImportedDevices.initData();
                 break;
         }
