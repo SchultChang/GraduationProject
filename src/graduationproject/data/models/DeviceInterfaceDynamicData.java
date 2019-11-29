@@ -23,8 +23,8 @@ public class DeviceInterfaceDynamicData {
     private long outboundPacketNumber;
     private long inboundBytes;
     private long outboundBytes;
-    private long inboundErrorPacketNumber;
-    private long outboundErrorPacketNumber;
+    private long inboundDiscardPacketNumber;
+    private long outboundDiscardPacketNumber;
     
     private String nextNodeName;
     private String nextNodeLabel;
@@ -46,8 +46,8 @@ public class DeviceInterfaceDynamicData {
         this.outboundPacketNumber = (long) data.get(DataOrders.OUT_PACK_NUMBER.getValue());
         this.inboundBytes = (long) data.get(DataOrders.IN_BYTES.getValue());
         this.outboundBytes = (long) data.get(DataOrders.OUT_BYTES.getValue());
-        this.inboundErrorPacketNumber = (long) data.get(DataOrders.IN_ERR_PACK_NUMBER.getValue());
-        this.outboundErrorPacketNumber = (long) data.get(DataOrders.OUT_ERR_PACK_NUMBER.getValue());
+        this.inboundDiscardPacketNumber = (long) data.get(DataOrders.IN_ERR_PACK_NUMBER.getValue());
+        this.outboundDiscardPacketNumber = (long) data.get(DataOrders.OUT_ERR_PACK_NUMBER.getValue());
         
         this.nextNodeName = (String) data.get(DataOrders.NEXT_NODE_NAME.getValue());
         this.nextNodeLabel = (String) data.get(DataOrders.NEXT_NODE_LABEL.getValue());
@@ -129,20 +129,20 @@ public class DeviceInterfaceDynamicData {
         this.outboundBytes = outboundBytes;
     }
 
-    public long getInboundErrorPacketNumber() {
-        return inboundErrorPacketNumber;
+    public long getInboundDiscardPacketNumber() {
+        return inboundDiscardPacketNumber;
     }
 
-    public void setInboundErrorPacketNumber(long inboundErrorPacketNumber) {
-        this.inboundErrorPacketNumber = inboundErrorPacketNumber;
+    public void setInboundDiscardPacketNumber(long inboundDiscardPacketNumber) {
+        this.inboundDiscardPacketNumber = inboundDiscardPacketNumber;
     }
 
-    public long getOutboundErrorPacketNumber() {
-        return outboundErrorPacketNumber;
+    public long getOutboundDiscardPacketNumber() {
+        return outboundDiscardPacketNumber;
     }
 
-    public void setOutboundErrorPacketNumber(long outboundErrorPacketNumber) {
-        this.outboundErrorPacketNumber = outboundErrorPacketNumber;
+    public void setOutboundDiscardPacketNumber(long outboundDiscardPacketNumber) {
+        this.outboundDiscardPacketNumber = outboundDiscardPacketNumber;
     }
 
     public String getNextNodeName() {

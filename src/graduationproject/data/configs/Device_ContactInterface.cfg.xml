@@ -50,11 +50,11 @@
         
         <property name="name" column="name" type="string"/>
         <property name="macAddress" column="mac_address" type="string"/>
-        <property name="type" column="type" type="type"/>
+        <property name="type" column="type" type="string"/>
         
     </class>
 
-    <class name="graduationproject.data.models.NetworkInterfaceDynamicData" table="NETWORK_INTERFACE_DYNAMIC_DATA">
+    <class name="graduationproject.data.models.DeviceInterfaceDynamicData" table="NETWORK_INTERFACE_DYNAMIC_DATA">
         <id name="id" column="id" type="int">
             <generator class="native"/>
         </id>
@@ -67,8 +67,8 @@
         <property name="outboundPacketNumber" column="outbound_packet_number" type="long"/>
         <property name="inboundBytes" column="inbound_bytes" type="long"/>
         <property name="outboundBytes" column="outbound_bytes" type="long"/>
-        <property name="inboundErrorPacketNumber" column="inbound_error_packet_number" type="long"/>
-        <property name="outboundErrorPacketNumber" column="outbound_error_packet_number" type="long"/>
+        <property name="inboundDiscardPacketNumber" column="inbound_discard_packet_number" type="long"/>
+        <property name="outboundDiscardPacketNumber" column="outbound_discard_packet_number" type="long"/>
         <property name="nextNodeName" column="next_node_name" type="string"/>
         <property name="nextNodeLabel" column="next_node_label" type="string"/>
         <property name="nextNodeIPAddress" column="next_node_ip_address" type="string"/>

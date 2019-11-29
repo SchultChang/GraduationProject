@@ -134,7 +134,15 @@ public class Device {
     public void setLastAccess(Date lastAccess) {
         this.lastAccess = lastAccess;
     }
-    
+
+    public List<DeviceNetworkInterface> getNetworkInterfaces() {
+        return networkInterfaces;
+    }
+
+    public void setNetworkInterfaces(List<DeviceNetworkInterface> networkInterfaces) {
+        this.networkInterfaces = networkInterfaces;
+    }
+
     public Object getData(DataOrders order) {
         if (order == DataOrders.NAME) {
             return this.name;
@@ -150,7 +158,7 @@ public class Device {
         }
         return null;
     }
-    
+
     public void setData(DataOrders order, Object value) {
         if (order == DataOrders.NAME) {
             this.setName((String) value);
@@ -171,5 +179,6 @@ public class Device {
             "snmpVersion", "lastAccess", "importedTime", "contactInterface"};
         return columnNames[order.getValue()];
     }
+    
     
 }

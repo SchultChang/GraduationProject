@@ -13,7 +13,7 @@ import graduationproject.data.models.Device;
 import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
-import graduationproject.snmpd.DeviceActiveCheckingCallback;
+import graduationproject.snmpd.callbacks.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,7 +39,7 @@ public class DeviceManagementController {
     private int[] deviceIds;
 
     public static final String[] DEVICE_TYPES = {"Router", "Switch", "End Host"};
-    
+
     public enum DeviceStates {
         ACTIVE,
         DEACTIVE
@@ -79,9 +79,7 @@ public class DeviceManagementController {
     public String getExtraStringData() {
         return extraStringData;
     }
-    
-    
-    
+
     private String normalizeDeviceType(String inputType) {
         for (int i = 0; i < DEVICE_TYPES.length; i++) {
             if (DEVICE_TYPES[i].equalsIgnoreCase(inputType)) {
@@ -175,7 +173,7 @@ public class DeviceManagementController {
 
         return result;
     }
-    
+
     public void processCheckingStateOfDevices(int[] deviceIds) {
         TimerTask checkingTask = new TimerTask() {
             @Override
@@ -184,56 +182,60 @@ public class DeviceManagementController {
                 deviceController.startCheckingStateOfDevices(deviceIds);
             }
         };
-        
+
         User currentUser = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         Setting setting = currentUser.getSetting();
         SnmpManager.getInstance().getQueryTimerManager().startDeviceTimer(checkingTask, 0, setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
     }
-    
+
     public void startCheckingStateOfDevices(int deviceIds[]) {
-        Date checkingTime = new Date();
-        for (int deviceId : deviceIds) {
-            Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
-            device.setLastAccess(checkingTime);
-            DataManager.getInstance().getDeviceManager().updateDevice(device);
-            
-            if (device != null) {
-                this.startCheckingDeviceState(device);
+        try {
+            Date checkingTime = new Date();
+            for (int deviceId : deviceIds) {
+                Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+                device.setLastAccess(checkingTime);
+                DataManager.getInstance().getDeviceManager().updateDevice(device);
+
+                if (device != null) {
+                    this.startCheckingDeviceState(device);
+                }
             }
-        }        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    
+
     public void startCheckingDeviceState(Device device) {
-        String objectToCheck = "sysUpTime";        
+        String objectToCheck = "sysUpTime";
         SnmpContext snmpContext = SnmpManager.getInstance().createContext(
-                device.getSnmpVersion(), 
-                device.getContactInterface().getIpAddress(), 
+                device.getSnmpVersion(),
+                device.getContactInterface().getIpAddress(),
                 device.getContactInterface().getCommunity());
-        
+
         try {
             DeviceActiveCheckingCallback checkingCallback = new DeviceActiveCheckingCallback(device.getId(), objectToCheck);
             snmpContext.asyncGetNext(checkingCallback, objectToCheck);
         } catch (Exception e) {
             e.printStackTrace();
-        } 
+        }
     }
-    
+
     public List<String> processSearchingDevices(DataOrders order, String prefix) {
         List<Device> devices = DataManager.getInstance().getDeviceManager().getDevices(order, prefix);
         if (devices == null || devices.isEmpty()) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
-           return null;
+            return null;
         }
-        
+
         List<String> result = new ArrayList<String>();
         this.deviceIds = new int[devices.size()];
         int tempSize = devices.size();
-        
+
         for (int i = 0; i < tempSize; i++) {
             result.add((String) devices.get(i).getData(order));
             this.deviceIds[i] = devices.get(i).getId();
         }
-        
+
         return result;
     }
 
@@ -243,37 +245,37 @@ public class DeviceManagementController {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return null;
         }
-        
-        List<String> result = new ArrayList<String>(); 
+
+        List<String> result = new ArrayList<String>();
         result.add(DataOrders.NAME.getValue(), device.getName());
         result.add(DataOrders.LABEL.getValue(), device.getLabel());
         result.add(DataOrders.TYPE.getValue(), device.getType());
         result.add(DataOrders.DESCRIPTION.getValue(), device.getDescription());
         result.add(DataOrders.LOCATION.getValue(), device.getLocation());
         result.add(DataOrders.SNMP_VERSION.getValue(), device.getSnmpVersion());
-        
+
         DataConverter dataConverter = new DataConverter();
         result.add(DataOrders.LAST_ACCESS.getValue(), dataConverter.convertDateToString(device.getLastAccess()));
         result.add(DataOrders.IMPORTED_TIME.getValue(), dataConverter.convertDateToString(device.getImportedTime()));
-        
+
         result.add(DataOrders.CI_IP_ADDRESS.getValue(), device.getContactInterface().getIpAddress());
         result.add(DataOrders.CI_COMMUNITY.getValue(), device.getContactInterface().getCommunity());
-        
+
         return result;
     }
-    
+
     public boolean processSavingDeviceInfo(int deviceId, List<String> data) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
         if (device == null) {
             this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_OTHER;
             return false;
         }
-        
+
         if (data.get(DataOrders.LABEL.getValue()).trim().isEmpty()) {
             this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_NON_LABEL;
             return false;
         }
-        
+
         device.setName(data.get(DataOrders.NAME.getValue()));
         device.setLabel(data.get(DataOrders.LABEL.getValue()));
         device.setType(data.get(DataOrders.TYPE.getValue()));
@@ -283,7 +285,7 @@ public class DeviceManagementController {
         device.getContactInterface().setCommunity(data.get(DataOrders.CI_COMMUNITY.getValue()));
         device.getContactInterface().setIpAddress(data.get(DataOrders.CI_IP_ADDRESS.getValue()));
         device.getContactInterface().setUpdatedTime(new Date());
-        
+
         if (!DataManager.getInstance().getDeviceManager().updateDevice(device)) {
             this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_OTHER;
             return false;
@@ -293,9 +295,7 @@ public class DeviceManagementController {
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getCurrentDataOrder());
         return true;
     }
-    
-    
-    
+
     public class ResultMessageGenerator {
 
         public String IMPORTING_FAILED_FILE_NOT_FOUND = "The chosen file is not found. Please try again.";

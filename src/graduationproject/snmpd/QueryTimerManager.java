@@ -15,6 +15,7 @@ import java.util.TimerTask;
 public class QueryTimerManager {
 
     private Timer deviceTimer;
+    private Timer interfaceTimer;
 
     public synchronized void startDeviceTimer(TimerTask task, int delay, int period) {
         this.cancelDeviceTimer();
@@ -26,6 +27,22 @@ public class QueryTimerManager {
         if (this.deviceTimer != null) {
             this.deviceTimer.cancel();
             this.deviceTimer.purge();
+            this.deviceTimer = null;
+        }
+    }
+    
+    
+    public synchronized void startInterfaceTimer(TimerTask task, int delay, int period) {
+        this.cancelInterfaceTimer();
+        this.interfaceTimer = new Timer();
+        this.interfaceTimer.schedule(task, delay, period);
+    }   
+    
+    public synchronized void cancelInterfaceTimer() {
+        if (this.interfaceTimer != null) {
+            this.interfaceTimer.cancel();
+            this.interfaceTimer.purge();
+            this.interfaceTimer = null;
         }
     }
 

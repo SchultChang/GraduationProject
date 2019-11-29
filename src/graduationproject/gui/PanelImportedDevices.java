@@ -8,6 +8,9 @@ package graduationproject.gui;
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.controllers.DeviceManagementController.DeviceStates;
+import graduationproject.controllers.InterfaceManagementController;
+import graduationproject.controllers.InterfaceManagementController.InterfaceStates;
+import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -54,6 +57,7 @@ public class PanelImportedDevices extends JPanel {
     private PanelDeviceInfo panelDeviceInfo;
 
     private List<LabelDevice> labelDevices;
+    private List<LabelInterface> labelInterfaces;
 
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
@@ -108,7 +112,7 @@ public class PanelImportedDevices extends JPanel {
         scrollpane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         panelDeviceList.setBackground(java.awt.Color.white);
-        panelDeviceList.setPreferredSize(new java.awt.Dimension(370, 738));
+        panelDeviceList.setPreferredSize(new java.awt.Dimension(370, 2000));
         panelDeviceList.setLayout(new BoxLayout(panelDeviceList, BoxLayout.PAGE_AXIS));
         scrollpane1.setViewportView(panelDeviceList);
 
@@ -195,7 +199,10 @@ public class PanelImportedDevices extends JPanel {
                     switchDisplayedPanel(PANELS.PANEL_DEVICE_INFO);
                 }
                 panelDeviceInfo.initData(source.getDeviceId());
-
+                
+                InterfaceManagementController interfaceController = new InterfaceManagementController();
+                interfaceController.processGettingInterfacesOfDevice(source.getDeviceId());
+                
                 currentChosenLabelDevice = source;
                 currentChosenLabelDevice.switchBackground(LABEL_CLICK);
             }
@@ -212,6 +219,7 @@ public class PanelImportedDevices extends JPanel {
 
     public void initOtherComponents() {
         this.labelDevices = new ArrayList<LabelDevice>();
+        this.labelInterfaces = new ArrayList<LabelInterface>();
     }
 
     public void initData() {
@@ -264,16 +272,56 @@ public class PanelImportedDevices extends JPanel {
     }
 
     public synchronized void updateLabelDeviceText(int deviceId, String text) {
-//        int tempSize = this.labelDevices.size();
-//        for (int i = 0; i < tempSize; i++) {
-//            if (this.labelDevices.get(i).getDeviceId() == deviceId) {
-//                this.labelDevices.get(i).setText(text);
-//                break;
-//            }
-//        }
-        if (this.currentChosenLabelDevice != null) {
+        if (this.currentChosenLabelDevice != null && this.currentChosenLabelDevice.getDeviceId() == deviceId) {
             this.currentChosenLabelDevice.setText(text);
+        } else {
+            int tempSize = this.labelDevices.size();
+            for (int i = 0; i < tempSize; i++) {
+                if (this.labelDevices.get(i).getDeviceId() == deviceId) {
+                    this.labelDevices.get(i).setText(text);
+                    break;
+                }
+            }
         }
+    }
+
+    public synchronized void addLabelInterfaces(int deviceId, int[] interfaceIds, String[] names, InterfaceStates[] interfaceStates) {
+        int tempSize = this.labelDevices.size();
+        int listPosition = -1;
+        
+        for (int i = 0; i < tempSize; i++) {
+            if (this.labelDevices.get(i).getDeviceId() == deviceId) {
+                if (this.currentChosenLabelDevice != this.labelDevices.get(i)) {
+                    return;
+                }
+                listPosition = i;
+                break;
+            }
+        }
+
+        if (listPosition == -1) {
+            return;
+        }
+
+        for (int i = listPosition + 1; i < tempSize; i++) {
+            this.panelDeviceList.remove(this.labelDevices.get(i));
+        }
+
+        this.labelInterfaces.clear();
+        System.gc();
+
+        for (int i = 0; i < interfaceIds.length; i++) {
+            LabelInterface labelInterface = new LabelInterface(names[i], deviceId, interfaceIds[i], interfaceStates[i]);
+            this.labelInterfaces.add(labelInterface);
+            this.panelDeviceList.add(labelInterface);
+        }
+
+        for (int i = listPosition + 1; i < tempSize; i++) {
+            this.panelDeviceList.add(this.labelDevices.get(i));
+        }
+        
+        this.panelDeviceList.revalidate();
+        this.panelDeviceList.repaint();
     }
 
     public void switchDisplayedPanel(PANELS panel) {
@@ -312,6 +360,16 @@ public class PanelImportedDevices extends JPanel {
 
     public DataOrders getCurrentDataOrder() {
         return currentDataOrder;
+    }
+    
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        
+        if (!visible) {
+            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
+            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+        }
     }
 
     public class LabelDevice extends JLabel {
@@ -352,6 +410,10 @@ public class PanelImportedDevices extends JPanel {
             return deviceId;
         }
 
+        public DeviceStates getDeviceState() {
+            return deviceState;
+        }
+
         public void setDeviceState(DeviceStates deviceState) {
             if (this.deviceState != deviceState) {
                 ImageIcon newIcon = null;
@@ -377,4 +439,75 @@ public class PanelImportedDevices extends JPanel {
         }
 
     }
+
+    public class LabelInterface extends JLabel {
+
+        private int deviceId;
+        private int interfaceId; //idx of table network interface
+        private InterfaceStates interfaceState;
+
+        public LabelInterface(String text, int deviceId, int interfaceId, InterfaceStates interfaceState) {
+            super(text);
+
+            this.deviceId = deviceId;
+            this.interfaceId = interfaceId;
+            this.interfaceState = interfaceState;
+
+            this.setPreferredSize(new Dimension(400, 60));
+            this.setMinimumSize(new Dimension(400, 60));
+            this.setMaximumSize(new Dimension(400, 60));
+
+            this.setFont(new java.awt.Font("SansSerif", 1, 16));
+            this.setIconTextGap(50);
+
+            ImageIcon iconImage;
+            if (interfaceState == InterfaceStates.DOWN) {
+                iconImage = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
+            } else {
+                iconImage = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+            }
+            this.setIcon(iconImage);
+
+            this.setOpaque(true);
+            this.setBackground(Color.white);
+            this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(60, 60, 60)));
+
+            this.setVisible(true);
+            this.setEnabled(true);
+        }
+
+        public int getDeviceId() {
+            return deviceId;
+        }
+
+        public InterfaceStates getDeviceState() {
+            return interfaceState;
+        }
+
+        public void setDeviceState(InterfaceStates interfaceState) {
+            if (this.interfaceState != interfaceState) {
+                ImageIcon newIcon = null;
+                if (interfaceState == InterfaceStates.UP) {
+                    newIcon = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+                } else {
+                    newIcon = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
+                }
+
+                this.setIcon(newIcon);
+                this.revalidate();
+                this.repaint();
+            }
+            this.interfaceState = interfaceState;
+        }
+
+        public void switchBackground(int action) {
+            if (action == LABEL_HOVER || action == LABEL_CLICK) {
+                this.setBackground(new Color(194, 217, 255));
+            } else {
+                this.setBackground(Color.WHITE);
+            }
+        }
+
+    }
+
 }

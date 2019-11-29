@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package graduationproject.snmpd;
+package graduationproject.snmpd.callbacks;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.gui.ApplicationWindow;
