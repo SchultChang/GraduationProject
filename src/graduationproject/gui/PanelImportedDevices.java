@@ -199,12 +199,18 @@ public class PanelImportedDevices extends JPanel {
                     switchDisplayedPanel(PANELS.PANEL_DEVICE_INFO);
                 }
                 panelDeviceInfo.initData(source.getDeviceId());
-                
-                InterfaceManagementController interfaceController = new InterfaceManagementController();
-                interfaceController.processGettingInterfacesOfDevice(source.getDeviceId());
-                
-                currentChosenLabelDevice = source;
-                currentChosenLabelDevice.switchBackground(LABEL_CLICK);
+
+                if (currentChosenLabelDevice != source) {
+                    currentChosenLabelDevice = source;
+                    currentChosenLabelDevice.switchBackground(LABEL_CLICK);
+
+                    PanelImportedDevices.this.clearLabelInterfaces();
+                    SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
+
+                    InterfaceManagementController interfaceController = new InterfaceManagementController();
+                    interfaceController.processGettingInterfacesOfDevice(source.getDeviceId());
+                }
+
             }
 
             @Override
@@ -262,9 +268,12 @@ public class PanelImportedDevices extends JPanel {
     }
 
     public synchronized void updateLabelDeviceState(int deviceId, DeviceStates deviceState) {
+        System.out.print("hello world1");
+
         int tempSize = this.labelDevices.size();
         for (int i = 0; i < tempSize; i++) {
             if (this.labelDevices.get(i).getDeviceId() == deviceId) {
+                System.out.print("hello world2");
                 this.labelDevices.get(i).setDeviceState(deviceState);
                 break;
             }
@@ -285,15 +294,25 @@ public class PanelImportedDevices extends JPanel {
         }
     }
 
-    public synchronized void addLabelInterfaces(int deviceId, int[] interfaceIds, String[] names, InterfaceStates[] interfaceStates) {
+    public void clearLabelInterfaces() {
+        int tempSize = this.labelInterfaces.size();
+        for (int i = 0; i < tempSize; i++) {
+            this.panelDeviceList.remove(this.labelInterfaces.get(i));
+        }
+        this.labelInterfaces.clear();
+        System.gc();
+    }
+
+    public synchronized void updateLabelInterfaces(int deviceId, int[] interfaceIds, String[] names, InterfaceStates[] interfaceStates) {
+        if (this.currentChosenLabelDevice.getDeviceId() != deviceId) {
+            return;
+        }
+
         int tempSize = this.labelDevices.size();
         int listPosition = -1;
-        
+
         for (int i = 0; i < tempSize; i++) {
             if (this.labelDevices.get(i).getDeviceId() == deviceId) {
-                if (this.currentChosenLabelDevice != this.labelDevices.get(i)) {
-                    return;
-                }
                 listPosition = i;
                 break;
             }
@@ -303,23 +322,29 @@ public class PanelImportedDevices extends JPanel {
             return;
         }
 
-        for (int i = listPosition + 1; i < tempSize; i++) {
-            this.panelDeviceList.remove(this.labelDevices.get(i));
+        if (this.labelInterfaces.size() != interfaceIds.length) {
+            for (int i = listPosition + 1; i < tempSize; i++) {
+                this.panelDeviceList.remove(this.labelDevices.get(i));
+            }
+
+            //this.clearLabelInterfaces();
+            for (int i = 0; i < interfaceIds.length; i++) {
+                LabelInterface labelInterface = new LabelInterface(names[i], deviceId, interfaceIds[i], interfaceStates[i]);
+                this.labelInterfaces.add(labelInterface);
+                this.panelDeviceList.add(labelInterface);
+            }
+
+            for (int i = listPosition + 1; i < tempSize; i++) {
+                this.panelDeviceList.add(this.labelDevices.get(i));
+            }
+        } else {
+            for (int i = 0; i < interfaceIds.length; i++) {
+                this.labelInterfaces.get(i).setText(names[i]);
+                this.labelInterfaces.get(i).setInterfaceId(interfaceIds[i]);
+                this.labelInterfaces.get(i).setInterfaceState(interfaceStates[i]);
+            }
         }
 
-        this.labelInterfaces.clear();
-        System.gc();
-
-        for (int i = 0; i < interfaceIds.length; i++) {
-            LabelInterface labelInterface = new LabelInterface(names[i], deviceId, interfaceIds[i], interfaceStates[i]);
-            this.labelInterfaces.add(labelInterface);
-            this.panelDeviceList.add(labelInterface);
-        }
-
-        for (int i = listPosition + 1; i < tempSize; i++) {
-            this.panelDeviceList.add(this.labelDevices.get(i));
-        }
-        
         this.panelDeviceList.revalidate();
         this.panelDeviceList.repaint();
     }
@@ -361,11 +386,11 @@ public class PanelImportedDevices extends JPanel {
     public DataOrders getCurrentDataOrder() {
         return currentDataOrder;
     }
-    
+
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
-        
+
         if (!visible) {
             SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
             SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
@@ -484,7 +509,15 @@ public class PanelImportedDevices extends JPanel {
             return interfaceState;
         }
 
-        public void setDeviceState(InterfaceStates interfaceState) {
+        public void setDeviceId(int deviceId) {
+            this.deviceId = deviceId;
+        }
+
+        public void setInterfaceId(int interfaceId) {
+            this.interfaceId = interfaceId;
+        }
+
+        public void setInterfaceState(InterfaceStates interfaceState) {
             if (this.interfaceState != interfaceState) {
                 ImageIcon newIcon = null;
                 if (interfaceState == InterfaceStates.UP) {

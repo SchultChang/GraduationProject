@@ -6,6 +6,7 @@
 package graduationproject.snmpd.helpers;
 
 import graduationproject.controllers.InterfaceManagementController;
+import graduationproject.controllers.InterfaceManagementController.DataOrders;
 import graduationproject.snmpd.callbacks.InterfaceQueryCallbackStage1;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,5 +149,31 @@ public class InterfaceQueryHelper {
             return name;
         }
         
+        public String getType() {
+            return this.type;
+        }
+        
+        public String getMacAddress() {
+            return  this.macAddress;
+        }
+        
+        public List<Object> getDynamicData() {
+            List<Object> result = new ArrayList<Object>();
+            result.add(DataOrders.IP_ADDRESS.getValue(), this.ipAddress);
+            result.add(DataOrders.NETMASK.getValue(), this.netmask);
+            result.add(DataOrders.MTU.getValue(), this.mtu);
+            result.add(DataOrders.BANDWIDTH.getValue(), this.speed);
+            result.add(DataOrders.IN_PACK_NUMBER.getValue(), this.inUCast + this.inNUCast);
+            result.add(DataOrders.OUT_PACK_NUMBER.getValue(), this.outUCast + this.outNUCast);
+            result.add(DataOrders.IN_BYTES.getValue(), this.inBytes);
+            result.add(DataOrders.OUT_BYTES.getValue(), this.outBytes);
+            result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), this.inDiscard);
+            result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), this.outDiscard);
+            result.add(DataOrders.NEXT_NODE_NAME.getValue(), new String());
+            result.add(DataOrders.NEXT_NODE_LABEL.getValue(), new String());
+            result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), this.nextNodeIP);
+            result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), this.nextNodeMac);
+            return result;
+        }
     }
 }

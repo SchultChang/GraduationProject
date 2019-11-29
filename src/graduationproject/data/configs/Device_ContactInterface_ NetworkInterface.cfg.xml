@@ -74,6 +74,7 @@
         <property name="nextNodeIPAddress" column="next_node_ip_address" type="string"/>
         <property name="nextNodeMacAddress" column="next_node_mac_address" type="string"/>
 
+        <property name="updatedTime" column="updated_time" type="date"/>
         
         <many-to-one name="networkInterface" column="network_interface_id" unique="true" 
                      class="graduationproject.data.models.DeviceNetworkInterface" cascade="save-update"/>        

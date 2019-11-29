@@ -23,7 +23,7 @@
         
         <!-- List of XML mapping files -->
         <mapping resource = "graduationproject/data/configs/User_RecoveryQuestion_Setting.cfg.xml"/>
-        <mapping resource = "graduationproject/data/configs/Device_ContactInterface.cfg.xml"/>
+        <mapping resource = "graduationproject/data/configs/Device_ContactInterface_ NetworkInterface.cfg.xml"/>
         <mapping resource = "graduationproject/data/configs/Template_TemplateItem_TemplateItemValue.cfg.xml"/>
         <mapping resource = "graduationproject/data/configs/Trap_TrapContent.cfg.xml"/>
     </session-factory>

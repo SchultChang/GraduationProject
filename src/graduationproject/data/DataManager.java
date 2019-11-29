@@ -5,6 +5,7 @@
  */
 package graduationproject.data;
 
+import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
@@ -25,6 +26,7 @@ public class DataManager {
     private RecoveryQuestionManager recoveryQuestionManager;
     private SettingManager settingManager;
     private DeviceManager deviceManager;    
+    private DeviceInterfaceDynamicDataManager interfaceDynamicDataManager;
     
     private int activeAccountId;
     
@@ -38,6 +40,7 @@ public class DataManager {
         this.settingManager = new SettingManager(this.sessionFactory);
 //        this.recoveryQuestionManager = new RecoveryQuestionManager(this.sessionFactory);
         this.deviceManager = new DeviceManager(this.sessionFactory);
+        this.interfaceDynamicDataManager = new DeviceInterfaceDynamicDataManager(this.sessionFactory);
     }
     
     public static DataManager getInstance() {
@@ -67,6 +70,10 @@ public class DataManager {
 
     public DeviceManager getDeviceManager() {
         return deviceManager;
+    }
+
+    public DeviceInterfaceDynamicDataManager getInterfaceDynamicDataManager() {
+        return interfaceDynamicDataManager;
     }
 
     

@@ -7,6 +7,7 @@ package graduationproject.data.models;
 
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,12 +32,14 @@ public class DeviceInterfaceDynamicData {
     private String nextNodeIPAddress;
     private String nextNodeMacAddress;
     
+    private Date updatedTime;
+    
     private DeviceNetworkInterface networkInterface; 
     
     public DeviceInterfaceDynamicData() {
     }
     
-    public DeviceInterfaceDynamicData(List<Object> data, DeviceNetworkInterface networkInterface) {
+    public DeviceInterfaceDynamicData(List<Object> data, Date importedTime, DeviceNetworkInterface networkInterface) {
         this.ipAddress = (String) data.get(DataOrders.IP_ADDRESS.getValue());
         this.netmask = (String) data.get(DataOrders.NETMASK.getValue());
         this.mtu = (long) data.get(DataOrders.MTU.getValue());
@@ -46,16 +49,19 @@ public class DeviceInterfaceDynamicData {
         this.outboundPacketNumber = (long) data.get(DataOrders.OUT_PACK_NUMBER.getValue());
         this.inboundBytes = (long) data.get(DataOrders.IN_BYTES.getValue());
         this.outboundBytes = (long) data.get(DataOrders.OUT_BYTES.getValue());
-        this.inboundDiscardPacketNumber = (long) data.get(DataOrders.IN_ERR_PACK_NUMBER.getValue());
-        this.outboundDiscardPacketNumber = (long) data.get(DataOrders.OUT_ERR_PACK_NUMBER.getValue());
+        this.inboundDiscardPacketNumber = (long) data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue());
+        this.outboundDiscardPacketNumber = (long) data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue());
         
         this.nextNodeName = (String) data.get(DataOrders.NEXT_NODE_NAME.getValue());
         this.nextNodeLabel = (String) data.get(DataOrders.NEXT_NODE_LABEL.getValue());
         this.nextNodeIPAddress = (String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue());
         this.nextNodeMacAddress = (String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue());
+
+        this.updatedTime = importedTime;
         
         this.networkInterface = networkInterface;
     }
+    
 
     public int getId() {
         return id;
@@ -184,6 +190,16 @@ public class DeviceInterfaceDynamicData {
     public void setNetworkInterface(DeviceNetworkInterface networkInterface) {
         this.networkInterface = networkInterface;
     }
+
+    public Date getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Date updatedTime) {
+        this.updatedTime = updatedTime;
+    }
+    
+    
     
     
 }
