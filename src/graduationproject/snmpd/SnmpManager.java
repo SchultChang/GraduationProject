@@ -6,6 +6,7 @@
 package graduationproject.snmpd;
 
 import java.io.IOException;
+import javax.swing.Timer;
 import org.soulwing.snmp.Mib;
 import org.soulwing.snmp.MibFactory;
 import org.soulwing.snmp.ModuleParseException;
@@ -22,11 +23,13 @@ public class SnmpManager {
 
     private final String[] MIB_MODULES = {"SNMPv2-MIB", "IP-MIB", "IF-MIB", "RFC1213-MIB"};
     private Mib mib;
-
+    private QueryTimerManager queryTimerManager;
+    
     private static SnmpManager instance;
 
     private SnmpManager() {
         initMib();
+        initOtherComponents();
     }
 
     private void initMib() {
@@ -40,6 +43,10 @@ public class SnmpManager {
                 ex.printStackTrace();
             }
         }
+    }
+    
+    private void initOtherComponents() {
+        this.queryTimerManager = new QueryTimerManager();
     }
 
     public static SnmpManager getInstance() {
@@ -84,6 +91,14 @@ public class SnmpManager {
         return null;
     }
 
+    public void close() {
+        this.queryTimerManager.cancelDeviceTimer();
+    }
+
+    public QueryTimerManager getQueryTimerManager() {
+        return queryTimerManager;
+    }
+    
     public enum SnmpVersion {
         VERSION_1("v1"),
         VERSION_2("v2"),

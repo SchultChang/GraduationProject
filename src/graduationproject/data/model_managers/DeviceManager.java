@@ -68,18 +68,10 @@ public class DeviceManager {
             Criteria cri = session.createCriteria(Device.class)
                     .setProjection(
                             Projections.projectionList()
-                            .add(Projections.property("id"))
-                            .add(Projections.property(Device.getColumnName(order))));
-            //cri.setResultTransformer(Transformers.aliasToBean(Device.class));
-            //result = cri.list();
-            List<Object[]> values = cri.list();
-            result = new ArrayList<Device>();
-            for (Object[] value : values) {
-                Device temp = new Device();
-                temp.setId((int) value[0]);
-                temp.setData(order, value[1]);
-                result.add(temp);
-            }
+                            .add(Projections.property("id"), "id")
+                            .add(Projections.property(Device.getColumnName(order)), Device.getColumnName(order)));
+            cri.setResultTransformer(Transformers.aliasToBean(Device.class));
+            result = cri.list();
 
             tx.commit();
         } catch (Exception e) {
@@ -119,4 +111,63 @@ public class DeviceManager {
 
         return result;
     }
+
+    public List<Device> getDevices(DataOrders order, Object value) {
+        Session session = null;
+        Transaction tx = null;
+        List<Device> result = null;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            Criteria cri = session.createCriteria(Device.class)
+                    .setProjection(Projections.projectionList().add(Projections.property("id"), "id")
+                    .add(Projections.property(Device.getColumnName(order)), Device.getColumnName(order)));                    
+            cri.setResultTransformer(Transformers.aliasToBean(Device.class));
+            if (order != DataOrders.CONTACT_INTERFACE) {
+                cri.add(Restrictions.like(Device.getColumnName(order), value + "%"));
+            }
+            
+            result = cri.list();
+
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        return result;
+
+    }
+    
+    public synchronized int updateDevice(Device device) {
+        Session session = null;
+        Transaction tx = null;
+        int result = -1;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            session.update(device);
+
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        return result;
+
+    }
+    
 }

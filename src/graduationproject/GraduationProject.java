@@ -7,6 +7,7 @@ package graduationproject;
 
 import graduationproject.data.DataManager;
 import graduationproject.gui.ApplicationWindow;
+import graduationproject.snmpd.SnmpManager;
 
 /**
  *
@@ -39,6 +40,7 @@ public class GraduationProject {
         Runtime.getRuntime().addShutdownHook(new Thread() { 
             @Override
             public void run() {
+                SnmpManager.getInstance().close();
                 DataManager.getInstance().close();
             }
         });

@@ -33,7 +33,6 @@ public class DeviceActiveCheckingCallback implements SnmpCallback<VarbindCollect
             ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                     .updateLabelDeviceState(deviceId, DeviceManagementController.DeviceStates.ACTIVE);
         } catch (Exception e) {
-            System.out.println("hello world callback");
             ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                     .updateLabelDeviceState(deviceId, DeviceManagementController.DeviceStates.DEACTIVE);
         } finally {
@@ -41,5 +40,5 @@ public class DeviceActiveCheckingCallback implements SnmpCallback<VarbindCollect
         }
 
     }
-
+    
 }

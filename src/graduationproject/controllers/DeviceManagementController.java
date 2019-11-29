@@ -9,6 +9,8 @@ import com.opencsv.CSVReader;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;
+import graduationproject.data.models.Setting;
+import graduationproject.data.models.User;
 import graduationproject.snmpd.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
 import java.io.File;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.soulwing.snmp.SnmpContext;
@@ -158,19 +161,36 @@ public class DeviceManagementController {
         for (int i = 0; i < tempSize; i++) {
             result.add((String) devices.get(i).getData(order));
             this.deviceIds[i] = devices.get(i).getId();
-            System.out.println("hello world");
         }
 
         return result;
     }
     
     public void processCheckingStateOfDevices(int[] deviceIds) {
+        TimerTask checkingTask = new TimerTask() {
+            @Override
+            public void run() {
+                DeviceManagementController deviceController = new DeviceManagementController();
+                deviceController.startCheckingStateOfDevices(deviceIds);
+            }
+        };
+        
+        User currentUser = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
+        Setting setting = currentUser.getSetting();
+        SnmpManager.getInstance().getQueryTimerManager().startDeviceTimer(checkingTask, 0, setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
+    }
+    
+    public void startCheckingStateOfDevices(int deviceIds[]) {
+        Date checkingTime = new Date();
         for (int deviceId : deviceIds) {
             Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+            device.setLastAccess(checkingTime);
+            DataManager.getInstance().getDeviceManager().updateDevice(device);
+            
             if (device != null) {
                 this.startCheckingDeviceState(device);
             }
-        }
+        }        
     }
     
     public void startCheckingDeviceState(Device device) {
@@ -186,6 +206,25 @@ public class DeviceManagementController {
         } catch (Exception e) {
             e.printStackTrace();
         } 
+    }
+    
+    public List<String> processSearchingDevices(DataOrders order, String prefix) {
+        List<Device> devices = DataManager.getInstance().getDeviceManager().getDevices(order, prefix);
+        if (devices == null || devices.size() == 0) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+           return null;
+        }
+        
+        List<String> result = new ArrayList<String>();
+        this.deviceIds = new int[devices.size()];
+        int tempSize = devices.size();
+        
+        for (int i = 0; i < tempSize; i++) {
+            result.add((String) devices.get(i).getData(order));
+            this.deviceIds[i] = devices.get(i).getId();
+        }
+        
+        return result;
     }
 
     public class ResultMessageGenerator {

@@ -108,5 +108,8 @@ public class Setting {
         this.hasPasswordRemembered = hasPasswordRemembered;
     }
     
+    public int getNormalizedTime(int time) { //each time period of this class is in milliseconds state
+        return time * 1000;
+    }
     
 }

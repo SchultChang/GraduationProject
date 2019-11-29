@@ -12,6 +12,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +50,11 @@ public class PanelImportedDevices extends JPanel {
     private List<LabelDevice> labelDevices;
 
     private ActionListener listenerButton;
+    private KeyAdapter listenerField;
 
     private final String ICON_ACTIVE_PATH = "/resources/icon_active_30.png";
     private final String ICON_DEACTIVE_PATH = "/resources/icon_deactive_30.png";
 
-//    private int[] deviceIds;
 //    private List<DeviceStates> deviceStates;
     public PanelImportedDevices() {
         initComponents();
@@ -129,6 +132,24 @@ public class PanelImportedDevices extends JPanel {
 
         };
         this.buttonImport.addActionListener(this.listenerButton);
+
+        this.listenerField = new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    DeviceManagementController deviceController = new DeviceManagementController();
+                    List<String> data = deviceController.processSearchingDevices(DataOrders.LABEL, tfieldSearch.getText());
+
+                    updateDeviceList(deviceController.getDeviceIds(), data);
+                    if (data != null) {
+                        deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+                    }
+                } else {
+                    super.keyReleased(e);
+                }
+            }
+        };
+        this.tfieldSearch.addKeyListener(this.listenerField);
     }
 
     public void initOtherComponents() {
@@ -138,7 +159,7 @@ public class PanelImportedDevices extends JPanel {
     public void initData() {
         this.initDeviceList();
     }
-    
+
     public void initDeviceList() {
         DeviceManagementController deviceController = new DeviceManagementController();
         List<String> data = deviceController.processGettingImportedDevices(DataOrders.LABEL);
@@ -148,25 +169,43 @@ public class PanelImportedDevices extends JPanel {
             return;
         }
 
-        int[] deviceIds = deviceController.getDeviceIds();
-        synchronized (this) {
-            this.panelDeviceList.removeAll();
-            this.labelDevices.clear();            
-            System.gc();
+//        int[] deviceIds = deviceController.getDeviceIds();
+//        synchronized (this) {
+//            this.panelDeviceList.removeAll();
+//            this.labelDevices.clear();            
+//            System.gc();
+//            for (int i = 0; i < deviceIds.length; i++) {
+//                LabelDevice temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.DEACTIVE);
+//                this.labelDevices.add(temp);
+//                this.panelDeviceList.add(temp);
+//            }
+//            
+//            this.revalidate();
+//            this.repaint();
+//        }       
+        this.updateDeviceList(deviceController.getDeviceIds(), data);
+        if (data != null) {
+            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+        }
+    }
+
+    public synchronized void updateDeviceList(int[] deviceIds, List<String> data) {
+        this.panelDeviceList.removeAll();
+        this.labelDevices.clear();
+        System.gc();
+
+        if (data != null) {
             for (int i = 0; i < deviceIds.length; i++) {
                 LabelDevice temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.DEACTIVE);
                 this.labelDevices.add(temp);
                 this.panelDeviceList.add(temp);
-                System.out.println(1);
             }
-            
-            this.revalidate();
-            this.repaint();
-        }       
-        
-        deviceController.processCheckingStateOfDevices(deviceIds);
+        }
+
+        this.panelDeviceList.revalidate();
+        this.panelDeviceList.repaint();
     }
-    
+
     public synchronized void updateLabelDeviceState(int deviceId, DeviceStates deviceState) {
         int tempSize = this.labelDevices.size();
         for (int i = 0; i < tempSize; i++) {
@@ -192,7 +231,7 @@ public class PanelImportedDevices extends JPanel {
             this.setMinimumSize(new Dimension(400, 60));
             this.setMaximumSize(new Dimension(400, 60));
 
-            this.setFont(new java.awt.Font("SansSerif", 1, 16));            
+            this.setFont(new java.awt.Font("SansSerif", 1, 16));
             this.setIconTextGap(10);
 
             ImageIcon iconImage;
@@ -205,6 +244,7 @@ public class PanelImportedDevices extends JPanel {
 
             this.setOpaque(true);
             this.setBackground(Color.white);
+            this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(60, 60, 60)));
 
             this.setVisible(true);
             this.setEnabled(true);
@@ -218,17 +258,17 @@ public class PanelImportedDevices extends JPanel {
             if (this.deviceState != deviceState) {
                 ImageIcon newIcon = null;
                 if (deviceState == DeviceStates.ACTIVE) {
-                     newIcon = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+                    newIcon = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
                 } else {
                     newIcon = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
                 }
-                
+
                 this.setIcon(newIcon);
                 this.revalidate();
                 this.repaint();
             }
             this.deviceState = deviceState;
         }
-        
+
     }
 }
