@@ -97,7 +97,11 @@ public class DeviceManager {
 
             Criteria criteria = session.createCriteria(Device.class);
             criteria.add(Restrictions.eq("id", deviceId));
-            result = (Device) criteria.list().get(0);
+            
+            List<Device> resultList = criteria.list();
+            if (!resultList.isEmpty()) {
+                result = (Device) criteria.list().get(0);
+            }
 
             transaction.commit();
         } catch (Exception ex) {

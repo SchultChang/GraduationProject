@@ -14,6 +14,10 @@ import java.util.Date;
  */
 public class DataConverter {
     public String convertDateToString(Date date) {
+        if (date == null) {
+            return "";
+        }
+        
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
         return formatter.format(date);
     }

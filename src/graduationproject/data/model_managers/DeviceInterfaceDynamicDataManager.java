@@ -7,10 +7,16 @@ package graduationproject.data.model_managers;
 
 import graduationproject.data.models.DeviceInterfaceDynamicData;
 import graduationproject.data.models.DeviceNetworkInterface;
+import java.util.List;
+import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
@@ -38,6 +44,41 @@ public class DeviceInterfaceDynamicDataManager {
            
            tx.commit();
            result = 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        
+        return result;
+    }
+    
+    //getting the newest updated data    
+    public DeviceInterfaceDynamicData getDynamicData(DeviceNetworkInterface networkInterface) { 
+        Session session = null;
+        Transaction tx = null;
+        DeviceInterfaceDynamicData result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            DetachedCriteria maxId = DetachedCriteria.forClass(DeviceInterfaceDynamicData.class)
+                    .setProjection(Projections.max("id"))
+                    .add(Restrictions.eq("networkInterface", networkInterface));;
+            Criteria cri = session.createCriteria(DeviceInterfaceDynamicData.class)
+                    .add(Property.forName("id").eq(maxId));
+                    
+            
+            List<DeviceInterfaceDynamicData> resultList = cri.list();
+            if (!resultList.isEmpty()) {
+                result = (DeviceInterfaceDynamicData) cri.list().get(0);
+            } 
+            
+            tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
             tx.rollback();
