@@ -17,10 +17,11 @@
         <!--auto create can only be used once to create the tables, later use update to avoid dropping the current tables-->
         <property name = "hibernate.hbm2ddl.auto">update</property>
       
-        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
         <property name="hibernate.enable_lazy_load_no_trans">true</property>
         <property name="hibernate.current_session_context_class">thread</property>
-        
+        <property name="hibernate.generate_statistics">false</property>
+                
         <!-- List of XML mapping files -->
         <mapping resource = "graduationproject/data/configs/User_RecoveryQuestion_Setting.cfg.xml"/>
         <mapping resource = "graduationproject/data/configs/Device_ContactInterface_ NetworkInterface.cfg.xml"/>

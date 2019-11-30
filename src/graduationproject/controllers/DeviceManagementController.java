@@ -175,6 +175,7 @@ public class DeviceManagementController {
     }
 
     public void processCheckingStateOfDevices(int[] deviceIds) {
+        System.out.println("START CHECKING DEVICE STATES");
         TimerTask checkingTask = new TimerTask() {
             @Override
             public void run() {

@@ -6,6 +6,8 @@
 package graduationproject.data.model_managers;
 
 import graduationproject.data.models.DeviceInterfaceDynamicData;
+import graduationproject.data.models.DeviceNetworkInterface;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -21,7 +23,7 @@ public class DeviceInterfaceDynamicDataManager {
         this.sessionFactory = sessionFactory;
     }
     
-    public int insertDynamicData(DeviceInterfaceDynamicData dynamicData) {
+    public int insertDynamicData(int interfaceId, DeviceInterfaceDynamicData dynamicData) {
         Session session = null;
         Transaction tx = null;
         int result = -1;
@@ -30,9 +32,12 @@ public class DeviceInterfaceDynamicDataManager {
            session = this.sessionFactory.openSession();
            tx = session.beginTransaction();
            
-           result = Integer.parseInt(session.save(dynamicData).toString());
+           DeviceNetworkInterface owningInterface = session.find(DeviceNetworkInterface.class, interfaceId);
+           dynamicData.setNetworkInterface(owningInterface);
+           session.persist(dynamicData);
            
            tx.commit();
+           result = 1;
         } catch (Exception e) {
             e.printStackTrace();
             tx.rollback();

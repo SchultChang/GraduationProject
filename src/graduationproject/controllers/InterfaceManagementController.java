@@ -60,6 +60,7 @@ public class InterfaceManagementController {
     }
 
     public void processGettingInterfacesOfDevice(int deviceId) {
+        System.out.println("START CHECKING INTERFACE STATES");
         TimerTask queryTask = new TimerTask() {
             @Override
             public void run() {
@@ -77,7 +78,7 @@ public class InterfaceManagementController {
 
         User currentUser = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         Setting setting = currentUser.getSetting();
-        SnmpManager.getInstance().getQueryTimerManager().startDeviceTimer(queryTask, 0, setting.getNormalizedTime(setting.getInterfaceCheckingPeriod()));
+        SnmpManager.getInstance().getQueryTimerManager().startInterfaceTimer(queryTask, 0, setting.getNormalizedTime(setting.getInterfaceCheckingPeriod()));
     }
 
     public void processCollectedData(int deviceId, List<InterfaceRawData> interfaceList) {
@@ -92,6 +93,8 @@ public class InterfaceManagementController {
         }
         //public DeviceNetworkInterface(String name, String macAddress, String type) {
 
+        System.out.println("START PROCESSING INTERFACE DATA");
+        
         int tempSize = device.getNetworkInterfaces().size();
         for (int i = 0; i < tempSize; i++) {
             device.getNetworkInterfaces().get(i).setName(interfaceList.get(i).getName());
@@ -111,10 +114,13 @@ public class InterfaceManagementController {
         DataManager.getInstance().getDeviceManager().updateDevice(device);
         
         Date importedTime = new Date();
+//        System.out.println("INSERTING INTERFACE DYNAMIC DATA");
         for (int i = 0; i < tempSize; i++) {
             DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                    interfaceList.get(i).getDynamicData(), importedTime, device.getNetworkInterfaces().get(i));
-            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
+                    interfaceList.get(i).getDynamicData(), importedTime, null);
+            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(
+                    device.getNetworkInterfaces().get(i).getId(),
+                    dynamicData);
         }
         
         //for display
@@ -124,8 +130,8 @@ public class InterfaceManagementController {
 
         for (int i = 0; i < tempSize; i++) {
             names[i] = interfaceList.get(i).getName();
-//            interfaceIds[i] = interfaceList.get(i).getIndex();
-            interfaceIds[i] = i;
+            interfaceIds[i] = interfaceList.get(i).getIndex();
+//            interfaceIds[i] = i;
             interfaceStates[i] = (interfaceList.get(i).getOperStatus() != 1) ? InterfaceStates.DOWN : InterfaceStates.UP;
         }
 

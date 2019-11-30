@@ -14,6 +14,9 @@ public class DeviceNetworkInterface {
     private String name;
     private String macAddress;
     private String type;
+    
+    public DeviceNetworkInterface() {
+    }
 
     public DeviceNetworkInterface(String name, String macAddress, String type) {
         this.name = name;

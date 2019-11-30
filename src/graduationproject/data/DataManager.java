@@ -10,6 +10,7 @@ import graduationproject.data.model_managers.DeviceManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
 import graduationproject.data.model_managers.UserManager;
+import java.util.logging.Level;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -34,6 +35,7 @@ public class DataManager {
     
     
     private DataManager() {
+        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);        
         this.sessionFactory = new Configuration().configure(HIBERNATE_CONFIG_FILE).buildSessionFactory();
         
         this.userManager = new UserManager(this.sessionFactory);

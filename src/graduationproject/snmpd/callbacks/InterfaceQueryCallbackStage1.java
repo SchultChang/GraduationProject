@@ -44,7 +44,7 @@ public class InterfaceQueryCallbackStage1 implements SnmpCallback<SnmpAsyncWalke
             InterfaceQueryCallbackStage2 stage2Callback = new InterfaceQueryCallbackStage2(this.dataCollector);
             se.getContext().asyncWalk(stage2Callback, 1, InterfaceQueryHelper.ipAddrTable);
         } catch(Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             se.getContext().close();
         }
     }

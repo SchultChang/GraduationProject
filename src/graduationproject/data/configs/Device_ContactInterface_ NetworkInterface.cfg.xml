@@ -76,8 +76,8 @@
 
         <property name="updatedTime" column="updated_time" type="date"/>
         
-        <many-to-one name="networkInterface" column="network_interface_id" unique="true" 
-                     class="graduationproject.data.models.DeviceNetworkInterface" cascade="save-update"/>        
+        <many-to-one name="networkInterface" column="network_interface_id" cascade="save-update"
+                     class="graduationproject.data.models.DeviceNetworkInterface" />        
     </class>
     
 </hibernate-mapping>

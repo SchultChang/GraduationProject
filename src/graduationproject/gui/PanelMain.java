@@ -6,6 +6,7 @@
 package graduationproject.gui;
 
 import graduationproject.controllers.UserManagementController;
+import graduationproject.snmpd.SnmpManager;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -401,7 +402,7 @@ public class PanelMain extends JPanel {
     public PanelImportedDevices getPanelImportedDevices() {
         return panelImportedDevices;
     }
-        
+    
     public void refreshPanel() {
         if (this.currentDisplayedPanel != null) {
             this.remove(this.currentDisplayedPanel);
@@ -413,5 +414,14 @@ public class PanelMain extends JPanel {
         this.hideMenu(this.panelAccountMenu);
         this.hideMenu(this.panelDeviceMenu);
         this.hideMenu(this.panelTemplateMenu);
+    }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        
+        if (!enabled) {
+            SnmpManager.getInstance().close();
+        }
     }
 }

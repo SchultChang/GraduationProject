@@ -42,7 +42,7 @@ public class InterfaceQueryCallbackStage3 implements SnmpCallback<SnmpAsyncWalke
             
             this.dataCollector.processCollectedData();
         } catch(Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             se.getContext().close();
         } finally {
             se.getContext().close();
