@@ -72,7 +72,16 @@ public class InterfaceManagementController {
         return resultMessage;
     }
     
-    public void processGettingInterfacesOfDevice(int deviceId) {
+    public boolean processGettingInterfacesOfDevice(int deviceId, boolean isActive) {
+        if (isActive) {
+            this.getLiveInterfaces(deviceId);
+            return true;
+        } else {
+            return this.getSavedInterfaces(deviceId);
+        }
+    }
+    
+    public void getLiveInterfaces(int deviceId) {
         System.out.println("START CHECKING INTERFACE STATES");
         TimerTask queryTask = new TimerTask() {
             @Override
@@ -93,7 +102,36 @@ public class InterfaceManagementController {
         Setting setting = currentUser.getSetting();
         SnmpManager.getInstance().getQueryTimerManager().startInterfaceTimer(queryTask, 0, setting.getNormalizedTime(setting.getInterfaceCheckingPeriod()));
     }
+    
+    public boolean getSavedInterfaces(int deviceId) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return false;
+        }
+        
+        List<DeviceNetworkInterface> interfaceList = device.getNetworkInterfaces();
+        if (interfaceList == null || interfaceList.isEmpty()) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return false;
+        }
+        
+        int tempSize = interfaceList.size();
+        String[] names = new String[tempSize];
+        int[] interfaceIds = new int[tempSize];
+        InterfaceStates[] interfaceStates = new InterfaceStates[tempSize];
 
+        for (int i = 0; i < tempSize; i++) {
+            names[i] = interfaceList.get(i).getName();
+//            interfaceIds[i] = interfaceList.get(i).getIndex();
+            interfaceIds[i] = i;
+            interfaceStates[i] = InterfaceStates.DOWN;
+        }
+
+        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelInterfaces(deviceId, interfaceIds, names, interfaceStates);
+        return true;
+    }
+    
     public void processCollectedData(int deviceId, List<InterfaceRawData> interfaceList) {
         if (interfaceList.isEmpty()) {
             return;
@@ -215,7 +253,7 @@ public class InterfaceManagementController {
             return false;
         }
         
-        this.processGettingInterfacesOfDevice(deviceId);
+        this.processGettingInterfacesOfDevice(deviceId, true);
         return true;
     }
     

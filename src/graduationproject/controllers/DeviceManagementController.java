@@ -136,7 +136,7 @@ public class DeviceManagementController {
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             this.resultMessage = new ResultMessageGenerator().IMPORTING_FAILED_FILE_NOT_FOUND;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             this.resultMessage = new ResultMessageGenerator().IMPORTING_FAILED_FILE_IO;
         } finally {

@@ -85,7 +85,6 @@ public class SnmpManager {
     }
 
     public SnmpVersion parseVersionString(String input) {
-        
         for (int i = 0; i < SNMP_VERSIONS.length; i++) {
             if (SNMP_VERSIONS[i].getValue().equalsIgnoreCase(input)) {
                 return SNMP_VERSIONS[i];

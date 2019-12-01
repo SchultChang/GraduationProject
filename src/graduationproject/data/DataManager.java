@@ -35,7 +35,7 @@ public class DataManager {
     
     
     private DataManager() {
-//        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);        
+        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);        
         this.sessionFactory = new Configuration().configure(HIBERNATE_CONFIG_FILE).buildSessionFactory();
         
         this.userManager = new UserManager(this.sessionFactory);

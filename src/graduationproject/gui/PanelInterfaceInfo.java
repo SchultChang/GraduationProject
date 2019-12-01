@@ -195,7 +195,7 @@ public class PanelInterfaceInfo extends JPanel {
 
         labelMTU.setFont(new java.awt.Font("SansSerif", 0, 16));
         labelMTU.setText(". . .");
-        panelAdditionalInformation.add(labelMTU, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 50, 90, 30));
+        panelAdditionalInformation.add(labelMTU, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 50, 200, 30));
 
         label17.setFont(new java.awt.Font("SansSerif", 1, 16));
         label17.setText("MTU:");
@@ -207,7 +207,7 @@ public class PanelInterfaceInfo extends JPanel {
 
         labelCurrentBandwidth.setFont(new java.awt.Font("SansSerif", 0, 16));
         labelCurrentBandwidth.setText(". . .");
-        panelAdditionalInformation.add(labelCurrentBandwidth, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 110, 90, 30));
+        panelAdditionalInformation.add(labelCurrentBandwidth, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, 200, 30));
         panelAdditionalInformation.add(separator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 210, 520, 10));
         panelAdditionalInformation.add(separator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 220, 520, 10));
         panelAdditionalInformation.add(separator3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 520, 10));
@@ -371,7 +371,7 @@ public class PanelInterfaceInfo extends JPanel {
         InterfaceManagementController interfaceController = new InterfaceManagementController();
         List<Object> data = interfaceController.processGettingInterfaceFromDatabase(deviceId, interfaceListId);
         if (data == null) {
-            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+//            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
             return;
         }
 
@@ -392,7 +392,7 @@ public class PanelInterfaceInfo extends JPanel {
             this.labelNextNodeMacAddress.setText((String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue()));
 
             this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
-            this.labelCurrentBandwidth.setText(String.valueOf(DataOrders.BANDWIDTH.getValue()));
+            this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
             this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
             this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
             this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));

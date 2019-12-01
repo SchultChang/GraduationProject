@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
+import org.netbeans.lib.awtextra.AbsoluteLayout;
 
 /**
  *
@@ -65,8 +67,10 @@ public class PanelImportedDevices extends JPanel {
     private MouseAdapter listenerListDevices;
     private MouseAdapter listenerListInterfaces;
 
-    private final String ICON_ACTIVE_PATH = "/resources/icon_active_30.png";
-    private final String ICON_DEACTIVE_PATH = "/resources/icon_deactive_30.png";
+    private final String ICON_DEVICE_ACTIVE_PATH = "/resources/icon_active_30.png";
+    private final String ICON_DEVICE_DEACTIVE_PATH = "/resources/icon_deactive_30.png";
+    private final String ICON_INTERFACE_ACTIVE_PATH = "/resources/icon_active_20.png";
+    private final String ICON_INTERFACE_DEACTIVE_PATH = "/resources/icon_deactive_20.png";
 
     //some action constants
     private final int LABEL_HOVER = 1;
@@ -217,13 +221,20 @@ public class PanelImportedDevices extends JPanel {
                     currentChosenLabelDevice = source;
                     currentChosenLabelDevice.switchBackground(LABEL_CLICK);
 
-                    //SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                     PanelImportedDevices.this.clearLabelInterfaces();
 
+                    InterfaceManagementController interfaceController = new InterfaceManagementController();
                     if (source.getDeviceState() == DeviceStates.ACTIVE) {
-                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-                        interfaceController.processGettingInterfacesOfDevice(source.getDeviceId());
+                        interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+                    } else {
+                        SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+                        if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
+                            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+                        };
                     }
+                } else {
+                    SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+                    PanelImportedDevices.this.clearLabelInterfaces();
                 }
 
             }
@@ -329,7 +340,7 @@ public class PanelImportedDevices extends JPanel {
                 if (temp.setDeviceState(deviceState) && this.currentChosenLabelDevice == temp) {
                     if (deviceState == DeviceStates.ACTIVE) {
                         InterfaceManagementController interfaceController = new InterfaceManagementController();
-                        interfaceController.processGettingInterfacesOfDevice(temp.getDeviceId());
+                        interfaceController.processGettingInterfacesOfDevice(temp.getDeviceId(), true);
                     } else {
                         SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
 
@@ -394,7 +405,6 @@ public class PanelImportedDevices extends JPanel {
             for (int i = listPosition + 1; i < tempSize; i++) {
                 this.panelDeviceList.remove(this.labelDevices.get(i));
             }
-
             this.clearLabelInterfaces();
 
             for (int i = 0; i < interfaceIds.length; i++) {
@@ -497,15 +507,15 @@ public class PanelImportedDevices extends JPanel {
 
             ImageIcon iconImage;
             if (deviceState == DeviceStates.DEACTIVE) {
-                iconImage = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
+                iconImage = new ImageIcon(getClass().getResource(ICON_DEVICE_DEACTIVE_PATH));
             } else {
-                iconImage = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+                iconImage = new ImageIcon(getClass().getResource(ICON_DEVICE_ACTIVE_PATH));
             }
             this.setIcon(iconImage);
 
             this.setOpaque(true);
             this.setBackground(Color.white);
-            this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(60, 60, 60)));
+            this.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new java.awt.Color(60, 60, 60)));
 
             this.setVisible(true);
             this.setEnabled(true);
@@ -525,9 +535,9 @@ public class PanelImportedDevices extends JPanel {
             if (this.deviceState != deviceState) {
                 ImageIcon newIcon = null;
                 if (deviceState == DeviceStates.ACTIVE) {
-                    newIcon = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+                    newIcon = new ImageIcon(getClass().getResource(ICON_DEVICE_ACTIVE_PATH));
                 } else {
-                    newIcon = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
+                    newIcon = new ImageIcon(getClass().getResource(ICON_DEVICE_DEACTIVE_PATH));
                 }
 
                 this.setIcon(newIcon);
@@ -551,37 +561,45 @@ public class PanelImportedDevices extends JPanel {
 
     }
 
-    public class LabelInterface extends JLabel {
+    public class LabelInterface extends JPanel {
 
         private int deviceId;
         private int interfaceId; //idx of table network interface
         private InterfaceStates interfaceState;
+        private JLabel label;
 
         public LabelInterface(String text, int deviceId, int interfaceId, InterfaceStates interfaceState) {
-            super(text);
+            this.label = new JLabel();
+            this.label.setText(text);
 
             this.deviceId = deviceId;
             this.interfaceId = interfaceId;
             this.interfaceState = interfaceState;
 
-            this.setPreferredSize(new Dimension(400, 60));
-            this.setMinimumSize(new Dimension(400, 60));
-            this.setMaximumSize(new Dimension(400, 60));
+            this.setPreferredSize(new Dimension(400, 40));
+            this.setMinimumSize(new Dimension(400, 40));
+            this.setMaximumSize(new Dimension(400, 40));
 
-            this.setFont(new java.awt.Font("SansSerif", 1, 16));
-            this.setIconTextGap(50);
+            this.label.setFont(new java.awt.Font("SansSerif", 1, 16));
+            this.label.setIconTextGap(10);
 
             ImageIcon iconImage;
             if (interfaceState == InterfaceStates.DOWN) {
-                iconImage = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
+                iconImage = new ImageIcon(getClass().getResource(ICON_INTERFACE_DEACTIVE_PATH));
             } else {
-                iconImage = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+                iconImage = new ImageIcon(getClass().getResource(ICON_INTERFACE_ACTIVE_PATH));
             }
-            this.setIcon(iconImage);
+            this.label.setIcon(iconImage);
+//            this.label.setEnabled(false);
+            this.label.setFocusable(false);
 
-            this.setOpaque(true);
-            this.setBackground(Color.white);
-            this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(60, 60, 60)));
+            this.label.setOpaque(true);
+            this.label.setBackground(Color.white);
+            this.label.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 0, new java.awt.Color(60, 60, 60)));
+
+            this.setBackground(new Color(204, 226, 255));
+            this.setLayout(new AbsoluteLayout());
+            this.add(this.label, new AbsoluteConstraints(100, 0, 300, 40));
 
             this.setVisible(true);
             this.setEnabled(true);
@@ -611,23 +629,27 @@ public class PanelImportedDevices extends JPanel {
             if (this.interfaceState != interfaceState) {
                 ImageIcon newIcon = null;
                 if (interfaceState == InterfaceStates.UP) {
-                    newIcon = new ImageIcon(getClass().getResource(ICON_ACTIVE_PATH));
+                    newIcon = new ImageIcon(getClass().getResource(ICON_INTERFACE_ACTIVE_PATH));
                 } else {
-                    newIcon = new ImageIcon(getClass().getResource(ICON_DEACTIVE_PATH));
+                    newIcon = new ImageIcon(getClass().getResource(ICON_INTERFACE_DEACTIVE_PATH));
                 }
 
-                this.setIcon(newIcon);
+                this.label.setIcon(newIcon);
                 this.revalidate();
                 this.repaint();
             }
             this.interfaceState = interfaceState;
         }
 
+        public void setText(String text) {
+            this.label.setText(text);
+        }
+
         public void switchBackground(int action) {
             if (action == LABEL_HOVER || action == LABEL_CLICK) {
-                this.setBackground(new Color(194, 217, 255));
+                this.label.setBackground(new Color(194, 217, 255));
             } else {
-                this.setBackground(Color.WHITE);
+                this.label.setBackground(Color.WHITE);
             }
         }
 
