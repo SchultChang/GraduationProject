@@ -9,6 +9,7 @@ import com.opencsv.CSVReader;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;
+import graduationproject.data.models.Template;
 import graduationproject.data.models.TemplateItem;
 import graduationproject.snmpd.SnmpManager;
 import java.io.File;
@@ -35,7 +36,7 @@ public class TemplateItemManagementController {
         OID(1),
         DISPLAY_NAME(2),
         IS_ENABLED(3),
-        DESCRIPTION(3),        
+        DESCRIPTION(3),
         VALUE_TYPE(4),
         ACCESS_TYPE(5);
 
@@ -51,6 +52,10 @@ public class TemplateItemManagementController {
 
     }
 
+    public String getResultMessage() {
+        return resultMessage;
+    }
+    
     public String normalizeValueType(String input) {
         System.out.println("VALUE TYPE:" + input);
         for (int i = 0; i < VALUE_TYPES.length; i++) {
@@ -71,6 +76,47 @@ public class TemplateItemManagementController {
         return null;
     }
 
+    public List<Object> processGettingTemplateItemInfo(int templateId, int itemListId) {
+        Template template = DataManager.getInstance().getTemplateManager().getTemplate(templateId);
+        if (template == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return null;
+        }
+        
+        List<TemplateItem> templateItems = template.getTemplateItems();
+        if (templateItems == null || itemListId >= templateItems.size()) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return null;
+        }
+        
+        return this.convertDataForView(true, templateItems.get(itemListId));
+    }
+
+    public boolean processSavingTemplateItemInfo(int templateId, int itemListId, List<Object> data) {
+        Template template = DataManager.getInstance().getTemplateManager().getTemplate(templateId);
+        if (template == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return false;
+        }
+        
+        List<TemplateItem> templateItems = template.getTemplateItems();
+        if (templateItems == null || itemListId >= templateItems.size()) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return false;
+        }
+        
+        TemplateItem item = templateItems.get(itemListId);
+        item.setDisplayName((String) data.get(DataOrders.DISPLAY_NAME.getValue()));
+        item.setDescription((String) data.get(DataOrders.DESCRIPTION.getValue()));
+        
+        if (!DataManager.getInstance().getTemplateItemManager().updateTemplateItem(item)) {
+            this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_OTHER;
+            return false;
+        }
+        
+        return true;
+    }
+    
     public List<Object> convertDataForView(boolean full, TemplateItem templateItem) {
         List<Object> result = new ArrayList<Object>();
         result.add(DataOrders.MIB_NAME.getValue(), templateItem.getMibName());
@@ -84,6 +130,13 @@ public class TemplateItemManagementController {
             result.add(DataOrders.IS_ENABLED.getValue(), templateItem.isIsEnabled());
         }
         return result;
+    }
+
+    public class ResultMessageGenerator {
+        public String GETTING_FAILED_NO_RECORD = "We haven't imported any template yet.";
+        public String GETTING_FAILED_OTHER = "Some errors happened when getting template data from database. Please try again later";
+
+        public String UPDATING_FAILED_OTHER = "Some errors happened when updaing template info into database.";
     }
 
 }

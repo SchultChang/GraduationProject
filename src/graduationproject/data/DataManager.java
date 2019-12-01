@@ -9,6 +9,7 @@ import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
+import graduationproject.data.model_managers.TemplateItemManager;
 import graduationproject.data.model_managers.TemplateManager;
 import graduationproject.data.model_managers.UserManager;
 import java.util.logging.Level;
@@ -30,6 +31,7 @@ public class DataManager {
     private DeviceManager deviceManager;    
     private DeviceInterfaceDynamicDataManager interfaceDynamicDataManager;
     private TemplateManager templateManager;
+    private TemplateItemManager templateItemManager;
     
     private int activeAccountId;
     
@@ -46,6 +48,7 @@ public class DataManager {
         this.deviceManager = new DeviceManager(this.sessionFactory);
         this.interfaceDynamicDataManager = new DeviceInterfaceDynamicDataManager(this.sessionFactory);
         this.templateManager = new TemplateManager(this.sessionFactory);
+        this.templateItemManager = new TemplateItemManager(this.sessionFactory);
     }
     
     public static DataManager getInstance() {
@@ -85,6 +88,10 @@ public class DataManager {
         return templateManager;
     }
 
+    public TemplateItemManager getTemplateItemManager() {
+        return templateItemManager;
+    }
+    
     public int getActiveAccountId() {
         return activeAccountId;
     }

@@ -432,6 +432,12 @@ public class PanelMain extends JPanel {
     public PanelImportedDevices getPanelImportedDevices() {
         return panelImportedDevices;
     }
+
+    public PanelImportedTemplates getPanelImportedTemplates() {
+        return panelImportedTemplates;
+    }
+    
+    
     
     public void refreshPanel() {
         if (this.currentDisplayedPanel != null) {

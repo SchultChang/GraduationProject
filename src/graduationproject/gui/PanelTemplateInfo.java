@@ -11,6 +11,8 @@ import graduationproject.controllers.TemplateManagementController;
 import graduationproject.controllers.TemplateManagementController.DataOrders;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -50,12 +52,15 @@ public class PanelTemplateInfo extends JPanel {
     private String[] defaultColumns = {"Display Name", "MIB Name", "Object Id",  "Enable"};
     
     private ActionListener listenerButton;
+    private MouseAdapter listenerTable;
     
+    private int clickedRow = 0;
     private int templateId;
     
     public PanelTemplateInfo() {
         initComponents();
         initListeners();
+        initOtherComponents();
     }
     
     private void initComponents() {
@@ -177,6 +182,27 @@ public class PanelTemplateInfo extends JPanel {
         
         this.buttonCancel.addActionListener(this.listenerButton);
         this.buttonSave.addActionListener(this.listenerButton);
+        
+        this.listenerTable = new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                JTable source = (JTable) e.getSource();
+                if (source == tableItems) {
+                    if (clickedRow ==  source.getSelectedRow()) {
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().showPanelItemInfo();
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().getPanelItemInfo().initData(templateId, clickedRow);
+                        clickedRow = -1;
+                    } else {
+                        clickedRow = source.getSelectedRow();
+                    }
+                }
+            }
+        };
+        this.tableItems.addMouseListener(listenerTable);
+    }
+    
+    private void initOtherComponents() { 
+        this.clickedRow = -1;
     }
     
     public void initData(int templateId) {

@@ -51,6 +51,7 @@ public class PanelImportedTemplates extends JPanel {
     private JScrollPane scrollpane1;
     private JTextField tfieldSearch;
 
+    private PanelItemInfo panelItemInfo;
     private PanelTemplateInfo panelTemplateInfo;
 
     private ActionListener listenerButton;
@@ -137,8 +138,12 @@ public class PanelImportedTemplates extends JPanel {
     }
 
     private void initChildPanels() {
+        this.panelItemInfo = new PanelItemInfo();
+        this.add(this.panelItemInfo, new AbsoluteConstraints(440, 0, -1, -1));
+        
+        
         this.panelTemplateInfo = new PanelTemplateInfo();
-        this.add(this.panelTemplateInfo, new AbsoluteConstraints(440, 60, -1, -1));
+        this.add(this.panelTemplateInfo, new AbsoluteConstraints(440, 0, -1, -1));
         this.hidePanelTemplateInfo();
     }
 
@@ -176,6 +181,7 @@ public class PanelImportedTemplates extends JPanel {
                         TemplateManagementController templateController = new TemplateManagementController();
                         List<String> data = templateController.processSearchingTemplates(!isSingular, currentDataOrder, tfieldSearch.getText());
 
+                        hidePanelTemplateInfo();
                         updateTemplateList(templateController.getTemplateIds(), data);
                     } else {
                         super.keyReleased(e);
@@ -196,6 +202,7 @@ public class PanelImportedTemplates extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 LabelTemplate source = (LabelTemplate) e.getSource();
 
+                hidePanelItemInfo();
                 showPanelTemplateInfo();
                 panelTemplateInfo.initData(source.getTemplateId());
 
@@ -225,7 +232,7 @@ public class PanelImportedTemplates extends JPanel {
 
     public void initData() {
         hidePanelTemplateInfo();
-//        hidePanelTemplateItemInfo();
+        hidePanelItemInfo();
         initTemplateList();
     }
 
@@ -268,12 +275,32 @@ public class PanelImportedTemplates extends JPanel {
             this.repaint();
         }
     }
+    
+    public void showPanelItemInfo() {
+        if (!this.panelItemInfo.isVisible()) {
+            this.panelItemInfo.setEnabled(true);
+            this.panelItemInfo.setVisible(true);
+            
+            this.revalidate();
+            this.repaint();
+        }
+    }
 
     public void hidePanelTemplateInfo() {
         if (this.panelTemplateInfo.isVisible()) {
             this.panelTemplateInfo.setVisible(false);
             this.panelTemplateInfo.setEnabled(false);
 
+            this.revalidate();
+            this.repaint();
+        }
+    }
+    
+    public void hidePanelItemInfo() {
+        if (this.panelItemInfo.isVisible()) {
+            this.panelItemInfo.setVisible(false);
+            this.panelItemInfo.setEnabled(false);
+            
             this.revalidate();
             this.repaint();
         }
@@ -288,6 +315,14 @@ public class PanelImportedTemplates extends JPanel {
         }
     }
 
+    public PanelItemInfo getPanelItemInfo() {
+        return panelItemInfo;
+    }
+
+    public PanelTemplateInfo getPanelTemplateInfo() {
+        return panelTemplateInfo;
+    }
+    
     public class LabelTemplate extends JLabel {
 
         private int templateId;
