@@ -14,6 +14,7 @@ public class TemplateItem {
     private String mibName;
     private String oid;
     private String displayName;
+    private String description;
     private String valueType;
     private String accessType;
     private boolean isEnabled;
@@ -21,10 +22,11 @@ public class TemplateItem {
     public TemplateItem() {
     }
 
-    public TemplateItem(String mibName, String oid, String displayName, String valueType, String accessType, boolean isEnabled) {
+    public TemplateItem(String mibName, String oid, String displayName, String description, String valueType, String accessType, boolean isEnabled) {
         this.mibName = mibName;
         this.oid = oid;
         this.displayName = displayName;
+        this.description = description;
         this.valueType = valueType;
         this.accessType = accessType;
         this.isEnabled = isEnabled;
@@ -86,5 +88,12 @@ public class TemplateItem {
         this.isEnabled = isEnabled;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
     
 }

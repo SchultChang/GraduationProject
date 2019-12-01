@@ -9,6 +9,7 @@ import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
+import graduationproject.data.model_managers.TemplateManager;
 import graduationproject.data.model_managers.UserManager;
 import java.util.logging.Level;
 import org.hibernate.SessionFactory;
@@ -28,6 +29,7 @@ public class DataManager {
     private SettingManager settingManager;
     private DeviceManager deviceManager;    
     private DeviceInterfaceDynamicDataManager interfaceDynamicDataManager;
+    private TemplateManager templateManager;
     
     private int activeAccountId;
     
@@ -35,7 +37,7 @@ public class DataManager {
     
     
     private DataManager() {
-        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);        
+//        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);        
         this.sessionFactory = new Configuration().configure(HIBERNATE_CONFIG_FILE).buildSessionFactory();
         
         this.userManager = new UserManager(this.sessionFactory);
@@ -43,6 +45,7 @@ public class DataManager {
 //        this.recoveryQuestionManager = new RecoveryQuestionManager(this.sessionFactory);
         this.deviceManager = new DeviceManager(this.sessionFactory);
         this.interfaceDynamicDataManager = new DeviceInterfaceDynamicDataManager(this.sessionFactory);
+        this.templateManager = new TemplateManager(this.sessionFactory);
     }
     
     public static DataManager getInstance() {
@@ -78,8 +81,10 @@ public class DataManager {
         return interfaceDynamicDataManager;
     }
 
-    
-    
+    public TemplateManager getTemplateManager() {
+        return templateManager;
+    }
+
     public int getActiveAccountId() {
         return activeAccountId;
     }

@@ -52,13 +52,15 @@ public class PanelMain extends JPanel {
     private JPanel currentDisplayedPanel;
     private PanelUserProfile panelUserProfile;
     private PanelImportedDevices panelImportedDevices;
+    private PanelImportedTemplates panelImportedTemplates;
     
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
 
     public enum PANELS {
         PANEL_USER_PROFILE,
-        PANEL_IMPORTED_DEVICES;
+        PANEL_IMPORTED_DEVICES,
+        PANEL_IMPORTED_TEMPLATES
     }
 
     public PanelMain() {
@@ -272,6 +274,9 @@ public class PanelMain extends JPanel {
                 if (source == panelDeviceMenu) {
                     processMouseOnPanelDeviceMenu(e.getX(), e.getY());
                 }                
+                if (source == panelTemplateMenu) {
+                    processMouseOnPanelTemplateMenu(e.getX(), e.getY());
+                }
             }
 
             @Override
@@ -303,6 +308,22 @@ public class PanelMain extends JPanel {
         if (temp < labels.length) {
             if (labels[temp] == this.labelImportedDevices) {
                 this.switchDisplayedPanel(PANELS.PANEL_IMPORTED_DEVICES);
+            }
+        }
+    }
+    
+    private void processMouseOnPanelTemplateMenu(int x, int y) {
+        JLabel[] labels = {this.labelSingularTemplates, this.labelTabularTemplates};
+        int temp = this.getPressedLabelId(labels, x, y);
+        
+        if (temp < labels.length) {
+            if (labels[temp] == this.labelSingularTemplates) {
+                this.panelImportedTemplates.setIsSingular(true);
+                this.switchDisplayedPanel(PANELS.PANEL_IMPORTED_TEMPLATES);
+            }
+            if (labels[temp] == this.labelTabularTemplates) {
+                this.panelImportedTemplates.setIsSingular(false);
+                this.switchDisplayedPanel(PANELS.PANEL_IMPORTED_TEMPLATES);
             }
         }
     }
@@ -361,6 +382,10 @@ public class PanelMain extends JPanel {
         this.panelImportedDevices = new PanelImportedDevices();
         this.panelImportedDevices.setVisible(false);
         this.panelImportedDevices.setEnabled(false);
+        
+        this.panelImportedTemplates = new PanelImportedTemplates();
+        this.panelImportedTemplates.setVisible(false);
+        this.panelImportedTemplates.setEnabled(false);
     }
 
     public void switchDisplayedPanel(PANELS panel) {
@@ -378,8 +403,13 @@ public class PanelMain extends JPanel {
                 
             case PANEL_IMPORTED_DEVICES:
                 this.displayPanel(this.panelImportedDevices, 0, 60, -1, -1);
-                this.panelImportedDevices.refreshPanel();
+//                this.panelImportedDevices.refreshPanel();
                 this.panelImportedDevices.initData();
+                break;
+                
+            case PANEL_IMPORTED_TEMPLATES:
+                this.displayPanel(this.panelImportedTemplates, 0, 60, -1, -1);
+                this.panelImportedTemplates.initData();
                 break;
         }
 

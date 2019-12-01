@@ -161,6 +161,10 @@ public class DeviceManagementController {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return null;
         }
+        
+        if (devices.isEmpty()) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_NO_RECORD;
+        }
 
         List<String> result = new ArrayList<String>();
         int tempSize = devices.size();
@@ -304,6 +308,7 @@ public class DeviceManagementController {
         public String IMPORTING_FAILED_FILE_NON_CONTENT = "The chosen file doesn't have any content in it. Please check it then try again later.";
         public String IMPORTING_FAILED_OTHER = "Some errors happened when saving imported data to the database. Please try again later.";
 
+        public String GETTING_FAILED_NO_RECORD = "We have not imported any record into database.";
         public String GETTING_FAILED_OTHER = "Some errors happened when getting device data from database. Please try again later";
 
         public String UPDATING_FAILED_OTHER = "Some errors happened when updaing device info into database.";

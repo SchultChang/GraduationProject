@@ -159,19 +159,23 @@ public class PanelImportedDevices extends JPanel {
         this.listenerButton = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(null);
+                JButton source = (JButton) e.getSource();
 
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    DeviceManagementController deviceController = new DeviceManagementController();
-                    File file = fileChooser.getSelectedFile();
+                if (source == buttonImport) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int result = fileChooser.showOpenDialog(null);
 
-                    if (!deviceController.processImportingDevicesFromFile(file)) {
-                        JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
-                    } else {
-                        SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
-                        SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-                        initData();
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        DeviceManagementController deviceController = new DeviceManagementController();
+                        File file = fileChooser.getSelectedFile();
+
+                        if (!deviceController.processImportingDevicesFromFile(file)) {
+                            JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
+                        } else {
+                            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
+                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+                            initData();
+                        }
                     }
                 }
             }
@@ -182,16 +186,19 @@ public class PanelImportedDevices extends JPanel {
         this.listenerField = new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    DeviceManagementController deviceController = new DeviceManagementController();
-                    List<String> data = deviceController.processSearchingDevices(currentDataOrder, tfieldSearch.getText());
+                JTextField source = (JTextField) e.getSource();
+                if (source == tfieldSearch) {
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        DeviceManagementController deviceController = new DeviceManagementController();
+                        List<String> data = deviceController.processSearchingDevices(currentDataOrder, tfieldSearch.getText());
 
-                    updateDeviceList(deviceController.getDeviceIds(), data);
-                    if (data != null) {
-                        deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+                        updateDeviceList(deviceController.getDeviceIds(), data);
+                        if (data != null) {
+                            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+                        }
+                    } else {
+                        super.keyReleased(e);
                     }
-                } else {
-                    super.keyReleased(e);
                 }
             }
         };
@@ -465,9 +472,9 @@ public class PanelImportedDevices extends JPanel {
         this.currentDisplayedPanel = panel;
     }
 
-    public void refreshPanel() {
-        this.hideDisplayedPanel();
-    }
+//    public void refreshPanel() {
+//        this.hideDisplayedPanel();
+//    }
 
     public DataOrders getCurrentDataOrder() {
         return currentDataOrder;

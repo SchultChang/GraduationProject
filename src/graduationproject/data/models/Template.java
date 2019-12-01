@@ -5,6 +5,8 @@
  */
 package graduationproject.data.models;
 
+import graduationproject.controllers.TemplateManagementController;
+import graduationproject.controllers.TemplateManagementController.DataOrders;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
  * @author cloud
  */
 public class Template {
+
     private int id;
     private String name;
     private String description;
@@ -22,8 +25,10 @@ public class Template {
     private Date importedTime;
 
     private List<TemplateItem> templateItems;
-    
+
     public Template() {
+        this.isTable = false;
+        this.templateItems = new ArrayList<TemplateItem>();
     }
 
     public Template(String name, String description, String snmpVersion, boolean isTable, Date importedTime) {
@@ -42,7 +47,7 @@ public class Template {
     public void setTemplateItems(List<TemplateItem> templateItems) {
         this.templateItems = templateItems;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -91,5 +96,19 @@ public class Template {
         this.importedTime = importedTime;
     }
     
-    
+    public Object getData(DataOrders order ) {
+        if (order == DataOrders.NAME) {
+            return this.name;
+        }
+        if (order == DataOrders.DESCRIPTION) {
+            return this.description;
+        }
+        return null;
+    }
+
+    public static String getColumnName(DataOrders order) {
+        String[] columnNames = {"name", "description"};
+        return columnNames[order.getValue()];
+    }
+
 }
