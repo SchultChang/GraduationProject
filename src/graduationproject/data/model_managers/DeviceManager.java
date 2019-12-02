@@ -6,6 +6,7 @@
 package graduationproject.data.model_managers;
 
 import graduationproject.controllers.DeviceManagementController.DataOrders;
+import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
 import graduationproject.data.models.User;
 import java.util.ArrayList;
@@ -172,6 +173,37 @@ public class DeviceManager {
         }
 
         return result;
+    }
+    
+    public boolean deleteDevice(int deviceId) {
+        Session session = null;
+        Transaction tx = null;
+        boolean result = false;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            Device device = session.load(Device.class, deviceId);
+            int tempSize = device.getNetworkInterfaces().size();
+            for (int i = 0; i < tempSize; i++) {
+                DataManager.getInstance().getInterfaceDynamicDataManager().deleteDynamicData(device.getNetworkInterfaces().get(i));
+            }
+            session.delete(device);
+            
+            tx.commit();
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        return result;
+
     }
     
 }

@@ -301,6 +301,14 @@ public class DeviceManagementController {
         return true;
     }
 
+    public boolean processDeletingDevice(int deviceId) {
+        if (!DataManager.getInstance().getDeviceManager().deleteDevice(deviceId)) {
+            this.resultMessage = new ResultMessageGenerator().DELETING_FAILED_OTHER;
+            return false;
+        }
+        return true;
+    }
+    
     public class ResultMessageGenerator {
 
         public String IMPORTING_FAILED_FILE_NOT_FOUND = "The chosen file is not found. Please try again.";
@@ -313,6 +321,8 @@ public class DeviceManagementController {
 
         public String UPDATING_FAILED_OTHER = "Some errors happened when updaing device info into database.";
         public String UPDATING_FAILED_NON_LABEL = "Label field should not be left empty, otherwise you can not find that device later.";
+        
+        public String DELETING_FAILED_OTHER = "Some errors happened when deleting device data in database.";
     }
 
 }

@@ -9,6 +9,7 @@ import graduationproject.data.models.DeviceInterfaceDynamicData;
 import graduationproject.data.models.DeviceNetworkInterface;
 import java.util.List;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -88,6 +89,35 @@ public class DeviceInterfaceDynamicDataManager {
             }
         }
         
+        return result;
+    }
+    
+    public boolean deleteDynamicData(DeviceNetworkInterface networkInterface) {
+        Session session = null;
+        Transaction tx = null;
+        boolean result = false;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            String hql = "delete from " + DeviceInterfaceDynamicData.class.getSimpleName() 
+                    + " where networkInterface=:networkInterface";
+            Query query = session.createQuery(hql);
+            query.setParameter("networkInterface", networkInterface);
+            query.executeUpdate();
+            
+            tx.commit();
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+            
         return result;
     }
 }

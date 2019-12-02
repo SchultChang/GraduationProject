@@ -30,12 +30,15 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
@@ -62,10 +65,14 @@ public class PanelImportedDevices extends JPanel {
     private List<LabelDevice> labelDevices;
     private List<LabelInterface> labelInterfaces;
 
+    private JPopupMenu pmenuDevices;
+    private JMenuItem mitemDelete;
+
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
     private MouseAdapter listenerListDevices;
     private MouseAdapter listenerListInterfaces;
+    private ActionListener listenerItems;
 
     private final String ICON_DEVICE_ACTIVE_PATH = "/resources/icon_active_30.png";
     private final String ICON_DEVICE_DEACTIVE_PATH = "/resources/icon_deactive_30.png";
@@ -77,6 +84,7 @@ public class PanelImportedDevices extends JPanel {
     private final int LABEL_CLICK = 2;
 
     private LabelInterface currentChosenLabelInterface;
+    private LabelDevice pendingLabelToDelete;
     private LabelDevice currentChosenLabelDevice;
     private DataOrders currentDataOrder;
 
@@ -143,6 +151,7 @@ public class PanelImportedDevices extends JPanel {
         add(panelDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 440, -1));
 
         initChildPanels();
+        initMenu();
     }
 
     public void initChildPanels() {
@@ -153,6 +162,13 @@ public class PanelImportedDevices extends JPanel {
         this.panelInterfaceInfo = new PanelInterfaceInfo();
         this.panelInterfaceInfo.setVisible(false);
         this.panelInterfaceInfo.setEnabled(false);
+    }
+
+    private void initMenu() {
+        this.pmenuDevices = new JPopupMenu();
+
+        this.mitemDelete = new JMenuItem("Delete");
+        this.pmenuDevices.add(this.mitemDelete);
     }
 
     private void initListeners() {
@@ -215,33 +231,39 @@ public class PanelImportedDevices extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 LabelDevice source = (LabelDevice) e.getSource();
 
-                if (!panelDeviceInfo.isVisible()) {
-                    switchDisplayedPanel(PANELS.PANEL_DEVICE_INFO);
-                }
-                panelDeviceInfo.initData(source.getDeviceId());
-
-                if (currentChosenLabelDevice != source) {
-                    if (currentChosenLabelDevice != null) {
-                        currentChosenLabelDevice.switchBackground(-LABEL_CLICK);
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    if (!panelDeviceInfo.isVisible()) {
+                        switchDisplayedPanel(PANELS.PANEL_DEVICE_INFO);
                     }
+                    panelDeviceInfo.initData(source.getDeviceId());
 
-                    currentChosenLabelDevice = source;
-                    currentChosenLabelDevice.switchBackground(LABEL_CLICK);
+                    if (currentChosenLabelDevice != source) {
+                        if (currentChosenLabelDevice != null) {
+                            currentChosenLabelDevice.switchBackground(-LABEL_CLICK);
+                        }
 
-                    PanelImportedDevices.this.clearLabelInterfaces();
+                        currentChosenLabelDevice = source;
+                        currentChosenLabelDevice.switchBackground(LABEL_CLICK);
 
-                    InterfaceManagementController interfaceController = new InterfaceManagementController();
-                    if (source.getDeviceState() == DeviceStates.ACTIVE) {
-                        interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+                        PanelImportedDevices.this.clearLabelInterfaces();
+
+                        InterfaceManagementController interfaceController = new InterfaceManagementController();
+                        if (source.getDeviceState() == DeviceStates.ACTIVE) {
+                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+                        } else {
+                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+                            if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
+                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+                            };
+                        }
                     } else {
                         SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-                        if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
-                            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
-                        };
+                        PanelImportedDevices.this.clearLabelInterfaces();
+                        currentChosenLabelDevice = null;
                     }
                 } else {
-                    SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-                    PanelImportedDevices.this.clearLabelInterfaces();
+                    pmenuDevices.show(source, e.getX(), e.getY());
+                    pendingLabelToDelete = source;
                 }
 
             }
@@ -290,6 +312,26 @@ public class PanelImportedDevices extends JPanel {
                 }
             }
         };
+
+        this.listenerItems = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JMenuItem source = (JMenuItem) e.getSource();
+                if (source == mitemDelete) {
+                    DeviceManagementController deviceController = new DeviceManagementController();
+                    if (!deviceController.processDeletingDevice(pendingLabelToDelete.getDeviceId())) {
+                        JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
+                        return;
+                    }
+
+                    SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+                    initData();
+                    System.gc();                    
+                }
+            }
+
+        };
+        this.mitemDelete.addActionListener(this.listenerItems);
     }
 
     public void initOtherComponents() {
@@ -299,6 +341,7 @@ public class PanelImportedDevices extends JPanel {
 
     public void initData() {
         this.hideDisplayedPanel();
+        this.clearLabelInterfaces();
         this.initDeviceList();
     }
 
@@ -461,6 +504,9 @@ public class PanelImportedDevices extends JPanel {
             this.currentDisplayedPanel.setVisible(false);
             this.currentDisplayedPanel.setEnabled(false);
             this.currentDisplayedPanel = null;
+            
+            this.revalidate();
+            this.repaint();
         }
     }
 
@@ -475,7 +521,6 @@ public class PanelImportedDevices extends JPanel {
 //    public void refreshPanel() {
 //        this.hideDisplayedPanel();
 //    }
-
     public DataOrders getCurrentDataOrder() {
         return currentDataOrder;
     }
