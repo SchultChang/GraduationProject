@@ -5,6 +5,7 @@
  */
 package graduationproject.snmpd;
 
+import graduationproject.snmpd.callbacks.NotificationHandler;
 import java.io.IOException;
 import javax.swing.Timer;
 import org.soulwing.snmp.Mib;
@@ -13,6 +14,7 @@ import org.soulwing.snmp.ModuleParseException;
 import org.soulwing.snmp.SimpleSnmpV2cTarget;
 import org.soulwing.snmp.SnmpContext;
 import org.soulwing.snmp.SnmpFactory;
+import org.soulwing.snmp.SnmpListener;
 import org.soulwing.snmp.SnmpTarget;
 
 /**
@@ -26,6 +28,9 @@ public class SnmpManager {
         SnmpVersion.VERSION_1, SnmpVersion.VERSION_2, SnmpVersion.VERSION_2_COMMUNITY, SnmpVersion.VERSION_3};
     
     private Mib mib;
+    private SnmpListener notificationListener;
+    private NotificationHandler notificationHandler;
+    
     private QueryTimerManager queryTimerManager;
 
     private static SnmpManager instance;
@@ -49,6 +54,10 @@ public class SnmpManager {
     }
     
     private void initOtherComponents() {
+        this.notificationListener = SnmpFactory.getInstance().newListener(10162, mib);
+        this.notificationHandler = new NotificationHandler();
+        this.notificationListener.addHandler(this.notificationHandler);
+        
         this.queryTimerManager = new QueryTimerManager();
     }
 

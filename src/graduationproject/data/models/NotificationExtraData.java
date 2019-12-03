@@ -9,22 +9,17 @@ package graduationproject.data.models;
  *
  * @author cloud
  */
-public class TrapExtraData {
+public class NotificationExtraData {
     private int id;
     private String value;
     private String name;
     
-    private Trap trap;
-    private TemplateItem templateItem;
-
-    public TrapExtraData() {
+    public NotificationExtraData() {
     }
 
-    public TrapExtraData(String value, String name, Trap trap) {
+    public NotificationExtraData(String value, String name) {
         this.value = value;
         this.name = name;
-        this.trap = trap;
-        this.templateItem = null;
     }
 
     public int getId() {
@@ -51,22 +46,4 @@ public class TrapExtraData {
         this.name = name;
     }
 
-    public Trap getTrap() {
-        return trap;
-    }
-
-    public void setTrap(Trap trap) {
-        this.trap = trap;
-    }
-
-    public TemplateItem getTemplateItem() {
-        return templateItem;
-    }
-
-    public void setTemplateItem(TemplateItem templateItem) {
-        this.templateItem = templateItem;
-    }
-
-
-    
 }

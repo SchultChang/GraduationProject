@@ -11,6 +11,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,7 +51,7 @@ public class PanelMain extends JPanel {
     private JPanel panelNotificationBoard;
     private JPanel panelNotifications;
     private JScrollPane scrollpane1;
-    
+
     private JPanel panelOptionDevices;
     private JPanel panelOptionTemplates;
     private JPanel panelOptionNotifications;
@@ -64,6 +68,10 @@ public class PanelMain extends JPanel {
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
 
+    private final int NOTIFICATION_BOARD_LIVE_TIME = 500000; //millisecond
+    private Timer timerNotificationBoard;
+    private List<PanelNotification> listNotifications;
+
     public enum PANELS {
         PANEL_USER_PROFILE,
         PANEL_IMPORTED_DEVICES,
@@ -74,6 +82,7 @@ public class PanelMain extends JPanel {
         initComponents();
         initListeners();
         initChildPanels();
+        initOtherComponents();
     }
 
     private void initComponents() {
@@ -199,7 +208,7 @@ public class PanelMain extends JPanel {
         label6.setText("Notifications");
         label6.setFocusable(false);
         panelOptionNotifications.add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 0, 130, 60));
-        
+
         label7.setBackground(java.awt.Color.red);
         label7.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         label7.setForeground(java.awt.Color.red);
@@ -263,7 +272,7 @@ public class PanelMain extends JPanel {
 
         labelCloseBoard.setBackground(java.awt.Color.white);
         labelCloseBoard.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelCloseBoard.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icon_double_up_30.png"))); // NOI18N
+        labelCloseBoard.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_up_30.png"))); // NOI18N
         labelCloseBoard.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 1, 1, 1, new java.awt.Color(0, 0, 0)));
         labelCloseBoard.setOpaque(true);
         panelNotificationBoard.add(labelCloseBoard, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 400, 30));
@@ -294,12 +303,18 @@ public class PanelMain extends JPanel {
                 }
                 if (source == labelIconSettings) {
                 }
+                if (source == labelCloseBoard) {
+                    timerNotificationBoard.cancel();
+                    timerNotificationBoard.purge();
+                    hideMenu(panelNotificationBoard);
+                }
 
             }
         };
 
         this.labelIconAccount.addMouseListener(this.listenerLabel);
         this.labelIconSettings.addMouseListener(this.listenerLabel);
+        this.labelCloseBoard.addMouseListener(this.listenerLabel);
 
         this.listenerPanel = new MouseAdapter() {
             @Override
@@ -431,6 +446,10 @@ public class PanelMain extends JPanel {
         this.panelImportedTemplates.setEnabled(false);
     }
 
+    private void initOtherComponents() {
+        this.listNotifications = new ArrayList<PanelNotification>();
+    }
+
     public void switchDisplayedPanel(PANELS panel) {
         if (this.currentDisplayedPanel != null) {
             this.remove(this.currentDisplayedPanel);
@@ -499,6 +518,85 @@ public class PanelMain extends JPanel {
 
         if (!enabled) {
             SnmpManager.getInstance().close();
+        }
+    }
+
+    public synchronized void showNotification(int notificationId, String header, String content) {
+        if (this.isVisible()) {
+            if (!this.panelNotificationBoard.isVisible()) {
+                int tempSize = this.listNotifications.size();
+                for (int i = 0; i < tempSize; i++) {
+                    if (this.listNotifications.get(i).isRead()) {
+                        this.panelNotifications.remove(this.listNotifications.get(i));
+                        this.listNotifications.remove(i);
+                    }
+                }
+                showMenu(this.panelNotificationBoard);
+                if (this.timerNotificationBoard != null) {
+                    this.timerNotificationBoard.cancel();
+                    this.timerNotificationBoard.purge();
+                }
+                TimerTask boardClosingTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (panelNotificationBoard.isVisible()) {
+                            hideMenu(panelNotificationBoard);
+                        }
+                    }
+
+                };
+
+                this.timerNotificationBoard = new Timer();
+                this.timerNotificationBoard.schedule(boardClosingTask, this.NOTIFICATION_BOARD_LIVE_TIME);
+                System.gc();
+            }
+
+            PanelNotification notification = new PanelNotification(notificationId, header, content);
+            this.listNotifications.add(notification);
+
+            this.panelNotifications.removeAll();
+            int tempSize = this.listNotifications.size();
+            for (int i = tempSize - 1; i >= 0; i--) {
+                this.panelNotifications.add(this.listNotifications.get(i));
+            }
+            
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
+    public class PanelNotification extends JPanel {
+
+        private int notificationId;
+        private JLabel labelHeader;
+        private JLabel labelContent;
+        private boolean isRead;
+
+        public PanelNotification(int notificationId, String header, String content) {
+            this.labelHeader = new JLabel(header);
+            this.labelContent = new JLabel(content);
+            
+            setBackground(new Color(192, 215, 252));
+            setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(0, 0, 0)));
+            setMaximumSize(new java.awt.Dimension(400, 70));
+            setMinimumSize(new java.awt.Dimension(400, 70));
+            setPreferredSize(new java.awt.Dimension(400, 70));
+            setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+            labelContent.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
+            labelContent.setForeground(java.awt.Color.blue);
+            add(labelContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 360, -1));
+
+            labelHeader.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+            labelHeader.setForeground(java.awt.Color.red);
+            add(labelHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 360, 30));
+
+            this.notificationId = notificationId;
+            this.isRead = false;
+        }
+
+        public boolean isRead() {
+            return this.isRead;
         }
     }
 }

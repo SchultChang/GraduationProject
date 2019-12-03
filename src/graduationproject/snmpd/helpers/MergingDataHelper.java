@@ -25,17 +25,27 @@ public class MergingDataHelper {
         VarbindCollection varbind = queryContext.getNext(objName).get();
         String retrievedData = varbind.get(objName).asString();
         
-        String[] result = new String[DataOrders.DEVICE_LABEL.getValue()];
+        String[] result = new String[DataOrders.END.getValue()];
         int sepPosition = retrievedData.lastIndexOf(this.DEVICE_ID_SEP);
-        result[DataOrders.DEVICE_NAME.getValue()] = retrievedData.substring(0, sepPosition);
-        result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData.substring(sepPosition + this.DEVICE_ID_SEP.length());
+        if (sepPosition >= 0) {
+            result[DataOrders.DEVICE_NAME.getValue()] = retrievedData.substring(0, sepPosition);
+            result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData.substring(sepPosition + this.DEVICE_ID_SEP.length());
+        } else {
+            result[DataOrders.DEVICE_NAME.getValue()] = retrievedData;
+            result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData;
+        }
         
         return result;
     }
     
+    public String[] getDeviceIdentification(SnmpTarget target, String community) {
+        return this.getDeviceIdentification(SnmpManager.getInstance().createTarget(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY, target.getAddress(), community));
+    }
+    
     public enum DataOrders {
         DEVICE_NAME(0),
-        DEVICE_LABEL(1);
+        DEVICE_LABEL(1),
+        END(2);
         
         private int value;
         private DataOrders(int value) {

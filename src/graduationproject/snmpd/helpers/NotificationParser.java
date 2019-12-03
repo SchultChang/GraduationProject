@@ -24,32 +24,33 @@ public class NotificationParser {
     public List<Object> parseNotification(SimpleSnmpV2cTarget target, VarbindCollection varbinds) {
         List<Object> result = new ArrayList<Object>();
 
-        result.add(DataOrders.IP_ADDRESS.getValue(), target.getAddress());
-        result.add(DataOrders.COMMUNITY.getValue(), target.getCommunity());
-
+//        result.add(DataOrders.IP_ADDRESS.getValue(), target.getAddress());
+//        result.add(DataOrders.COMMUNITY.getValue(), target.getCommunity());
         String typeOid = varbinds.get(typeName).asString();
 
         if (typeOid.equals(NotificationType.COLD_START.getOid())) {
             this.parseColdStartNotification(target, varbinds, result);
-        }
-        if (typeOid.equals(NotificationType.WARM_START.getOid())) {
+        } else if (typeOid.equals(NotificationType.WARM_START.getOid())) {
             this.parseWarmStartNotification(target, varbinds, result);
-        }
-        if (typeOid.equals(NotificationType.LINK_DOWN.getOid())) {
+        } else if (typeOid.equals(NotificationType.LINK_DOWN.getOid())) {
             this.parseLinkDownNotification(target, varbinds, result);
-        }
-        if (typeOid.equals(NotificationType.LINK_UP.getOid())) {
+        } else if (typeOid.equals(NotificationType.LINK_UP.getOid())) {
             this.parseLinkUpNotification(target, varbinds, result);
+        } else if (typeOid.equals((NotificationType.AUTHENTICATION_FAILURE.getOid()))) {
+            this.parseAuthenticationFailureNotification(target, varbinds, result);
+        } else {
+            this.parseEnterpriseNotification(target, varbinds, result);
         }
-        if (typeOid.equals((NotificationType.AUTHENTICATION_FAILURE.getOid()))) {
-            
-        }
-        
+
         return result;
     }
 
     private void parseColdStartNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
-        result.add(DataOrders.DEVICE_ID.getValue(), new DeviceManagementController().processDeviceInfoWithStartNotification(target, true));
+        DeviceManagementController deviceController = new DeviceManagementController();
+        int deviceId = deviceController.processDeviceInfoWithStartNotification(target, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+
         result.add(DataOrders.TYPE.getValue(), NotificationType.COLD_START.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.COLD_START.getMessage());
 
@@ -57,7 +58,11 @@ public class NotificationParser {
     }
 
     private void parseWarmStartNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
-        result.add(DataOrders.DEVICE_ID.getValue(), new DeviceManagementController().processDeviceInfoWithStartNotification(target, true));
+        DeviceManagementController deviceController = new DeviceManagementController();
+        int deviceId = deviceController.processDeviceInfoWithStartNotification(target, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+
         result.add(DataOrders.TYPE.getValue(), NotificationType.WARM_START.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.WARM_START.getMessage());
 
@@ -67,51 +72,85 @@ public class NotificationParser {
     private void parseLinkDownNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int interfaceId = varbinds.get("ifIndex").asInt();
+        int deviceId = deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, false, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
 
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, false, true));
         result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_DOWN.getName());
-        
-        String interfaceName = deviceController.getCheckingDeviceInterfaceName(interfaceId);
-        result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceName + " is down.");
-        
+        if (deviceId >= 0) {
+            String interfaceName = deviceController.getCheckingDeviceInterfaceName(interfaceId);
+            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceName + " is down.");
+        } else {
+            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceId + " is down.");
+        }
+
         this.getExtraData(varbinds, result);
     }
-    
+
     private void parseLinkUpNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int interfaceId = varbinds.get("ifIndex").asInt();
+        int deviceId = deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, true, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
 
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, true, true));
         result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_UP.getName());
-        
-        String interfaceName = deviceController.getCheckingDeviceInterfaceName(interfaceId);
-        result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceName + " is up.");
-        
+        if (deviceId >= 0) {
+            String interfaceName = deviceController.getCheckingDeviceInterfaceName(interfaceId);
+            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceName + " is up.");
+        } else {
+            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceId + " is up.");
+        }
+
         this.getExtraData(varbinds, result);
     }
-    
+
     private void parseAuthenticationFailureNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
-        result.add(DataOrders.DEVICE_ID.getValue(), new DeviceManagementController().processDeviceInfoWithAuthenticationNotification(target, true));
+        DeviceManagementController deviceController = new DeviceManagementController();
+        int deviceId = deviceController.processDeviceInfoWithAuthenticationNotification(target, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+
         result.add(DataOrders.TYPE.getValue(), NotificationType.AUTHENTICATION_FAILURE.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.AUTHENTICATION_FAILURE.getMessage());
 
         this.getExtraData(varbinds, result);
     }
-    
+
     private void parseEgpNeighborLossNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
-        result.add(DataOrders.DEVICE_ID.getValue(), new DeviceManagementController().processDeviceInfoWithEgpNotification(target, true));
-        result.add(DataOrders.TYPE.getValue(), NotificationType.AUTHENTICATION_FAILURE.getName());
-        result.add(DataOrders.CONTENT.getValue(), NotificationType.AUTHENTICATION_FAILURE.getMessage());
+        DeviceManagementController deviceController = new DeviceManagementController();
+        int deviceId = deviceController.processDeviceInfoWithEgpNotification(target, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+
+        result.add(DataOrders.TYPE.getValue(), NotificationType.EGP_LOSS.getName());
+        result.add(DataOrders.CONTENT.getValue(), NotificationType.EGP_LOSS.getMessage());
 
         this.getExtraData(varbinds, result);
-        
+    }
+
+    private void parseEnterpriseNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+        DeviceManagementController deviceController = new DeviceManagementController();
+        int deviceId = deviceController.processDeviceInfoWithEnterpriseNotification(target, true);
+        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+
+        result.add(DataOrders.TYPE.getValue(), NotificationType.ENTERPRISE.getName());
+        result.add(DataOrders.CONTENT.getValue(), NotificationType.ENTERPRISE.getMessage());
+
+        this.getExtraData(varbinds, result);
     }
 
     private void getExtraData(VarbindCollection varbinds, List<Object> result) {
         int count = 0;
+        String[] pair;
+        
         for (Varbind varbind : varbinds) {
             if (!varbind.getName().contains(typeName)) {
-                result.add(DataOrders.EXTRA.getValue() + count, varbind.asString());
+                pair = new String[DataOrders.EXTRA_SIZE.getValue()];
+                pair[DataOrders.EXTRA_NAME.getValue()] = varbind.getName();
+                pair[DataOrders.EXTRA_VALUE.getValue()] = varbind.asString();
+                result.add(DataOrders.EXTRA.getValue() + count, pair);
                 count++;
             }
         }
@@ -123,8 +162,8 @@ public class NotificationParser {
         LINK_DOWN("Link Down", "1.3.6.1.6.3.1.1.5.3"),
         LINK_UP("Link Up", "1.3.6.1.6.3.1.1.5.4"),
         AUTHENTICATION_FAILURE("Authentication Failure", "1.3.6.1.6.3.1.1.5.5", "Someone is trying to access the device with wrong community."),
-        EGP_LOSS("EGP Neighbor Loss", "1.3.6.1.6.3.1.1.5.6"),
-        ENTERPRISE("Enterprise", "");
+        EGP_LOSS("EGP Neighbor Loss", "1.3.6.1.6.3.1.1.5.6", "Device has lost one of its EGP neighbor"),
+        ENTERPRISE("Enterprise", "", "A specific event has happened on device");
 
         private String name;
         private String oid;
@@ -155,12 +194,18 @@ public class NotificationParser {
     }
 
     public enum DataOrders {
-        IP_ADDRESS(0),
-        COMMUNITY(1),
-        DEVICE_ID(2),
-        TYPE(3),
-        CONTENT(4),
-        EXTRA(5);
+//        IP_ADDRESS(0),
+//        COMMUNITY(1),
+        DEVICE_ID(0),
+        DEVICE_DISPLAY_INFO(1),
+        TYPE(2),
+        CONTENT(3),
+        EXTRA(4),
+        
+        EXTRA_SIZE(2),
+        EXTRA_NAME(0),
+        EXTRA_VALUE(1);
+        
 
         private int value;
 
@@ -171,6 +216,5 @@ public class NotificationParser {
         public int getValue() {
             return this.value;
         }
-
     }
-}
+}    

@@ -1,19 +1,25 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
 <hibernate-mapping>
-    <class name="graduationproject.data.models.Trap" table="TRAPS">
+    <class name="graduationproject.data.models.Notification" table="TRAPS">
         <id name="id" column="id" type="int">
             <generator class="native"/>
         </id>
 
-        <property name="trapType" column="trap_type" type="string"/>
-        <property name="receivedTime" column="received_time" type="date"/>     
+        <property name="notificationType" column="notification_type" type="string"/>
+        <property name="receivedTime" column="received_time" type="calendar"/>     
         <property name="content" column="content" type="string"/>
         
+        <list name="extraData" cascade="all">
+            <key column="notification_id"/>
+            <list-index column="idx"/>
+            <one-to-many class="graduationproject.data.models.NotificationExtraData"/>            
+        </list>
+
         <many-to-one name="device" column="device_id" class="graduationproject.data.models.Device" cascade="save-update"/>         
     </class>
     
-    <class name="graduationproject.data.models.TrapExtraData" table="TRAP_EXTRA_DATA">
+    <class name="graduationproject.data.models.NotificationExtraData" table="TRAP_EXTRA_DATA">
         <id name="id" column="id" type="int">
             <generator class="native"/>
         </id>
@@ -21,7 +27,5 @@
         <property name="value" column="value" type="string"/>
         <property name="name" column="name" type="string"/>
         
-        <many-to-one name="trap" column="trap_id" class="graduationproject.data.models.Trap" cascade="save-update"/>
-        <many-to-one name="templateItem" column="template_id" class="graduationproject.data.models.TemplateItem" cascade="save-update"/>
     </class>
 </hibernate-mapping>

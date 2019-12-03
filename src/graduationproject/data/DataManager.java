@@ -7,6 +7,7 @@ package graduationproject.data;
 
 import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
+import graduationproject.data.model_managers.NotificationManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
 import graduationproject.data.model_managers.TemplateItemManager;
@@ -32,6 +33,7 @@ public class DataManager {
     private DeviceInterfaceDynamicDataManager interfaceDynamicDataManager;
     private TemplateManager templateManager;
     private TemplateItemManager templateItemManager;
+    private NotificationManager notificationManager;
     
     private int activeAccountId;
     
@@ -49,6 +51,7 @@ public class DataManager {
         this.interfaceDynamicDataManager = new DeviceInterfaceDynamicDataManager(this.sessionFactory);
         this.templateManager = new TemplateManager(this.sessionFactory);
         this.templateItemManager = new TemplateItemManager(this.sessionFactory);
+        this.notificationManager = new NotificationManager(this.sessionFactory);
     }
     
     public static DataManager getInstance() {
@@ -90,6 +93,10 @@ public class DataManager {
 
     public TemplateItemManager getTemplateItemManager() {
         return templateItemManager;
+    }
+
+    public NotificationManager getNotificationManager() {
+        return notificationManager;
     }
     
     public int getActiveAccountId() {

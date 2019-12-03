@@ -44,6 +44,7 @@ public class DeviceManagementController {
     private Device checkingDevice;
 
     public static final String[] DEVICE_TYPES = {"Router", "Switch", "End Host"};
+    private final String UNKNOWN_DEVICE_LABEL = "UNKNOWN DEVICE";
 
     public enum DeviceStates {
         ACTIVE,
@@ -314,19 +315,8 @@ public class DeviceManagementController {
         return true;
     }
 
-    public void mergeDeviceInfoWithNotification(SnmpTarget snmpTarget) {
-        if (checkingDevice != null) {
-            checkingDevice.getContactInterface().setCommunity(((SimpleSnmpV2cTarget) snmpTarget).getCommunity());
-            checkingDevice.getContactInterface().setIpAddress(snmpTarget.getAddress());
-            DataManager.getInstance().getDeviceManager().updateDevice(checkingDevice);
-        }
-    }
-
     public int processDeviceInfoWithStartNotification(SnmpTarget snmpTarget, boolean merge) {
-        this.getCheckingDeviceWithNotificationData(snmpTarget);
-        if (merge) {
-            this.mergeDeviceInfoWithNotification(snmpTarget);
-        }
+        this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
             ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
             return checkingDevice.getId();
@@ -335,10 +325,7 @@ public class DeviceManagementController {
     }
 
     public int processDeviceInfoWithLinkNOtification(SnmpTarget snmpTarget, int interfaceId, boolean isUp, boolean merge) {
-        this.getCheckingDeviceWithNotificationData(snmpTarget);
-        if (merge) {
-            this.mergeDeviceInfoWithNotification(snmpTarget);
-        }
+        this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
             if (isUp) {
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
@@ -355,42 +342,78 @@ public class DeviceManagementController {
     }
 
     public int processDeviceInfoWithAuthenticationNotification(SnmpTarget snmpTarget, boolean merge) {
-        this.getCheckingDeviceWithNotificationData(snmpTarget);
-        if (merge) {
-            this.mergeDeviceInfoWithNotification(snmpTarget);
-        }
+        this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
             return checkingDevice.getId();
         }
         return -1;
     }
-    
-    
+
     public int processDeviceInfoWithEgpNotification(SnmpTarget snmpTarget, boolean merge) {
-        this.getCheckingDeviceWithNotificationData(snmpTarget);
-        if (merge) {
-            this.mergeDeviceInfoWithNotification(snmpTarget);
-        }
+        this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
             return checkingDevice.getId();
         }
         return -1;
     }
 
-    private void getCheckingDeviceWithNotificationData(SnmpTarget target) {
-        String[] mergingData = new MergingDataHelper().getDeviceIdentification(target);
+    public int processDeviceInfoWithEnterpriseNotification(SnmpTarget snmpTarget, boolean merge) {
+        this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
+        if (checkingDevice != null) {
+            return checkingDevice.getId();
+        }
+        return -1;
+    }
 
-        checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
-                mergingData[MergingDataHelper.DataOrders.DEVICE_NAME.getValue()],
-                mergingData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
+    private void getCheckingDeviceWithNotificationData(SnmpTarget target, boolean merge) {
+        String community = ((SimpleSnmpV2cTarget) target).getCommunity();
+        String[] liveData;
+        if (community == null) {
+            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(DataOrders.CI_IP_ADDRESS, target.getAddress());
+            community = checkingDevice.getContactInterface().getCommunity();
+
+            liveData = new MergingDataHelper().getDeviceIdentification(target, community);
+        } else {
+            liveData = new MergingDataHelper().getDeviceIdentification(target);
+        }
+
+        if (liveData != null && checkingDevice.getName() != liveData[MergingDataHelper.DataOrders.DEVICE_NAME.getValue()]) {
+            this.checkingDevice = null;
+            return;
+        }
+        
+        if (liveData != null && checkingDevice.getLabel() != liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]) {
+//            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
+//                    DataOrders.LABEL,
+//                    liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
+            checkingDevice = null;
+            return;
+        }
+
+//        if (checkingDevice != null && merge) {
+//            checkingDevice.setName(mergingData[MergingDataHelper.DataOrders.DEVICE_NAME.getValue()]);
+//            checkingDevice.setLabel(mergingData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
+//            checkingDevice.getContactInterface().setCommunity(community);
+//            checkingDevice.getContactInterface().setIpAddress(target.getAddress());
+//            DataManager.getInstance().getDeviceManager().updateDevice(checkingDevice);
+//        }
     }
 
     public String getCheckingDeviceInterfaceName(int interfaceId) {
-        List<DeviceNetworkInterface> networkInterfaces = (List<DeviceNetworkInterface>) this.checkingDevice.getNetworkInterfaces();
-        if (networkInterfaces != null) {
-            return networkInterfaces.get(interfaceId - 1).getName();
+        if (checkingDevice != null) {
+            List<DeviceNetworkInterface> networkInterfaces = (List<DeviceNetworkInterface>) this.checkingDevice.getNetworkInterfaces();
+            if (networkInterfaces != null) {
+                return networkInterfaces.get(interfaceId - 1).getName();
+            }
         }
         return null;
+    }
+
+    public String getCheckingDeviceLabel() {
+        if (checkingDevice != null) {
+            return checkingDevice.getLabel();
+        }
+        return UNKNOWN_DEVICE_LABEL;
     }
 
     public class ResultMessageGenerator {

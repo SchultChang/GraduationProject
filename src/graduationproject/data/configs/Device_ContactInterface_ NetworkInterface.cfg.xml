@@ -15,13 +15,6 @@
         <property name="importedTime" column="imported_time" type="date"/>
         <property name="lastAccess" column="last_access" type="date"/>
         
-        <list  name="traps" cascade="all">
-            <key column="device_id"/>
-            <list-index column="idx"/>
-            <one-to-many class="graduationproject.data.models.Trap"/>
-            
-        </list>
-    
         <list name="networkInterfaces" cascade="all">
             <key column="device_id"/>
             <list-index column="idx"/>

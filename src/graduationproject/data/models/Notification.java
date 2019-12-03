@@ -5,33 +5,32 @@
  */
 package graduationproject.data.models;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
  * @author cloud
  */
-public class Trap {
+public class Notification {
     private int id;
-    private String trapType;
+    private String notificationType;
     private String content;
-    private Date receivedTime;
+    private Calendar receivedTime;
     
     private Device device;
-
-    public Trap() {
+    private List<NotificationExtraData> extraData;
+    
+    public Notification() {
     }
 
-    public Trap(String trapType, String content, Date receivedTime) {
-        this.trapType = trapType;
+    public Notification(String notificationType, String content, Calendar receivedTime, Device device, List<NotificationExtraData> extraData) {
+        this.notificationType = notificationType;
         this.content = content;
         this.receivedTime = receivedTime;
-    }
-
-    public Trap(String trapType, Date receivedTime, Device device) {
-        this.trapType = trapType;
-        this.receivedTime = receivedTime;
         this.device = device;
+        this.extraData = extraData;
     }
     
     public int getId() {
@@ -42,19 +41,19 @@ public class Trap {
         this.id = id;
     }
 
-    public String getTrapType() {
-        return trapType;
+    public String getNotificationType() {
+        return notificationType;
     }
 
-    public void setTrapType(String trapType) {
-        this.trapType = trapType;
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
     }
 
-    public Date getReceivedTime() {
+    public Calendar getReceivedTime() {
         return receivedTime;
     }
 
-    public void setReceivedTime(Date receivedTime) {
+    public void setReceivedTime(Calendar receivedTime) {
         this.receivedTime = receivedTime;
     }
 
@@ -74,4 +73,13 @@ public class Trap {
         this.device = device;
     }
 
+    public List<NotificationExtraData> getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(List<NotificationExtraData> extraData) {
+        this.extraData = extraData;
+    }
+
 }
+

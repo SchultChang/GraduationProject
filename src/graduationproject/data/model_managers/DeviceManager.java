@@ -98,7 +98,7 @@ public class DeviceManager {
 
             Criteria criteria = session.createCriteria(Device.class);
             criteria.add(Restrictions.eq("id", deviceId));
-            
+
             List<Device> resultList = criteria.list();
             if (!resultList.isEmpty()) {
                 result = (Device) criteria.list().get(0);
@@ -128,12 +128,12 @@ public class DeviceManager {
 
             Criteria cri = session.createCriteria(Device.class)
                     .setProjection(Projections.projectionList().add(Projections.property("id"), "id")
-                    .add(Projections.property(Device.getColumnName(order)), Device.getColumnName(order)));                    
+                            .add(Projections.property(Device.getColumnName(order)), Device.getColumnName(order)));
             cri.setResultTransformer(Transformers.aliasToBean(Device.class));
             if (order != DataOrders.CI_IP_ADDRESS && order != DataOrders.CI_COMMUNITY) {
                 cri.add(Restrictions.like(Device.getColumnName(order), value + "%"));
             }
-            
+
             result = cri.list();
 
             tx.commit();
@@ -149,7 +149,7 @@ public class DeviceManager {
         return result;
 
     }
-    
+
     public synchronized boolean updateDevice(Device device) {
         Session session = null;
         Transaction tx = null;
@@ -158,10 +158,10 @@ public class DeviceManager {
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
-            
+
             session.update(device);
             tx.commit();
-            
+
             result = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,7 +174,7 @@ public class DeviceManager {
 
         return result;
     }
-    
+
     public boolean deleteDevice(int deviceId) {
         Session session = null;
         Transaction tx = null;
@@ -183,14 +183,14 @@ public class DeviceManager {
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
-            
+
             Device device = session.load(Device.class, deviceId);
             int tempSize = device.getNetworkInterfaces().size();
             for (int i = 0; i < tempSize; i++) {
                 DataManager.getInstance().getInterfaceDynamicDataManager().deleteDynamicData(device.getNetworkInterfaces().get(i));
             }
             session.delete(device);
-            
+
             tx.commit();
             result = true;
         } catch (Exception e) {
@@ -204,36 +204,51 @@ public class DeviceManager {
 
         return result;
     }
-    
-    public Device getDevice(String name, String label) {
+
+    public Device getDevice(DataOrders order, String value) {
         Session session = null;
         Transaction tx = null;
         Device result = null;
-        
-        try {
-            session = this.sessionFactory.openSession();
-            tx = session.beginTransaction();
-            
-            Criteria cri = session.createCriteria(Device.class);
-            cri.add(Restrictions.eq("name", name));
-            cri.add(Restrictions.and(Restrictions.eq("label", label)));
-            
-            List<Device> resultList = cri.list();
-            if (!resultList.isEmpty()) {
-                result = resultList.get(0);
-            }
-            
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            tx.rollback();
-        } finally {
-            if (session != null) {
-                session.close();
+        List<Device> resultList = null;
+
+        if (value != null) {
+            try {
+                session = this.sessionFactory.openSession();
+                tx = session.beginTransaction();
+
+                Criteria cri;
+                if (order == DataOrders.LABEL) {
+                    cri = session.createCriteria(Device.class);
+                    cri.add((Restrictions.eq("label", value)));
+                    resultList = cri.list();
+                }
+
+                if (resultList != null && !resultList.isEmpty()) {
+                    result = resultList.get(0);
+                } 
+                if (order == DataOrders.CI_IP_ADDRESS) {            
+                    cri = session.createCriteria(Device.class, "device");
+                    cri.createAlias("device.contactInterface", "contactInterface");
+                    cri.add(Restrictions.eq("contactInterface.ipAddress", value));
+                    resultList = cri.list();
+
+                    if (!resultList.isEmpty()) {
+                        result = resultList.get(0);
+                    }
+                }
+
+                tx.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                tx.rollback();
+            } finally {
+                if (session != null) {
+                    session.close();
+                }
             }
         }
 
         return result;
     }
-    
+
 }

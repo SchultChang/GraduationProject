@@ -27,7 +27,6 @@ public class Device {
     private Date lastAccess;
     
     private ContactNetworkInterface contactInterface;
-    private List<Trap> traps;
     private List<DeviceNetworkInterface> networkInterfaces;
     
     public Device() {
@@ -44,15 +43,6 @@ public class Device {
         this.importedTime = importedTime;
         this.lastAccess = null;
         this.contactInterface = contactInterface;
-        this.traps = new ArrayList<Trap>();
-    }
-    
-    public List<Trap> getTraps() {
-        return traps;
-    }
-    
-    public void setTraps(List<Trap> traps) {
-        this.traps = traps;
     }
     
     public ContactNetworkInterface getContactInterface() {
