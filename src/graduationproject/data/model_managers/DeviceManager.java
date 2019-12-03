@@ -203,7 +203,37 @@ public class DeviceManager {
         }
 
         return result;
+    }
+    
+    public Device getDevice(String name, String label) {
+        Session session = null;
+        Transaction tx = null;
+        Device result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            Criteria cri = session.createCriteria(Device.class);
+            cri.add(Restrictions.eq("name", name));
+            cri.add(Restrictions.and(Restrictions.eq("label", label)));
+            
+            List<Device> resultList = cri.list();
+            if (!resultList.isEmpty()) {
+                result = resultList.get(0);
+            }
+            
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
 
+        return result;
     }
     
 }

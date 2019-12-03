@@ -10,11 +10,13 @@ import graduationproject.data.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;
+import graduationproject.data.models.DeviceNetworkInterface;
 import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.callbacks.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
+import graduationproject.snmpd.helpers.MergingDataHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -25,7 +27,9 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.soulwing.snmp.SimpleSnmpV2cTarget;
 import org.soulwing.snmp.SnmpContext;
+import org.soulwing.snmp.SnmpTarget;
 import org.soulwing.snmp.VarbindCollection;
 
 /**
@@ -37,6 +41,7 @@ public class DeviceManagementController {
     private String resultMessage;
     private String extraStringData;
     private int[] deviceIds;
+    private Device checkingDevice;
 
     public static final String[] DEVICE_TYPES = {"Router", "Switch", "End Host"};
 
@@ -161,7 +166,7 @@ public class DeviceManagementController {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return null;
         }
-        
+
         if (devices.isEmpty()) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_NO_RECORD;
         }
@@ -308,7 +313,86 @@ public class DeviceManagementController {
         }
         return true;
     }
+
+    public void mergeDeviceInfoWithNotification(SnmpTarget snmpTarget) {
+        if (checkingDevice != null) {
+            checkingDevice.getContactInterface().setCommunity(((SimpleSnmpV2cTarget) snmpTarget).getCommunity());
+            checkingDevice.getContactInterface().setIpAddress(snmpTarget.getAddress());
+            DataManager.getInstance().getDeviceManager().updateDevice(checkingDevice);
+        }
+    }
+
+    public int processDeviceInfoWithStartNotification(SnmpTarget snmpTarget, boolean merge) {
+        this.getCheckingDeviceWithNotificationData(snmpTarget);
+        if (merge) {
+            this.mergeDeviceInfoWithNotification(snmpTarget);
+        }
+        if (checkingDevice != null) {
+            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
+            return checkingDevice.getId();
+        }
+        return -1;
+    }
+
+    public int processDeviceInfoWithLinkNOtification(SnmpTarget snmpTarget, int interfaceId, boolean isUp, boolean merge) {
+        this.getCheckingDeviceWithNotificationData(snmpTarget);
+        if (merge) {
+            this.mergeDeviceInfoWithNotification(snmpTarget);
+        }
+        if (checkingDevice != null) {
+            if (isUp) {
+                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                        .updateLabelInterfaceState(checkingDevice.getId(), interfaceId - 1, null, InterfaceManagementController.InterfaceStates.UP);
+            } else {
+                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                        .updateLabelInterfaceState(checkingDevice.getId(), interfaceId - 1, null, InterfaceManagementController.InterfaceStates.DOWN);
+            }
+
+            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
+            return checkingDevice.getId();
+        }
+        return -1;
+    }
+
+    public int processDeviceInfoWithAuthenticationNotification(SnmpTarget snmpTarget, boolean merge) {
+        this.getCheckingDeviceWithNotificationData(snmpTarget);
+        if (merge) {
+            this.mergeDeviceInfoWithNotification(snmpTarget);
+        }
+        if (checkingDevice != null) {
+            return checkingDevice.getId();
+        }
+        return -1;
+    }
     
+    
+    public int processDeviceInfoWithEgpNotification(SnmpTarget snmpTarget, boolean merge) {
+        this.getCheckingDeviceWithNotificationData(snmpTarget);
+        if (merge) {
+            this.mergeDeviceInfoWithNotification(snmpTarget);
+        }
+        if (checkingDevice != null) {
+            return checkingDevice.getId();
+        }
+        return -1;
+    }
+
+    private void getCheckingDeviceWithNotificationData(SnmpTarget target) {
+        String[] mergingData = new MergingDataHelper().getDeviceIdentification(target);
+
+        checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
+                mergingData[MergingDataHelper.DataOrders.DEVICE_NAME.getValue()],
+                mergingData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
+    }
+
+    public String getCheckingDeviceInterfaceName(int interfaceId) {
+        List<DeviceNetworkInterface> networkInterfaces = (List<DeviceNetworkInterface>) this.checkingDevice.getNetworkInterfaces();
+        if (networkInterfaces != null) {
+            return networkInterfaces.get(interfaceId - 1).getName();
+        }
+        return null;
+    }
+
     public class ResultMessageGenerator {
 
         public String IMPORTING_FAILED_FILE_NOT_FOUND = "The chosen file is not found. Please try again.";
@@ -321,7 +405,7 @@ public class DeviceManagementController {
 
         public String UPDATING_FAILED_OTHER = "Some errors happened when updaing device info into database.";
         public String UPDATING_FAILED_NON_LABEL = "Label field should not be left empty, otherwise you can not find that device later.";
-        
+
         public String DELETING_FAILED_OTHER = "Some errors happened when deleting device data in database.";
     }
 

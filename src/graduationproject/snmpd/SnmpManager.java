@@ -83,6 +83,10 @@ public class SnmpManager {
         SnmpTarget target = this.createTarget(normalizedVersion, ipAddress, community);
         return SnmpFactory.getInstance().newContext(target, mib);
     }
+    
+    public SnmpContext createContext(SnmpTarget target) {
+        return SnmpFactory.getInstance().newContext(target, mib);
+    }
 
     public SnmpVersion parseVersionString(String input) {
         for (int i = 0; i < SNMP_VERSIONS.length; i++) {

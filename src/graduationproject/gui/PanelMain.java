@@ -7,12 +7,14 @@ package graduationproject.gui;
 
 import graduationproject.controllers.UserManagementController;
 import graduationproject.snmpd.SnmpManager;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
@@ -29,6 +31,8 @@ public class PanelMain extends JPanel {
     private JLabel label4;
     private JLabel label5;
     private JLabel label6;
+    private JLabel label7;
+    private JLabel labelCloseBoard;
     private JLabel labelIconAccount;
     private JLabel labelIconSettings;
     private JLabel labelImportedDevices;
@@ -40,10 +44,13 @@ public class PanelMain extends JPanel {
     private JPanel panelAccountMenu;
     private JPanel panelDeviceMenu;
     private JPanel panelTemplateMenu;
-
+    private JPanel panelNotificationBoard;
+    private JPanel panelNotifications;
+    private JScrollPane scrollpane1;
+    
     private JPanel panelOptionDevices;
     private JPanel panelOptionTemplates;
-    private JPanel panelOptionTraps;
+    private JPanel panelOptionNotifications;
     private JPanel panelOptionsBar;
     private JSeparator separator1;
     private JSeparator separator2;
@@ -53,7 +60,7 @@ public class PanelMain extends JPanel {
     private PanelUserProfile panelUserProfile;
     private PanelImportedDevices panelImportedDevices;
     private PanelImportedTemplates panelImportedTemplates;
-    
+
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
 
@@ -83,9 +90,10 @@ public class PanelMain extends JPanel {
         labelProfile = new JLabel();
         separator3 = new JSeparator();
         panelOptionsBar = new JPanel();
-        panelOptionTraps = new JPanel();
+        panelOptionNotifications = new JPanel();
         label5 = new JLabel();
         label6 = new JLabel();
+        label7 = new JLabel();
         panelOptionDevices = new JPanel();
         label1 = new JLabel();
         label2 = new JLabel();
@@ -94,6 +102,10 @@ public class PanelMain extends JPanel {
         label4 = new JLabel();
         labelIconAccount = new JLabel();
         labelIconSettings = new JLabel();
+        panelNotificationBoard = new JPanel();
+        labelCloseBoard = new JLabel();
+        scrollpane1 = new JScrollPane();
+        panelNotifications = new JPanel();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         setBackground(java.awt.Color.white);
@@ -172,23 +184,30 @@ public class PanelMain extends JPanel {
         panelOptionsBar.setPreferredSize(new java.awt.Dimension(1600, 60));
         panelOptionsBar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panelOptionTraps.setBackground(java.awt.Color.red);
-        panelOptionTraps.setOpaque(false);
-        panelOptionTraps.setPreferredSize(new java.awt.Dimension(200, 60));
-        panelOptionTraps.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelOptionNotifications.setBackground(java.awt.Color.red);
+        panelOptionNotifications.setOpaque(false);
+        panelOptionNotifications.setPreferredSize(new java.awt.Dimension(200, 60));
+        panelOptionNotifications.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         label5.setHorizontalAlignment(SwingConstants.CENTER);
         label5.setIcon(new ImageIcon(getClass().getResource("/resources/icon_traps_40.png"))); // NOI18N
         label5.setFocusable(false);
-        panelOptionTraps.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 60));
+        panelOptionNotifications.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 60));
 
         label6.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         label6.setForeground(java.awt.Color.white);
-        label6.setText("Traps");
+        label6.setText("Notifications");
         label6.setFocusable(false);
-        panelOptionTraps.add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 0, 130, 60));
+        panelOptionNotifications.add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 0, 130, 60));
+        
+        label7.setBackground(java.awt.Color.red);
+        label7.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        label7.setForeground(java.awt.Color.red);
+        label7.setText("News");
+        panelOptionNotifications.add(label7, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 40, -1, -1));
+        label7.setVisible(false);
 
-        panelOptionsBar.add(panelOptionTraps, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, -1, -1));
+        panelOptionsBar.add(panelOptionNotifications, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, -1, -1));
 
         panelOptionDevices.setBackground(java.awt.Color.red);
         panelOptionDevices.setFocusable(false);
@@ -239,6 +258,30 @@ public class PanelMain extends JPanel {
 
         add(panelOptionsBar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
+        panelNotificationBoard.setOpaque(false);
+        panelNotificationBoard.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelCloseBoard.setBackground(java.awt.Color.white);
+        labelCloseBoard.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelCloseBoard.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icon_double_up_30.png"))); // NOI18N
+        labelCloseBoard.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 1, 1, 1, new java.awt.Color(0, 0, 0)));
+        labelCloseBoard.setOpaque(true);
+        panelNotificationBoard.add(labelCloseBoard, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 400, 30));
+
+        scrollpane1.setBackground(new Color(0, 0, 0, 100));
+        scrollpane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollpane1.setOpaque(false);
+
+        panelNotifications.setBackground(new Color(0, 0, 0, 100));
+        panelNotifications.setOpaque(false);
+        panelNotifications.setPreferredSize(new java.awt.Dimension(100, 1000));
+        panelNotifications.setLayout(new javax.swing.BoxLayout(panelNotifications, javax.swing.BoxLayout.PAGE_AXIS));
+        scrollpane1.setViewportView(panelNotifications);
+
+        panelNotificationBoard.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 420));
+
+        add(panelNotificationBoard, new org.netbeans.lib.awtextra.AbsoluteConstraints(1200, 60, 400, 450));
+        hideMenu(panelNotificationBoard);
     }
 
     private void initListeners() {
@@ -273,7 +316,7 @@ public class PanelMain extends JPanel {
                 }
                 if (source == panelDeviceMenu) {
                     processMouseOnPanelDeviceMenu(e.getX(), e.getY());
-                }                
+                }
                 if (source == panelTemplateMenu) {
                     processMouseOnPanelTemplateMenu(e.getX(), e.getY());
                 }
@@ -300,22 +343,22 @@ public class PanelMain extends JPanel {
         this.panelTemplateMenu.addMouseListener(this.listenerPanel);
         this.panelAccountMenu.addMouseListener(this.listenerPanel);
     }
-    
+
     private void processMouseOnPanelDeviceMenu(int x, int y) {
         JLabel[] labels = {this.labelImportedDevices, this.labelScannedDevices};
         int temp = this.getPressedLabelId(labels, x, y);
-        
+
         if (temp < labels.length) {
             if (labels[temp] == this.labelImportedDevices) {
                 this.switchDisplayedPanel(PANELS.PANEL_IMPORTED_DEVICES);
             }
         }
     }
-    
+
     private void processMouseOnPanelTemplateMenu(int x, int y) {
         JLabel[] labels = {this.labelSingularTemplates, this.labelTabularTemplates};
         int temp = this.getPressedLabelId(labels, x, y);
-        
+
         if (temp < labels.length) {
             if (labels[temp] == this.labelSingularTemplates) {
                 this.panelImportedTemplates.setIsSingular(true);
@@ -331,7 +374,7 @@ public class PanelMain extends JPanel {
     private void processMouseOnPanelAccountMenu(int x, int y) {
         JLabel[] labels = {this.labelProfile, this.labelLogout};
         int temp = this.getPressedLabelId(labels, x, y);
-        
+
         if (temp < labels.length) {
             if (labels[temp] == this.labelProfile) {
                 this.switchDisplayedPanel(PANELS.PANEL_USER_PROFILE);
@@ -350,10 +393,10 @@ public class PanelMain extends JPanel {
                 break;
             }
         }
-        
+
         return temp;
     }
-    
+
     private boolean isMouseOnLabel(JLabel label, int xMouse, int yMouse) {
         Dimension size = label.getSize();
         if (label.getX() <= xMouse && xMouse <= label.getX() + size.width) {
@@ -378,11 +421,11 @@ public class PanelMain extends JPanel {
         this.panelUserProfile = new PanelUserProfile();
         this.panelUserProfile.setVisible(false);
         this.panelUserProfile.setEnabled(false);
-        
+
         this.panelImportedDevices = new PanelImportedDevices();
         this.panelImportedDevices.setVisible(false);
         this.panelImportedDevices.setEnabled(false);
-        
+
         this.panelImportedTemplates = new PanelImportedTemplates();
         this.panelImportedTemplates.setVisible(false);
         this.panelImportedTemplates.setEnabled(false);
@@ -400,13 +443,13 @@ public class PanelMain extends JPanel {
                 this.displayPanel(this.panelUserProfile, 0, 60, -1, -1);
                 this.panelUserProfile.initData();
                 break;
-                
+
             case PANEL_IMPORTED_DEVICES:
                 this.displayPanel(this.panelImportedDevices, 0, 60, -1, -1);
 //                this.panelImportedDevices.refreshPanel();
                 this.panelImportedDevices.initData();
                 break;
-                
+
             case PANEL_IMPORTED_TEMPLATES:
                 this.displayPanel(this.panelImportedTemplates, 0, 60, -1, -1);
                 this.panelImportedTemplates.initData();
@@ -436,9 +479,7 @@ public class PanelMain extends JPanel {
     public PanelImportedTemplates getPanelImportedTemplates() {
         return panelImportedTemplates;
     }
-    
-    
-    
+
     public void refreshPanel() {
         if (this.currentDisplayedPanel != null) {
             this.remove(this.currentDisplayedPanel);
@@ -446,16 +487,16 @@ public class PanelMain extends JPanel {
             this.currentDisplayedPanel.setEnabled(false);
             this.currentDisplayedPanel = null;
         }
-        
+
         this.hideMenu(this.panelAccountMenu);
         this.hideMenu(this.panelDeviceMenu);
         this.hideMenu(this.panelTemplateMenu);
     }
-    
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        
+
         if (!enabled) {
             SnmpManager.getInstance().close();
         }

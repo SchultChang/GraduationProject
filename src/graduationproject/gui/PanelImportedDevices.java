@@ -471,10 +471,8 @@ public class PanelImportedDevices extends JPanel {
             }
         } else {
             for (int i = 0; i < interfaceIds.length; i++) {
-                this.labelInterfaces.get(i).setText(names[i]);
-                this.labelInterfaces.get(i).setInterfaceId(interfaceIds[i]);
                 temp = (this.currentChosenLabelDevice.getDeviceState() == DeviceStates.ACTIVE) ? interfaceStates[i] : InterfaceStates.DOWN;
-                this.labelInterfaces.get(i).setInterfaceState(temp);
+                this.updateLabelInterfaceState(deviceId, i, names[i], temp);
             }
         }
 
@@ -482,6 +480,16 @@ public class PanelImportedDevices extends JPanel {
         this.panelDeviceList.repaint();
     }
 
+    public void updateLabelInterfaceState(int deviceId, int interfaceId, String name, InterfaceStates state) {
+        if (this.currentChosenLabelDevice.getDeviceId() == deviceId) {
+            if (name != null) {
+                this.labelInterfaces.get(interfaceId).setText(name);
+            }
+            this.labelInterfaces.get(interfaceId).setInterfaceId(interfaceId);
+            this.labelInterfaces.get(interfaceId).setInterfaceState(state);
+        }
+    }
+    
     public void switchDisplayedPanel(PANELS panel) {
         this.hideDisplayedPanel();
 

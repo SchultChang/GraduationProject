@@ -9,22 +9,22 @@ package graduationproject.data.models;
  *
  * @author cloud
  */
-public class TrapContentValue {
+public class TrapExtraData {
     private int id;
     private String value;
-    private String oid;
+    private String name;
     
     private Trap trap;
     private TemplateItem templateItem;
 
-    public TrapContentValue() {        
+    public TrapExtraData() {
     }
 
-    public TrapContentValue(String value, String oid, Trap trap, TemplateItem templateItem) {
+    public TrapExtraData(String value, String name, Trap trap) {
         this.value = value;
-        this.oid = oid;
+        this.name = name;
         this.trap = trap;
-        this.templateItem = templateItem;
+        this.templateItem = null;
     }
 
     public int getId() {
@@ -43,12 +43,12 @@ public class TrapContentValue {
         this.value = value;
     }
 
-    public String getOid() {
-        return oid;
+    public String getName() {
+        return name;
     }
 
-    public void setOid(String oid) {
-        this.oid = oid;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Trap getTrap() {
@@ -66,5 +66,7 @@ public class TrapContentValue {
     public void setTemplateItem(TemplateItem templateItem) {
         this.templateItem = templateItem;
     }
+
+
     
 }

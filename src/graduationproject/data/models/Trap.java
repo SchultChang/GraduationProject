@@ -14,16 +14,26 @@ import java.util.Date;
 public class Trap {
     private int id;
     private String trapType;
+    private String content;
     private Date receivedTime;
+    
+    private Device device;
 
     public Trap() {
     }
 
-    public Trap(String trapType, Date receivedTime) {
+    public Trap(String trapType, String content, Date receivedTime) {
         this.trapType = trapType;
+        this.content = content;
         this.receivedTime = receivedTime;
     }
 
+    public Trap(String trapType, Date receivedTime, Device device) {
+        this.trapType = trapType;
+        this.receivedTime = receivedTime;
+        this.device = device;
+    }
+    
     public int getId() {
         return id;
     }
@@ -48,6 +58,20 @@ public class Trap {
         this.receivedTime = receivedTime;
     }
 
-    
-    
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
+
 }
