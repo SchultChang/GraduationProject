@@ -66,6 +66,7 @@ public class PanelMain extends JPanel {
     private PanelUserProfile panelUserProfile;
     private PanelImportedDevices panelImportedDevices;
     private PanelImportedTemplates panelImportedTemplates;
+    private PanelNotificationList panelNotificationList;
 
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerLabel;
@@ -78,7 +79,8 @@ public class PanelMain extends JPanel {
         PANEL_USER_PROFILE,
         PANEL_IMPORTED_DEVICES,
         PANEL_IMPORTED_TEMPLATES,
-        PANEL_NOTIFICATION_INFO
+        PANEL_NOTIFICATION_INFO,
+        PANEL_NOTIFICATION_LIST
     }
 
     public PanelMain() {
@@ -331,6 +333,9 @@ public class PanelMain extends JPanel {
                     showMenu(panelTemplateMenu);
                     return;
                 }
+                if (source == panelOptionNotifications) {
+                    switchDisplayedPanel(PANELS.PANEL_NOTIFICATION_LIST);
+                }
                 if (source == panelAccountMenu) {
                     processMouseOnPanelAccountMenu(e.getX(), e.getY());
                     return;
@@ -346,7 +351,7 @@ public class PanelMain extends JPanel {
                 
                 try {
                     PanelNotification notification = (PanelNotification) source;
-                    showPanelNotificationInfo(notification.getNotificationId(), notification.getSourceAddress());
+                    showPanelNotificationInfo(notification.getNotificationId());
                     notification.setIsRead(true);
                 } catch (Exception ex) {
                 }
@@ -372,6 +377,7 @@ public class PanelMain extends JPanel {
 
         this.panelOptionDevices.addMouseListener(this.listenerPanel);
         this.panelOptionTemplates.addMouseListener(this.listenerPanel);
+        this.panelOptionNotifications.addMouseListener(this.listenerPanel);
         this.panelDeviceMenu.addMouseListener(this.listenerPanel);
         this.panelTemplateMenu.addMouseListener(this.listenerPanel);
         this.panelAccountMenu.addMouseListener(this.listenerPanel);
@@ -467,6 +473,10 @@ public class PanelMain extends JPanel {
         this.panelImportedTemplates = new PanelImportedTemplates();
         this.panelImportedTemplates.setVisible(false);
         this.panelImportedTemplates.setEnabled(false);
+        
+        this.panelNotificationList = new PanelNotificationList();
+        this.panelNotificationList.setVisible(false);
+        this.panelNotificationList.setEnabled(false);
     }
 
     private void initOtherComponents() {
@@ -495,6 +505,11 @@ public class PanelMain extends JPanel {
             case PANEL_IMPORTED_TEMPLATES:
                 this.displayPanel(this.panelImportedTemplates, 0, 60, -1, -1);
                 this.panelImportedTemplates.initData();
+                break;
+                
+            case PANEL_NOTIFICATION_LIST:
+                this.displayPanel(this.panelNotificationList, 0, 60, -1, -1);
+                this.panelNotificationList.initData();
                 break;
         }
 
@@ -589,18 +604,13 @@ public class PanelMain extends JPanel {
         }
     }
     
-    public synchronized void showNotification(int notificationId, String sourceIpAddress, String header, String content) {
-        this.showNotification(notificationId, header, content);
-        this.listNotifications.get(this.listNotifications.size() - 1).setSourceAddress(sourceIpAddress);
-    }
-    
-    public void showPanelNotificationInfo(int notificationId, String sourceAddress) {
+    public void showPanelNotificationInfo(int notificationId) {
         if (!this.panelNotificationInfo.isVisible()) {
             this.panelNotificationInfo.setVisible(true);
             this.panelNotificationInfo.setEnabled(true);
         }
         
-        this.panelNotificationInfo.initData(notificationId, sourceAddress);
+        this.panelNotificationInfo.initData(notificationId);
         
         this.revalidate();
         this.repaint();
@@ -617,7 +627,6 @@ public class PanelMain extends JPanel {
     public class PanelNotification extends JPanel {
 
         private int notificationId;
-        private String sourceAddress;
         private JLabel labelHeader;
         private JLabel labelContent;
         private boolean isRead;
@@ -625,7 +634,6 @@ public class PanelMain extends JPanel {
         public PanelNotification(int notificationId, String header, String content) {
             this.labelHeader = new JLabel(header);
             this.labelContent = new JLabel(content);
-            this.sourceAddress = null;
             
             setBackground(new Color(192, 215, 252));
             setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(0, 0, 0)));
@@ -652,16 +660,8 @@ public class PanelMain extends JPanel {
             return this.isRead;
         }
 
-        public void setSourceAddress(String sourceAddress) {
-            this.sourceAddress = sourceAddress;
-        }
-
         public int getNotificationId() {
             return notificationId;
-        }
-
-        public String getSourceAddress() {
-            return sourceAddress;
         }
 
         public void setIsRead(boolean isRead) {

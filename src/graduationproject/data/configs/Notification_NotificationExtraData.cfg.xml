@@ -9,6 +9,7 @@
         <property name="notificationType" column="notification_type" type="string"/>
         <property name="receivedTime" column="received_time" type="calendar"/>     
         <property name="content" column="content" type="string"/>
+        <property name="sourceAddress" column="source_address" type="string"/>
         
         <list name="extraData" cascade="all">
             <key column="notification_id"/>
@@ -28,4 +29,5 @@
         <property name="name" column="name" type="string"/>
         
     </class>
+    
 </hibernate-mapping>

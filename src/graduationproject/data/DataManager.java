@@ -13,6 +13,7 @@ import graduationproject.data.model_managers.SettingManager;
 import graduationproject.data.model_managers.TemplateItemManager;
 import graduationproject.data.model_managers.TemplateManager;
 import graduationproject.data.model_managers.UserManager;
+import java.util.Calendar;
 import java.util.logging.Level;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -36,6 +37,7 @@ public class DataManager {
     private NotificationManager notificationManager;
     
     private int activeAccountId;
+    private Calendar startTime;
     
     private static DataManager instance;
     
@@ -52,6 +54,9 @@ public class DataManager {
         this.templateManager = new TemplateManager(this.sessionFactory);
         this.templateItemManager = new TemplateItemManager(this.sessionFactory);
         this.notificationManager = new NotificationManager(this.sessionFactory);
+        
+        this.startTime = Calendar.getInstance();
+        this.startTime.add(Calendar.DATE, -1);
     }
     
     public static DataManager getInstance() {
@@ -65,6 +70,10 @@ public class DataManager {
         if (this.sessionFactory != null) {
             this.sessionFactory.close();
         }
+    }
+
+    public Calendar getStartTime() {
+        return startTime;
     }
     
     public UserManager getUserManager() {

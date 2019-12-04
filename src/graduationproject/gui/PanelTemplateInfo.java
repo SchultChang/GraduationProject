@@ -188,7 +188,7 @@ public class PanelTemplateInfo extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 JTable source = (JTable) e.getSource();
                 if (source == tableItems) {
-                    if (clickedRow ==  source.getSelectedRow()) {
+                    if (clickedRow ==  source.getSelectedRow() &&  clickedRow > -1) {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().showPanelItemInfo();
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().getPanelItemInfo().initData(templateId, clickedRow);
                         clickedRow = -1;

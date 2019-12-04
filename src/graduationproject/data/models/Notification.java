@@ -17,6 +17,7 @@ public class Notification {
     private int id;
     private String notificationType;
     private String content;
+    private String sourceAddress;
     private Calendar receivedTime;
     
     private Device device;
@@ -25,9 +26,10 @@ public class Notification {
     public Notification() {
     }
 
-    public Notification(String notificationType, String content, Calendar receivedTime, Device device, List<NotificationExtraData> extraData) {
+    public Notification(String notificationType, String content, String sourceAddress, Calendar receivedTime, Device device, List<NotificationExtraData> extraData) {
         this.notificationType = notificationType;
         this.content = content;
+        this.sourceAddress = sourceAddress;
         this.receivedTime = receivedTime;
         this.device = device;
         this.extraData = extraData;
@@ -65,6 +67,14 @@ public class Notification {
         this.content = content;
     }
 
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
+    
     public Device getDevice() {
         return device;
     }

@@ -124,7 +124,7 @@ public class PanelNotificationInfo extends JPanel {
         label4.setText("Type:");
         panelNotificationData.add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 210, 110, 30));
 
-        labelExtra.setFont(new java.awt.Font("SansSerif", 1, 12)); 
+        labelExtra.setFont(new java.awt.Font("SansSerif", 1, 16)); 
         labelExtra.setText("Extra Data");
         panelNotificationData.add(labelExtra, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 410, 110, 30));
 
@@ -195,9 +195,9 @@ public class PanelNotificationInfo extends JPanel {
         this.labelClose.addMouseListener(this.listenerLabel);
     }
     
-    public void initData(int notificationId, String sourceAddress) {
+    public void initData(int notificationId) {
         NotificationManagementController notificationController = new NotificationManagementController();
-        List<Object> data = notificationController.processGettingNotificationInfo(notificationId, sourceAddress);
+        List<Object> data = notificationController.processGettingNotificationInfo(notificationId);
         if (data == null) {
             JOptionPane.showMessageDialog(null, notificationController.getResultMessage());
             return;            
@@ -212,7 +212,7 @@ public class PanelNotificationInfo extends JPanel {
         
         DefaultTableModel tableModel = (DefaultTableModel) this.tableExtraData.getModel();
         int tempSize = tableModel.getRowCount();
-        for (int i = tempSize - 1; i >= 0; i++) {
+        for (int i = tempSize - 1; i >= 0; i--) {
             tableModel.removeRow(i);
         }
 
@@ -220,9 +220,6 @@ public class PanelNotificationInfo extends JPanel {
         for (int i = DataOrders.EXTRA_DATA.getValue(); i < tempSize; i++) {
             tableModel.addRow((Object[]) data.get(i));
         }
-        
-        this.scrollpane2.setEnabled(false);
-        this.scrollpane2.setVisible(false);
         
         this.revalidate();
         this.repaint();

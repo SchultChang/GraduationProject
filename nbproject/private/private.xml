@@ -12,6 +12,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelItemInfo.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/DeviceManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Notification.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Template.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Device.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/TemplateManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceManager.java</file>
@@ -42,6 +43,8 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/configs/Device_ContactInterface_%20NetworkInterface.cfg.xml</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceInterfaceDynamicDataManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/SnmpManager.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelNotificationList.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceNetworkInterfaceManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelTemplateInfo.java</file>
         </group>
     </open-files>

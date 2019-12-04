@@ -12,6 +12,7 @@ import graduationproject.data.models.Notification;
 import graduationproject.data.models.NotificationExtraData;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.helpers.NotificationParser;
+import graduationproject.snmpd.helpers.NotificationParser.NotificationType;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -22,9 +23,12 @@ import java.util.List;
  */
 public class NotificationManagementController {
 
-    private String UNKNOW_DEVICE_VALUE = "UNKNOWN";
-    private String NOTIFICATION_DISPLAY_HEADER_FORMAT = "%s (%s) at %s:";
+    private final String UNKNOW_DEVICE_VALUE = "UNKNOWN";
+    private final String NOTIFICATION_DISPLAY_HEADER_FORMAT = "%s (%s) at %s:";
+    private final String NOTIFICATION_DEVICE_FORMAT = "%s (%s)";
     private String resultMessage;
+
+    private int[] notificationIds;
 
 //        DEVICE_ID(2),
 //        DEVICE_INFO(3),
@@ -40,7 +44,12 @@ public class NotificationManagementController {
         TIME(5),
         EXTRA_DATA(6),
         EXTRA_NAME(0),
-        EXTRA_VALUE(1);
+        EXTRA_VALUE(1),
+        LIST_DEVICE(0),
+        LIST_TYPE(1),
+        LIST_CONTENT(2),
+        LIST_TIME(3),
+        LIST_END(4);
 
         private int value;
 
@@ -55,6 +64,10 @@ public class NotificationManagementController {
 
     public String getResultMessage() {
         return resultMessage;
+    }
+
+    public int[] getNotificationIds() {
+        return notificationIds;
     }
 
     public void processPushingDeviceNotifications(Calendar receivedTime, List<Object> notificationData) {
@@ -75,6 +88,7 @@ public class NotificationManagementController {
         Notification notification = new Notification(
                 String.valueOf(notificationData.get(NotificationParser.DataOrders.TYPE.getValue())),
                 String.valueOf(notificationData.get(NotificationParser.DataOrders.CONTENT.getValue())),
+                String.valueOf(notificationData.get(NotificationParser.DataOrders.DEVICE_ADDRESS.getValue())),
                 receivedTime,
                 device,
                 extraDataList
@@ -90,8 +104,7 @@ public class NotificationManagementController {
                             new DataConverter().convertCalendarToString(receivedTime)),
                     (String) notificationData.get(NotificationParser.DataOrders.CONTENT.getValue()));
         } else {
-            ApplicationWindow.getInstance().getPanelMain().showNotification(notificationId, 
-                    (String) notificationData.get(DataOrders.DEVICE_ADDRESS.getValue()),
+            ApplicationWindow.getInstance().getPanelMain().showNotification(notificationId,
                     String.format(NOTIFICATION_DISPLAY_HEADER_FORMAT,
                             UNKNOW_DEVICE_VALUE,
                             (String) notificationData.get(NotificationParser.DataOrders.DEVICE_ADDRESS.getValue()),
@@ -100,7 +113,7 @@ public class NotificationManagementController {
         }
     }
 
-    public List<Object> processGettingNotificationInfo(int notificationId, String sourceAddress) {
+    public List<Object> processGettingNotificationInfo(int notificationId) {
         Notification notification = DataManager.getInstance().getNotificationManager().getNotification(notificationId);
         if (notification == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
@@ -116,7 +129,7 @@ public class NotificationManagementController {
             result.add(DataOrders.DEVICE_COMMUNITY.getValue(), device.getContactInterface().getCommunity());
         } else {
             result.add(DataOrders.DEVICE_LABEL.getValue(), UNKNOW_DEVICE_VALUE);
-            result.add(DataOrders.DEVICE_ADDRESS.getValue(), sourceAddress);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), notification.getSourceAddress());
             result.add(DataOrders.DEVICE_COMMUNITY.getValue(), UNKNOW_DEVICE_VALUE);
         }
 
@@ -128,7 +141,78 @@ public class NotificationManagementController {
         int tempSize = extraData.size();
         for (int i = 0; i < tempSize; i++) {
             result.add(DataOrders.EXTRA_DATA.getValue() + i, extraData.get(i).getData());
-        } 
+        }
+
+        return result;
+    }
+
+    public List<Object> getNotificationsOfDay(Calendar day) {
+        List<Notification> notifications = DataManager.getInstance().getNotificationManager().getNotifications(day);
+        if (notifications == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return null;
+        }
+
+        return this.convertDataToView(notifications);
+    }
+
+    public List<Object> getNotificationsOfDay(Calendar day, String deviceInfo, List<Object> notificationTypes) {
+        if (notificationTypes.isEmpty()) {
+            return new ArrayList<Object>();
+        }
+
+        List<Notification> notifications;
+        if (!deviceInfo.isEmpty()) {
+            if (this.UNKNOW_DEVICE_VALUE.equals(deviceInfo)) {
+                notifications = DataManager.getInstance().getNotificationManager().getNotifications(
+                        null, day, notificationTypes);
+            } else {                       //uncomment to display only known host
+                notifications = DataManager.getInstance().getNotificationManager().getNotifications(
+                        day, deviceInfo, notificationTypes);
+            }
+        } else {
+            notifications = DataManager.getInstance().getNotificationManager().getNotifications(day, notificationTypes);
+        }
+
+        if (notifications == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return null;
+        }
+
+        return this.convertDataToView(notifications);
+    }
+
+    private List<Object> convertDataToView(List<Notification> notifications) {
+
+        List<Object> result = new ArrayList<Object>();
+        int tempSize = notifications.size();
+        this.notificationIds = new int[tempSize];
+        Object[] values;
+        Device device;
+        Notification notification;
+
+        for (int i = 0; i < tempSize; i++) {
+            notification = notifications.get(i);
+            notificationIds[i] = notification.getId();
+
+            values = new Object[DataOrders.LIST_END.getValue()];
+            device = notification.getDevice();
+            if (device != null) {
+                values[DataOrders.LIST_DEVICE.getValue()] = String.format(this.NOTIFICATION_DEVICE_FORMAT,
+                        device.getLabel(),
+                        device.getContactInterface().getIpAddress());
+            } else {
+                values[DataOrders.LIST_DEVICE.getValue()] = String.format(this.NOTIFICATION_DEVICE_FORMAT,
+                        this.UNKNOW_DEVICE_VALUE,
+                        notification.getSourceAddress());
+            }
+
+            values[DataOrders.LIST_TYPE.getValue()] = notification.getNotificationType();
+            values[DataOrders.LIST_CONTENT.getValue()] = notification.getContent();
+            values[DataOrders.LIST_TIME.getValue()] = new DataConverter().convertCalendarToString(notification.getReceivedTime());
+
+            result.add(values);
+        }
 
         return result;
     }
@@ -137,6 +221,6 @@ public class NotificationManagementController {
 
         public String SAVING_FAILED_OTHER = "Some errors happened when saving notification data into system.";
 
-        public String GETTING_FAILED_OTHER = "Getting notification data is failed. Try again later.";
+        public String GETTING_FAILED_OTHER = "Some errors happened when getting notification data. Try again later.";
     }
 }
