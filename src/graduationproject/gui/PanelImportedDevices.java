@@ -61,6 +61,7 @@ public class PanelImportedDevices extends JPanel {
     private JPanel currentDisplayedPanel;
     private PanelDeviceInfo panelDeviceInfo;
     private PanelInterfaceInfo panelInterfaceInfo;
+    private PanelMonitoringDevice panelMonitoringDevice;
 
     private List<LabelDevice> labelDevices;
     private List<LabelInterface> labelInterfaces;
@@ -88,9 +89,12 @@ public class PanelImportedDevices extends JPanel {
     private LabelDevice currentChosenLabelDevice;
     private DataOrders currentDataOrder;
 
+    private boolean enableInterfaces = true;
+
     public enum PANELS {
         PANEL_DEVICE_INFO,
-        PANEL_INTERFACE_INFO
+        PANEL_INTERFACE_INFO,
+        PANEL_MONITORING_DEVICE
     }
 
 //    private List<DeviceStates> deviceStates;
@@ -162,6 +166,10 @@ public class PanelImportedDevices extends JPanel {
         this.panelInterfaceInfo = new PanelInterfaceInfo();
         this.panelInterfaceInfo.setVisible(false);
         this.panelInterfaceInfo.setEnabled(false);
+
+        this.panelMonitoringDevice = new PanelMonitoringDevice();
+        this.panelMonitoringDevice.setVisible(false);
+        this.panelMonitoringDevice.setEnabled(false);
     }
 
     private void initMenu() {
@@ -250,16 +258,27 @@ public class PanelImportedDevices extends JPanel {
                         InterfaceManagementController interfaceController = new InterfaceManagementController();
                         if (source.getDeviceState() == DeviceStates.ACTIVE) {
                             interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+                            enableInterfaces = false;
                         } else {
                             SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                             if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
                                 JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
                             };
                         }
-                    } else {
+                    } else if (!enableInterfaces) {
                         SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                         PanelImportedDevices.this.clearLabelInterfaces();
-                        currentChosenLabelDevice = null;
+                        enableInterfaces = true;
+                    } else {
+                        InterfaceManagementController interfaceController = new InterfaceManagementController();
+                        if (source.getDeviceState() == DeviceStates.ACTIVE) {
+                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+                        } else {
+                            if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
+                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+                            };
+                        }
+                        enableInterfaces = false;
                     }
                 } else {
                     pmenuDevices.show(source, e.getX(), e.getY());
@@ -326,7 +345,7 @@ public class PanelImportedDevices extends JPanel {
 
                     SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                     initData();
-                    System.gc();                    
+                    System.gc();
                 }
             }
 
@@ -487,17 +506,19 @@ public class PanelImportedDevices extends JPanel {
             this.labelInterfaces.get(interfaceId).setInterfaceState(state);
         }
     }
-    
+
     public void switchDisplayedPanel(PANELS panel) {
         this.hideDisplayedPanel();
 
         switch (panel) {
             case PANEL_DEVICE_INFO:
-                this.displayPanel(panelDeviceInfo, 440, 30, -1, -1);
+                this.displayPanel(panelDeviceInfo, 440, 0, -1, -1);
                 break;
             case PANEL_INTERFACE_INFO:
-                this.displayPanel(panelInterfaceInfo, 440, 30, -1, -1);
+                this.displayPanel(panelInterfaceInfo, 440, 0, -1, -1);
                 break;
+            case PANEL_MONITORING_DEVICE:
+                this.displayPanel(panelMonitoringDevice, 440, 0, -1, -1);
         }
 
         this.revalidate();
@@ -510,7 +531,7 @@ public class PanelImportedDevices extends JPanel {
             this.currentDisplayedPanel.setVisible(false);
             this.currentDisplayedPanel.setEnabled(false);
             this.currentDisplayedPanel = null;
-            
+
             this.revalidate();
             this.repaint();
         }
@@ -527,12 +548,24 @@ public class PanelImportedDevices extends JPanel {
 //    public void refreshPanel() {
 //        this.hideDisplayedPanel();
 //    }
+    public int getSelectedDeviceId() {
+        return this.currentChosenLabelDevice.getDeviceId();
+    }
+
+    public DeviceStates getSelectedDeviceStates() {
+        return this.currentChosenLabelDevice.getDeviceState();
+    }
+
     public DataOrders getCurrentDataOrder() {
         return currentDataOrder;
     }
 
     public PanelInterfaceInfo getPanelInterfaceInfo() {
         return panelInterfaceInfo;
+    }
+
+    public PanelMonitoringDevice getPanelMonitoringDevice() {
+        return panelMonitoringDevice;
     }
 
     @Override

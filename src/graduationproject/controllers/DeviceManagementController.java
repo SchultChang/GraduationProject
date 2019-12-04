@@ -12,10 +12,14 @@ import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;
 import graduationproject.data.models.DeviceNetworkInterface;
 import graduationproject.data.models.Setting;
+import graduationproject.data.models.Template;
+import graduationproject.data.models.TemplateItem;
 import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.callbacks.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
+import graduationproject.snmpd.helpers.DeviceQueryHelper;
+import graduationproject.snmpd.helpers.DeviceQueryHelper.TemplateQuery;
 import graduationproject.snmpd.helpers.MergingDataHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -381,7 +385,7 @@ public class DeviceManagementController {
             this.checkingDevice = null;
             return;
         }
-        
+
         if (liveData != null && checkingDevice.getLabel() != liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]) {
 //            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
 //                    DataOrders.LABEL,
@@ -416,6 +420,51 @@ public class DeviceManagementController {
         return UNKNOWN_DEVICE_LABEL;
     }
 
+    public void processSendingQueryBasedOnTemplate(boolean first, int deviceId, int templateId) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            this.resultMessage = new ResultMessageGenerator().QUERYING_FAILED_IN_PREPARING;
+            return;
+        }
+
+        Template template = DataManager.getInstance().getTemplateManager().getTemplate(templateId);
+        if (template == null) {
+            this.resultMessage = new ResultMessageGenerator().QUERYING_FAILED_IN_PREPARING;
+            return;
+        }
+
+        List<TemplateItem> templateItems = template.getTemplateItems();
+        List<String> queryItems = new ArrayList<String>();
+        List<String> displayNames = new ArrayList<String>();
+        for (TemplateItem templateItem : templateItems) {
+            if (templateItem.isIsEnabled()) {
+                queryItems.add(templateItem.getMibName());
+                displayNames.add(templateItem.getDisplayName());
+            }
+        }
+//        public TemplateQuery(String deviceId, String ipAddress, String community, String templateId, List<String> itemList, boolean isTable) {
+
+        if (!queryItems.isEmpty()) {
+            if (first) {
+                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelMonitoringDevice().updateViewStage1(
+                        device.getLabel(), template.getName(), displayNames, template.isIsTable());
+            }
+
+            TemplateQuery templateQuery = new TemplateQuery(
+                    deviceId, device.getContactInterface().getIpAddress(), device.getContactInterface().getCommunity(),
+                    templateId, queryItems, template.isIsTable());
+
+            DeviceQueryHelper queryHelper = new DeviceQueryHelper();
+            queryHelper.startTemplateQuery(templateQuery);
+        }
+    }
+
+    public void processCompletedTemplateQuery(TemplateQuery completedQuery) {
+        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelMonitoringDevice().updateViewStage2(
+                completedQuery.getDeviceId(), completedQuery.getTemplateId(),
+                completedQuery.getResult(), completedQuery.isIsTable());
+    }
+
     public class ResultMessageGenerator {
 
         public String IMPORTING_FAILED_FILE_NOT_FOUND = "The chosen file is not found. Please try again.";
@@ -430,6 +479,8 @@ public class DeviceManagementController {
         public String UPDATING_FAILED_NON_LABEL = "Label field should not be left empty, otherwise you can not find that device later.";
 
         public String DELETING_FAILED_OTHER = "Some errors happened when deleting device data in database.";
+
+        public String QUERYING_FAILED_IN_PREPARING = "Some errors happened when preparing query to send to the client.";
     }
 
 }

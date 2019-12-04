@@ -16,6 +16,7 @@ public class QueryTimerManager {
 
     private Timer deviceTimer;
     private Timer interfaceTimer;
+    private Timer queryTimer;
 
     public synchronized void startDeviceTimer(TimerTask task, int delay, int period) {
         this.cancelDeviceTimer();

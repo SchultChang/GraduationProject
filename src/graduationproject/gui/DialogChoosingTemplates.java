@@ -5,6 +5,8 @@
  */
 package graduationproject.gui;
 
+import graduationproject.controllers.DeviceManagementController;
+import graduationproject.controllers.DeviceManagementController.DeviceStates;
 import graduationproject.controllers.TemplateManagementController;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -17,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -27,6 +30,8 @@ import javax.swing.border.Border;
  */
 public class DialogChoosingTemplates extends JDialog {
 
+    private String DEVICE_NOT_ACTIVE_WARNING = "Device is not active so you can't monitor its data now. Please try again later.";
+    
     private JButton buttonCancel;
     private JButton buttonContinue;
     private JButton buttonSingular;
@@ -120,6 +125,20 @@ public class DialogChoosingTemplates extends JDialog {
                 if (source == buttonCancel) {
                     DialogChoosingTemplates.this.dispose();
                 }
+                if (source == buttonContinue) {
+                    DialogChoosingTemplates.this.dispose();
+                    if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates()
+                            == DeviceStates.ACTIVE) {
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                                .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_MONITORING_DEVICE);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelMonitoringDevice().initData(
+                                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceId(),
+                                DialogChoosingTemplates.this.templateIds[listTemplates.getSelectedIndex()]);
+                    } else {
+                        JOptionPane.showMessageDialog(null, DEVICE_NOT_ACTIVE_WARNING);
+                    }
+                }
+
                 if (source == buttonSingular) {
                     isSingular = true;
 

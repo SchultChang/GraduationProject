@@ -7,6 +7,7 @@ package graduationproject.gui;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.controllers.DeviceManagementController.DataOrders;
+import graduationproject.controllers.DeviceManagementController.DeviceStates;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -200,6 +201,8 @@ public class PanelDeviceInfo extends JPanel {
         buttonNotification.setText("Notifications");
         buttonNotification.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         buttonNotification.setOpaque(true);
+        buttonNotification.setVisible(false);
+        buttonNotification.setEnabled(false);
         add(buttonNotification, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
 
         buttonCancel.setBackground(new java.awt.Color(38, 56, 163));
@@ -295,4 +298,9 @@ public class PanelDeviceInfo extends JPanel {
         result.add(DataOrders.CI_COMMUNITY.getValue(), this.tfieldCommunity.getText());
         return result;
     }
+
+    public int getDeviceId() {
+        return deviceId;
+    }
+    
 }
