@@ -49,7 +49,7 @@ public class NotificationParser {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithStartNotification(target, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.COLD_START.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.COLD_START.getMessage());
@@ -61,7 +61,7 @@ public class NotificationParser {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithStartNotification(target, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.WARM_START.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.WARM_START.getMessage());
@@ -74,7 +74,7 @@ public class NotificationParser {
         int interfaceId = varbinds.get("ifIndex").asInt();
         int deviceId = deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, false, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_DOWN.getName());
         if (deviceId >= 0) {
@@ -92,7 +92,7 @@ public class NotificationParser {
         int interfaceId = varbinds.get("ifIndex").asInt();
         int deviceId = deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, true, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_UP.getName());
         if (deviceId >= 0) {
@@ -109,7 +109,7 @@ public class NotificationParser {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithAuthenticationNotification(target, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.AUTHENTICATION_FAILURE.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.AUTHENTICATION_FAILURE.getMessage());
@@ -121,7 +121,7 @@ public class NotificationParser {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithEgpNotification(target, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.EGP_LOSS.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.EGP_LOSS.getMessage());
@@ -133,7 +133,7 @@ public class NotificationParser {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithEnterpriseNotification(target, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_DISPLAY_INFO.getValue(), deviceController.getCheckingDeviceLabel() + " (" + target.getAddress() + ")");
+        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
         result.add(DataOrders.TYPE.getValue(), NotificationType.ENTERPRISE.getName());
         result.add(DataOrders.CONTENT.getValue(), NotificationType.ENTERPRISE.getMessage());
@@ -197,7 +197,7 @@ public class NotificationParser {
 //        IP_ADDRESS(0),
 //        COMMUNITY(1),
         DEVICE_ID(0),
-        DEVICE_DISPLAY_INFO(1),
+        DEVICE_ADDRESS(1),
         TYPE(2),
         CONTENT(3),
         EXTRA(4),

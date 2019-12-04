@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
 
 /**
@@ -61,6 +62,7 @@ public class PanelMain extends JPanel {
     private JSeparator separator3;
 
     private JPanel currentDisplayedPanel;
+    private PanelNotificationInfo panelNotificationInfo;
     private PanelUserProfile panelUserProfile;
     private PanelImportedDevices panelImportedDevices;
     private PanelImportedTemplates panelImportedTemplates;
@@ -75,7 +77,8 @@ public class PanelMain extends JPanel {
     public enum PANELS {
         PANEL_USER_PROFILE,
         PANEL_IMPORTED_DEVICES,
-        PANEL_IMPORTED_TEMPLATES
+        PANEL_IMPORTED_TEMPLATES,
+        PANEL_NOTIFICATION_INFO
     }
 
     public PanelMain() {
@@ -322,18 +325,30 @@ public class PanelMain extends JPanel {
                 JPanel source = (JPanel) e.getSource();
                 if (source == panelOptionDevices) {
                     showMenu(panelDeviceMenu);
+                    return;
                 }
                 if (source == panelOptionTemplates) {
                     showMenu(panelTemplateMenu);
+                    return;
                 }
                 if (source == panelAccountMenu) {
                     processMouseOnPanelAccountMenu(e.getX(), e.getY());
+                    return;
                 }
                 if (source == panelDeviceMenu) {
                     processMouseOnPanelDeviceMenu(e.getX(), e.getY());
+                    return;
                 }
                 if (source == panelTemplateMenu) {
                     processMouseOnPanelTemplateMenu(e.getX(), e.getY());
+                    return;
+                }
+                
+                try {
+                    PanelNotification notification = (PanelNotification) source;
+                    showPanelNotificationInfo(notification.getNotificationId(), notification.getSourceAddress());
+                    notification.setIsRead(true);
+                } catch (Exception ex) {
                 }
             }
 
@@ -342,12 +357,15 @@ public class PanelMain extends JPanel {
                 JPanel source = (JPanel) e.getSource();
                 if (panelDeviceMenu.isVisible() && source == panelDeviceMenu) {
                     hideMenu(panelDeviceMenu);
+                    return;
                 }
                 if (panelTemplateMenu.isVisible() && source == panelTemplateMenu) {
                     hideMenu(panelTemplateMenu);
+                    return;
                 }
                 if (panelAccountMenu.isVisible() && source == panelAccountMenu) {
                     hideMenu(panelAccountMenu);
+                    return;
                 }
             }
         };
@@ -433,6 +451,11 @@ public class PanelMain extends JPanel {
     }
 
     private void initChildPanels() {
+        this.panelNotificationInfo = new PanelNotificationInfo();
+        this.add(this.panelNotificationInfo, new AbsoluteConstraints(0, 60, -1, -1));
+        this.panelNotificationInfo.setVisible(false);
+        this.panelNotificationInfo.setEnabled(false);
+        
         this.panelUserProfile = new PanelUserProfile();
         this.panelUserProfile.setVisible(false);
         this.panelUserProfile.setEnabled(false);
@@ -552,6 +575,7 @@ public class PanelMain extends JPanel {
             }
 
             PanelNotification notification = new PanelNotification(notificationId, header, content);
+            notification.addMouseListener(this.listenerPanel);
             this.listNotifications.add(notification);
 
             this.panelNotifications.removeAll();
@@ -564,10 +588,36 @@ public class PanelMain extends JPanel {
             this.repaint();
         }
     }
+    
+    public synchronized void showNotification(int notificationId, String sourceIpAddress, String header, String content) {
+        this.showNotification(notificationId, header, content);
+        this.listNotifications.get(this.listNotifications.size() - 1).setSourceAddress(sourceIpAddress);
+    }
+    
+    public void showPanelNotificationInfo(int notificationId, String sourceAddress) {
+        if (!this.panelNotificationInfo.isVisible()) {
+            this.panelNotificationInfo.setVisible(true);
+            this.panelNotificationInfo.setEnabled(true);
+        }
+        
+        this.panelNotificationInfo.initData(notificationId, sourceAddress);
+        
+        this.revalidate();
+        this.repaint();
+    }
+    
+    public void hidePanelNotificationInfo() {
+        this.panelNotificationInfo.setVisible(false);
+        this.panelNotificationInfo.setEnabled(false);
+        
+        this.revalidate();
+        this.repaint();
+    }
 
     public class PanelNotification extends JPanel {
 
         private int notificationId;
+        private String sourceAddress;
         private JLabel labelHeader;
         private JLabel labelContent;
         private boolean isRead;
@@ -575,9 +625,10 @@ public class PanelMain extends JPanel {
         public PanelNotification(int notificationId, String header, String content) {
             this.labelHeader = new JLabel(header);
             this.labelContent = new JLabel(content);
+            this.sourceAddress = null;
             
             setBackground(new Color(192, 215, 252));
-            setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(0, 0, 0)));
+            setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(0, 0, 0)));
             setMaximumSize(new java.awt.Dimension(400, 70));
             setMinimumSize(new java.awt.Dimension(400, 70));
             setPreferredSize(new java.awt.Dimension(400, 70));
@@ -585,10 +636,12 @@ public class PanelMain extends JPanel {
 
             labelContent.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
             labelContent.setForeground(java.awt.Color.blue);
+            labelContent.setFocusable(false);
             add(labelContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 360, -1));
 
             labelHeader.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
             labelHeader.setForeground(java.awt.Color.red);
+            labelHeader.setFocusable(false);
             add(labelHeader, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 360, 30));
 
             this.notificationId = notificationId;
@@ -598,5 +651,22 @@ public class PanelMain extends JPanel {
         public boolean isRead() {
             return this.isRead;
         }
+
+        public void setSourceAddress(String sourceAddress) {
+            this.sourceAddress = sourceAddress;
+        }
+
+        public int getNotificationId() {
+            return notificationId;
+        }
+
+        public String getSourceAddress() {
+            return sourceAddress;
+        }
+
+        public void setIsRead(boolean isRead) {
+            this.isRead = isRead;
+        }
+        
     }
 }

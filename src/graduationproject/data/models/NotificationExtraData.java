@@ -5,6 +5,9 @@
  */
 package graduationproject.data.models;
 
+import graduationproject.controllers.NotificationManagementController.DataOrders;
+import graduationproject.snmpd.helpers.NotificationParser;
+
 /**
  *
  * @author cloud
@@ -46,4 +49,10 @@ public class NotificationExtraData {
         this.name = name;
     }
 
+    public String[] getData() {
+        String[] result = new String[2];
+        result[DataOrders.EXTRA_NAME.getValue()] = this.name;
+        result[DataOrders.EXTRA_VALUE.getValue()] = this.value;
+        return result;
+    }
 }

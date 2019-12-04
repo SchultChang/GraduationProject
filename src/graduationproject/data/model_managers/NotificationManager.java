@@ -45,4 +45,29 @@ public class NotificationManager {
         
         return result;
     }
+    
+    public Notification getNotification(int id) {
+        Session session = null;
+        Transaction tx = null;
+        Notification result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            result = session.find(Notification.class, id);
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        
+        return result;
+    }
+
 }
+

@@ -5,9 +5,17 @@
  */
 package graduationproject.gui;
 
+import graduationproject.controllers.NotificationManagementController;
+import graduationproject.controllers.NotificationManagementController.DataOrders;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -43,9 +51,11 @@ public class PanelNotificationInfo extends JPanel {
     private JTable tableExtraData;
     private JTextArea tareaContent;
     
+    private MouseAdapter listenerLabel;    
 
     public PanelNotificationInfo() {
         initComponents();
+        initListeners();
     }
 
     private void initComponents() {
@@ -134,7 +144,7 @@ public class PanelNotificationInfo extends JPanel {
         label5.setText("Content:");
         panelNotificationData.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 320, 110, 30));
 
-        labelClose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icon_close_30.png"))); 
+        labelClose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_close_30.png"))); 
         panelNotificationData.add(labelClose, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 0, -1, 30));
 
         scrollpane2.setBackground(java.awt.Color.white);
@@ -161,5 +171,60 @@ public class PanelNotificationInfo extends JPanel {
 
         add(panelOverlay, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
+    }
+    
+    private void initListeners() {
+        this.listenerLabel = new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                JLabel source = (JLabel) e.getSource();
+                if (source == labelExtra) {
+                    scrollpane2.setVisible(!scrollpane2.isVisible());
+                    
+                    PanelNotificationInfo.this.revalidate();
+                    PanelNotificationInfo.this.repaint();
+                }
+                if (source == labelClose) {
+                    ApplicationWindow.getInstance().getPanelMain().hidePanelNotificationInfo();
+                }
+                
+            }
+            
+        };
+        this.labelExtra.addMouseListener(this.listenerLabel);
+        this.labelClose.addMouseListener(this.listenerLabel);
+    }
+    
+    public void initData(int notificationId, String sourceAddress) {
+        NotificationManagementController notificationController = new NotificationManagementController();
+        List<Object> data = notificationController.processGettingNotificationInfo(notificationId, sourceAddress);
+        if (data == null) {
+            JOptionPane.showMessageDialog(null, notificationController.getResultMessage());
+            return;            
+        }
+
+        this.labelDeviceLabel.setText((String) data.get(DataOrders.DEVICE_LABEL.getValue()));
+        this.labelIPAddress.setText((String) data.get(DataOrders.DEVICE_ADDRESS.getValue()));
+        this.labelCommunity.setText((String) data.get(DataOrders.DEVICE_COMMUNITY.getValue()));
+        this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
+        this.labelTime.setText((String) data.get(DataOrders.TIME.getValue()));
+        this.tareaContent.setText((String) data.get(DataOrders.CONTENT.getValue()));
+        
+        DefaultTableModel tableModel = (DefaultTableModel) this.tableExtraData.getModel();
+        int tempSize = tableModel.getRowCount();
+        for (int i = tempSize - 1; i >= 0; i++) {
+            tableModel.removeRow(i);
+        }
+
+        tempSize = data.size();
+        for (int i = DataOrders.EXTRA_DATA.getValue(); i < tempSize; i++) {
+            tableModel.addRow((Object[]) data.get(i));
+        }
+        
+        this.scrollpane2.setEnabled(false);
+        this.scrollpane2.setVisible(false);
+        
+        this.revalidate();
+        this.repaint();
     }
 }

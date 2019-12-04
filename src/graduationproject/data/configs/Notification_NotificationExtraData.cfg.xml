@@ -1,7 +1,7 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
 <hibernate-mapping>
-    <class name="graduationproject.data.models.Notification" table="TRAPS">
+    <class name="graduationproject.data.models.Notification" table="NOTIFICATIONS">
         <id name="id" column="id" type="int">
             <generator class="native"/>
         </id>
@@ -19,7 +19,7 @@
         <many-to-one name="device" column="device_id" class="graduationproject.data.models.Device" cascade="save-update"/>         
     </class>
     
-    <class name="graduationproject.data.models.NotificationExtraData" table="TRAP_EXTRA_DATA">
+    <class name="graduationproject.data.models.NotificationExtraData" table="NOTIFICATION_EXTRA_DATA">
         <id name="id" column="id" type="int">
             <generator class="native"/>
         </id>

@@ -6,6 +6,7 @@
 package graduationproject.data;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -20,5 +21,14 @@ public class DataConverter {
         
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(date);
+    }
+    
+    public String convertCalendarToString(Calendar time) {
+        if (time == null) {
+            return "";
+        }
+        
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return formatter.format(time.getTime());
     }
 }

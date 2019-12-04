@@ -44,6 +44,14 @@ public class GraduationProject {
                 DataManager.getInstance().close();
             }
         });
+        
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                System.out.println("UNCAUSE EXCEPTION");
+                e.printStackTrace();
+            }
+        });
 
         ApplicationWindow.getInstance().setVisible(true);
     }
