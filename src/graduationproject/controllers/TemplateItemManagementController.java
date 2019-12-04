@@ -57,7 +57,6 @@ public class TemplateItemManagementController {
     }
     
     public String normalizeValueType(String input) {
-        System.out.println("VALUE TYPE:" + input);
         for (int i = 0; i < VALUE_TYPES.length; i++) {
             if (VALUE_TYPES[i].equalsIgnoreCase(input)) {
                 return VALUE_TYPES[i];
@@ -67,7 +66,6 @@ public class TemplateItemManagementController {
     }
 
     public String normalizeAccessType(String input) {
-        System.out.println("ACCESS-TYPE:" + input);
         for (int i = 0; i < ACCESS_TYPES.length; i++) {
             if (ACCESS_TYPES[i].equalsIgnoreCase(input)) {
                 return ACCESS_TYPES[i];

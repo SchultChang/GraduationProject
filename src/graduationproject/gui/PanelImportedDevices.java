@@ -381,12 +381,10 @@ public class PanelImportedDevices extends JPanel {
     }
 
     public synchronized void updateLabelDeviceState(int deviceId, DeviceStates deviceState) {
-//        System.out.print("hello world1");
         int tempSize = this.labelDevices.size();
         for (int i = 0; i < tempSize; i++) {
             LabelDevice temp = this.labelDevices.get(i);
             if (temp.getDeviceId() == deviceId) {
-//                System.out.print("hello world2");
                 if (temp.setDeviceState(deviceState) && this.currentChosenLabelDevice == temp) {
                     if (deviceState == DeviceStates.ACTIVE) {
                         InterfaceManagementController interfaceController = new InterfaceManagementController();

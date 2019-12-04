@@ -48,7 +48,6 @@ public class GraduationProject {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                System.out.println("UNCAUSE EXCEPTION");
                 e.printStackTrace();
             }
         });

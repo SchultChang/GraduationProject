@@ -140,8 +140,7 @@ public class PanelImportedTemplates extends JPanel {
     private void initChildPanels() {
         this.panelItemInfo = new PanelItemInfo();
         this.add(this.panelItemInfo, new AbsoluteConstraints(440, 0, -1, -1));
-        
-        
+
         this.panelTemplateInfo = new PanelTemplateInfo();
         this.add(this.panelTemplateInfo, new AbsoluteConstraints(440, 0, -1, -1));
         this.hidePanelTemplateInfo();
@@ -255,11 +254,13 @@ public class PanelImportedTemplates extends JPanel {
         this.labelTemplates.clear();
         System.gc();
 
-        for (int i = 0; i < templateIds.length; i++) {
-            LabelTemplate newLabel = new LabelTemplate(data.get(i), templateIds[i]);
-            newLabel.addMouseListener(this.listenerListTemplates);
-            this.labelTemplates.add(newLabel);
-            this.panelTemplateList.add(newLabel);
+        if (templateIds != null && data != null) {
+            for (int i = 0; i < templateIds.length; i++) {
+                LabelTemplate newLabel = new LabelTemplate(data.get(i), templateIds[i]);
+                newLabel.addMouseListener(this.listenerListTemplates);
+                this.labelTemplates.add(newLabel);
+                this.panelTemplateList.add(newLabel);
+            }
         }
 
         this.panelTemplateList.revalidate();
@@ -275,12 +276,12 @@ public class PanelImportedTemplates extends JPanel {
             this.repaint();
         }
     }
-    
+
     public void showPanelItemInfo() {
         if (!this.panelItemInfo.isVisible()) {
             this.panelItemInfo.setEnabled(true);
             this.panelItemInfo.setVisible(true);
-            
+
             this.revalidate();
             this.repaint();
         }
@@ -295,12 +296,12 @@ public class PanelImportedTemplates extends JPanel {
             this.repaint();
         }
     }
-    
+
     public void hidePanelItemInfo() {
         if (this.panelItemInfo.isVisible()) {
             this.panelItemInfo.setVisible(false);
             this.panelItemInfo.setEnabled(false);
-            
+
             this.revalidate();
             this.repaint();
         }
@@ -322,7 +323,7 @@ public class PanelImportedTemplates extends JPanel {
     public PanelTemplateInfo getPanelTemplateInfo() {
         return panelTemplateInfo;
     }
-    
+
     public class LabelTemplate extends JLabel {
 
         private int templateId;

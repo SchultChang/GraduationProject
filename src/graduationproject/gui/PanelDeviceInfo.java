@@ -36,7 +36,7 @@ public class PanelDeviceInfo extends JPanel {
     private JButton buttonCancel;
     private JButton buttonMonitor;
     private JButton buttonSave;
-    private JButton buttonTrap;
+    private JButton buttonNotification;
     private JComboBox<String> cboxSNMPVersion;
     private JComboBox<String> cboxType;
     private JLabel label1;
@@ -58,6 +58,8 @@ public class PanelDeviceInfo extends JPanel {
     private JTextField tfieldLabel;
     private JTextField tfieldLocation;
     private JTextField tfieldName;
+
+    private DialogChoosingTemplates dialogChoosingTemplates;
     
     private ActionListener listenerButton;
     
@@ -92,7 +94,7 @@ public class PanelDeviceInfo extends JPanel {
         cboxSNMPVersion = new JComboBox<>();
         label10 = new JLabel();
         tfieldIpAddress = new JTextField();
-        buttonTrap = new JButton();
+        buttonNotification = new JButton();
         buttonCancel = new JButton();
         buttonSave = new JButton();
         buttonMonitor = new JButton();
@@ -192,13 +194,13 @@ public class PanelDeviceInfo extends JPanel {
 
         add(panelSNMPInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 590, 920, 210));
 
-        buttonTrap.setBackground(new java.awt.Color(207, 62, 69));
-        buttonTrap.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        buttonTrap.setForeground(java.awt.Color.white);
-        buttonTrap.setText("Trap");
-        buttonTrap.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        buttonTrap.setOpaque(true);
-        add(buttonTrap, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
+        buttonNotification.setBackground(new java.awt.Color(207, 62, 69));
+        buttonNotification.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonNotification.setForeground(java.awt.Color.white);
+        buttonNotification.setText("Notifications");
+        buttonNotification.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        buttonNotification.setOpaque(true);
+        add(buttonNotification, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
 
         buttonCancel.setBackground(new java.awt.Color(38, 56, 163));
         buttonCancel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
@@ -224,6 +226,8 @@ public class PanelDeviceInfo extends JPanel {
         buttonMonitor.setOpaque(true);
         add(buttonMonitor, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 830, 100, 40));
 
+        dialogChoosingTemplates = new DialogChoosingTemplates();
+        dialogChoosingTemplates.dispose();
     }
     
     private void initListeners() {
@@ -243,12 +247,16 @@ public class PanelDeviceInfo extends JPanel {
                 if (source == buttonCancel) {
                     initData(deviceId);
                 }
+                if (source == buttonMonitor) {
+                    dialogChoosingTemplates.setVisible(true);
+                }
             }
             
         };
         
         this.buttonSave.addActionListener(this.listenerButton);
         this.buttonCancel.addActionListener(this.listenerButton);
+        this.buttonMonitor.addActionListener(this.listenerButton);        
     }
     
     public void initData(int deviceId) {
