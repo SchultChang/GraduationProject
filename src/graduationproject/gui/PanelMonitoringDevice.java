@@ -8,6 +8,7 @@ package graduationproject.gui;
 import graduationproject.controllers.DeviceManagementController;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,8 +30,8 @@ public class PanelMonitoringDevice extends JPanel {
 
     private JButton buttonStart;
     private JButton buttonStop;
-    private JLabel jLabel1;
-    private JLabel jLabel2;
+    private JLabel label6;
+    private JLabel labelTime;
     private JLabel label1;
     private JLabel label2;
     private JLabel label4;
@@ -65,8 +66,8 @@ public class PanelMonitoringDevice extends JPanel {
         tfieldUpdatePeriod = new JTextField();
         buttonStart = new JButton();
         buttonStop = new JButton();
-        jLabel1 = new JLabel();
-        jLabel2 = new JLabel();
+        label6 = new JLabel();
+        labelTime = new JLabel();
 
         setBackground(java.awt.Color.white);
         setMaximumSize(new java.awt.Dimension(1160, 940));
@@ -106,7 +107,7 @@ public class PanelMonitoringDevice extends JPanel {
         add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 240, -1, 60));
 
         tableItems.setBorder(null);
-        tableItems.setFont(new java.awt.Font("SansSerif", 0, 15));
+        tableItems.setFont(new java.awt.Font("SansSerif", 0, 16));
         tableItems.setModel(new DefaultTableModel(
                 new Object[][]{},
                 this.defaultColumns
@@ -134,13 +135,13 @@ public class PanelMonitoringDevice extends JPanel {
         buttonStop.setText("Stop");
         add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 860, 70, -1));
 
-        jLabel1.setFont(new java.awt.Font("SansSerif", 1, 15));
-        jLabel1.setText("Updated Time:");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 858, 140, 30));
+        label6.setFont(new java.awt.Font("SansSerif", 1, 15));
+        label6.setText("Updated Time:");
+        add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 858, 140, 30));
 
-        jLabel2.setFont(new java.awt.Font("SansSerif", 1, 15));
-        jLabel2.setText(". . .");
-        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 858, 180, 30));
+        labelTime.setFont(new java.awt.Font("SansSerif", 1, 15));
+        labelTime.setText(". . .");
+        add(labelTime, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 858, 180, 30));
 
     }
 
@@ -186,7 +187,7 @@ public class PanelMonitoringDevice extends JPanel {
     }
 
     //data is retrieved from device
-    public synchronized void updateViewStage2(int deviceId, int templateId, List<Object> data, boolean isTable) {
+    public synchronized void updateViewStage2(int deviceId, int templateId, String receivedTime, List<Object> data, boolean isTable) {
         try {
             if (deviceId != this.deviceId || templateId != this.templateId) {
                 return;
@@ -209,6 +210,8 @@ public class PanelMonitoringDevice extends JPanel {
                     tableModel.setValueAt(data.get(i), i, this.defaultValueCol);
                 }
             }
+            
+            this.labelTime.setText(receivedTime);
         } catch (Exception e) {
             e.printStackTrace();
         }

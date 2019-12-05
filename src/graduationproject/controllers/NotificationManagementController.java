@@ -24,7 +24,7 @@ import java.util.List;
 public class NotificationManagementController {
 
     private final String UNKNOW_DEVICE_VALUE = "UNKNOWN";
-    private final String NOTIFICATION_DISPLAY_HEADER_FORMAT = "%s (%s) at %s:";
+    private final String NOTIFICATION_DISPLAY_HEADER_FORMAT = "%s (%s) at %s";
     private final String NOTIFICATION_DEVICE_FORMAT = "%s (%s)";
     private String resultMessage;
 
@@ -101,14 +101,14 @@ public class NotificationManagementController {
                     String.format(NOTIFICATION_DISPLAY_HEADER_FORMAT,
                             device.getLabel(),
                             (String) notificationData.get(NotificationParser.DataOrders.DEVICE_ADDRESS.getValue()),
-                            new DataConverter().convertCalendarToString(receivedTime)),
+                            new DataConverter().convertCalendarToTimeString(receivedTime)),
                     (String) notificationData.get(NotificationParser.DataOrders.CONTENT.getValue()));
         } else {
             ApplicationWindow.getInstance().getPanelMain().showNotification(notificationId,
                     String.format(NOTIFICATION_DISPLAY_HEADER_FORMAT,
                             UNKNOW_DEVICE_VALUE,
                             (String) notificationData.get(NotificationParser.DataOrders.DEVICE_ADDRESS.getValue()),
-                            new DataConverter().convertCalendarToString(receivedTime)),
+                            new DataConverter().convertCalendarToTimeString(receivedTime)),
                     (String) notificationData.get(NotificationParser.DataOrders.CONTENT.getValue()));
         }
     }

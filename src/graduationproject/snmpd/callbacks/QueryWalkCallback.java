@@ -8,6 +8,7 @@ package graduationproject.snmpd.callbacks;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.ResponseDataProcessor;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.TemplateQuery;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import org.soulwing.snmp.SnmpAsyncWalker;
 import org.soulwing.snmp.SnmpCallback;
@@ -47,7 +48,7 @@ public class QueryWalkCallback implements SnmpCallback<SnmpAsyncWalker<VarbindCo
             }            
             
             ResponseDataProcessor dataProcessor = new ResponseDataProcessor();
-            dataProcessor.processWalkData(templateQuery, varbindsList);
+            dataProcessor.processWalkData(Calendar.getInstance(), templateQuery, varbindsList);
         } catch(Exception e) {
 //            e.printStackTrace();
             se.getContext().close();

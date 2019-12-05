@@ -179,7 +179,7 @@ public class DeviceManagementController {
         List<Object> pushingResult = null;
         if (snmpContext == null) {
             queryHelper.pushInfoIntoDevice(
-                    device.getContactInterface().getIpAddress(), device.getContactInterface().getCommunity(), 
+                    device.getContactInterface().getIpAddress(), device.getContactInterface().getCommunity(),
                     deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
         } else {
             queryHelper.pushInfoIntoDevice(snmpContext, deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
@@ -408,21 +408,21 @@ public class DeviceManagementController {
     private void getCheckingDeviceWithNotificationData(SnmpTarget target, boolean merge) {
         String community = ((SimpleSnmpV2cTarget) target).getCommunity();
         String[] liveData;
-        if (community == null) {
-            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(DataOrders.CI_IP_ADDRESS, target.getAddress());
-            community = checkingDevice.getContactInterface().getCommunity();
 
+        checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(DataOrders.CI_IP_ADDRESS, target.getAddress());
+        if (community == null) {
+            community = checkingDevice.getContactInterface().getCommunity();
             liveData = new DeviceQueryHelper().getDeviceIdentification(target, community);
         } else {
             liveData = new DeviceQueryHelper().getDeviceIdentification(target);
         }
 
-        if (liveData != null && checkingDevice.getName() != liveData[DeviceQueryHelper.DataOrders.DEVICE_NAME.getValue()]) {
+        if (liveData == null || !checkingDevice.getName().equals(liveData[DeviceQueryHelper.DataOrders.DEVICE_NAME.getValue()])) {
             this.checkingDevice = null;
             return;
         }
 
-        if (liveData != null && checkingDevice.getLabel() != liveData[DeviceQueryHelper.DataOrders.DEVICE_LABEL.getValue()]) {
+        if (liveData == null || !checkingDevice.getLabel().equals(liveData[DeviceQueryHelper.DataOrders.DEVICE_LABEL.getValue()])) {
 //            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
 //                    DataOrders.LABEL,
 //                    liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
@@ -498,6 +498,7 @@ public class DeviceManagementController {
     public void processCompletedTemplateQuery(TemplateQuery completedQuery) {
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelMonitoringDevice().updateViewStage2(
                 completedQuery.getDeviceId(), completedQuery.getTemplateId(),
+                new DataConverter().convertCalendarToString(completedQuery.getReceivedTime()),
                 completedQuery.getResult(), completedQuery.isIsTable());
     }
 

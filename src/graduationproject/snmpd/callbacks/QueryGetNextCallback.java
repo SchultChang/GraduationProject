@@ -7,6 +7,7 @@ package graduationproject.snmpd.callbacks;
 
 import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.TemplateQuery;
+import java.util.Calendar;
 import org.soulwing.snmp.SnmpCallback;
 import org.soulwing.snmp.SnmpEvent;
 import org.soulwing.snmp.Varbind;
@@ -27,11 +28,8 @@ public class QueryGetNextCallback implements SnmpCallback<VarbindCollection>{
     public void onSnmpResponse(SnmpEvent<VarbindCollection> se) {
         try {
             VarbindCollection varbinds = se.getResponse().get();
-//            for (Varbind varbind : varbinds) {
-//                System.out.println(varbind.getName() + " :: " + varbind.asString());
-//            }
             DeviceQueryHelper.ResponseDataProcessor dataProcessor = new DeviceQueryHelper.ResponseDataProcessor();
-            dataProcessor.processGetNextData(templateQuery, varbinds);
+            dataProcessor.processGetNextData(Calendar.getInstance(), templateQuery, varbinds);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

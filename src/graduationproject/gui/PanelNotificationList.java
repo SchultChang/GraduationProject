@@ -94,7 +94,7 @@ public class PanelNotificationList extends JPanel {
         scrollpane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         tableNotifications.setBorder(null);
-        tableNotifications.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tableNotifications.setFont(new java.awt.Font("SansSerif", 0, 16)); // NOI18N
         tableNotifications.setBackground(Color.white);
         tableNotifications.setModel(new DefaultTableModel(
                 new Object[][]{},

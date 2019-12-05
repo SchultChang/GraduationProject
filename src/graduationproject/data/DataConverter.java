@@ -31,4 +31,13 @@ public class DataConverter {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.format(time.getTime());
     }
+    
+    public String convertCalendarToTimeString(Calendar time) {
+        if (time == null) {
+            return "";
+        }
+        
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        return formatter.format(time.getTime());
+    }
 }

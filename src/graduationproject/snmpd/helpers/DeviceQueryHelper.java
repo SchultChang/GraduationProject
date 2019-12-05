@@ -11,6 +11,7 @@ import graduationproject.snmpd.callbacks.PushDeviceInfoCallbackStage1;
 import graduationproject.snmpd.callbacks.QueryGetNextCallback;
 import graduationproject.snmpd.callbacks.QueryWalkCallback;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import org.soulwing.snmp.SnmpContext;
 import org.soulwing.snmp.SnmpTarget;
@@ -112,8 +113,9 @@ public class DeviceQueryHelper {
 
     public static class ResponseDataProcessor {
 
-        public void processGetNextData(TemplateQuery templateQuery, VarbindCollection varbinds) {
+        public void processGetNextData(Calendar receivedTime, TemplateQuery templateQuery, VarbindCollection varbinds) {
             try {
+                templateQuery.setReceivedTime(receivedTime);
                 int tempSize = templateQuery.itemList.size();
 
                 for (int i = 0; i < tempSize; i++) {
@@ -127,8 +129,9 @@ public class DeviceQueryHelper {
             }
         }
 
-        public void processWalkData(TemplateQuery templateQuery, List<VarbindCollection> varbindsList) {
+        public void processWalkData(Calendar receivedTime, TemplateQuery templateQuery, List<VarbindCollection> varbindsList) {
             try {
+                templateQuery.setReceivedTime(receivedTime);
                 int tempSize = templateQuery.itemList.size();
 
                 for (VarbindCollection varbinds : varbindsList) {
@@ -156,6 +159,7 @@ public class DeviceQueryHelper {
         private List<String> itemList;
         private boolean isTable;
 
+        private Calendar receivedTime;
         private List<Object> result;
 
         public TemplateQuery(int deviceId, String ipAddress, String community, int templateId, List<String> itemList, boolean isTable) {
@@ -166,6 +170,7 @@ public class DeviceQueryHelper {
             this.itemList = itemList;
             this.isTable = isTable;
 
+            this.receivedTime = null;
             this.result = new ArrayList<Object>();
         }
 
@@ -197,5 +202,12 @@ public class DeviceQueryHelper {
             return result;
         }
 
+        public Calendar getReceivedTime() {
+            return receivedTime;
+        }
+
+        public void setReceivedTime(Calendar receivedTime) {
+            this.receivedTime = receivedTime;
+        }
     }
 }

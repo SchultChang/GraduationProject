@@ -125,7 +125,7 @@ public class PanelTemplateInfo extends JPanel {
         add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 290, -1, 40));
 
         tableItems.setBorder(null);
-        tableItems.setFont(new java.awt.Font("SansSerif", 0, 15)); 
+        tableItems.setFont(new java.awt.Font("SansSerif", 0, 16)); 
         tableItems.setModel(new DefaultTableModel(
             new Object [][] {
             },
