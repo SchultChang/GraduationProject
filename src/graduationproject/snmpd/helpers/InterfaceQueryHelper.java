@@ -156,6 +156,14 @@ public class InterfaceQueryHelper {
         public String getMacAddress() {
             return  this.macAddress;
         }
+
+        public String getNextNodeMac() {
+            return nextNodeMac;
+        }
+
+        public String getNextNodeIP() {
+            return nextNodeIP;
+        }
         
         public List<Object> getDynamicData() {
             List<Object> result = new ArrayList<Object>();

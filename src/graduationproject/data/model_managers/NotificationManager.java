@@ -17,6 +17,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.IntegerType;
 
@@ -99,7 +100,8 @@ public class NotificationManager {
 //            query.setParameter("year", day.get(Calendar.YEAR));
 //            result = query.list();
             Criteria cri = session.createCriteria(Notification.class)
-                    .add(Restrictions.ge("receivedTime", day));
+                    .add(Restrictions.ge("receivedTime", day))
+                    .addOrder(Order.desc("id"));
             result = cri.list();
 
             tx.commit();
@@ -132,7 +134,8 @@ public class NotificationManager {
 //                    .add(Restrictions.in("notificationType", notificationTypes));
 
             cri.add(Restrictions.ge("receivedTime", day))
-                    .add(Restrictions.in("notificationType", notificationTypes));
+                    .add(Restrictions.in("notificationType", notificationTypes))
+                    .addOrder(Order.desc("id"));
             if (device == null) {
                 cri.add(Restrictions.isNull("device"));
             } else {
@@ -172,7 +175,8 @@ public class NotificationManager {
 //                    .add(Restrictions.in("notificationType", notificationTypes));
             Criteria cri = session.createCriteria(Notification.class);
             cri.add(Restrictions.ge("receivedTime", day))
-                    .add(Restrictions.in("notificationType", notificationTypes));
+                    .add(Restrictions.in("notificationType", notificationTypes))
+                    .addOrder(Order.desc("id"));
             result = cri.list();
 
             tx.commit();
@@ -208,7 +212,8 @@ public class NotificationManager {
             cri.createAlias("notification.device", "device", Criteria.LEFT_JOIN);
             cri.add(Restrictions.ge("receivedTime", day))
                     .add(Restrictions.like("device.label", deviceInfo + "%"))
-                    .add(Restrictions.in("notificationType", notificationTypes));
+                    .add(Restrictions.in("notificationType", notificationTypes))
+                    .addOrder(Order.desc("id"));
             result = cri.list();
 
             tx.commit();

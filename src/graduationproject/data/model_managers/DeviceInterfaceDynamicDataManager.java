@@ -30,7 +30,7 @@ public class DeviceInterfaceDynamicDataManager {
         this.sessionFactory = sessionFactory;
     }
     
-    public int insertDynamicData(int interfaceId, DeviceInterfaceDynamicData dynamicData) {
+    public int insertDynamicData(DeviceInterfaceDynamicData dynamicData) {
         Session session = null;
         Transaction tx = null;
         int result = -1;
@@ -39,8 +39,7 @@ public class DeviceInterfaceDynamicDataManager {
            session = this.sessionFactory.openSession();
            tx = session.beginTransaction();
            
-           DeviceNetworkInterface owningInterface = session.find(DeviceNetworkInterface.class, interfaceId);
-           dynamicData.setNetworkInterface(owningInterface);
+//           dynamicData.setNetworkInterface(owningInterface);
            session.persist(dynamicData);
            
            tx.commit();
@@ -69,10 +68,9 @@ public class DeviceInterfaceDynamicDataManager {
             
             DetachedCriteria maxId = DetachedCriteria.forClass(DeviceInterfaceDynamicData.class)
                     .setProjection(Projections.max("id"))
-                    .add(Restrictions.eq("networkInterface", networkInterface));;
+                    .add(Restrictions.eq("networkInterface", networkInterface));
             Criteria cri = session.createCriteria(DeviceInterfaceDynamicData.class)
                     .add(Property.forName("id").eq(maxId));
-                    
             
             List<DeviceInterfaceDynamicData> resultList = cri.list();
             if (!resultList.isEmpty()) {

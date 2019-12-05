@@ -44,7 +44,7 @@ public class DeviceManagementController {
     private Device checkingDevice;
 
     public static final String[] DEVICE_TYPES = {"Router", "Switch", "End Host"};
-    private final String UNKNOWN_DEVICE_LABEL = "UNKNOWN DEVICE";
+    public static final String UNKNOWN_DEVICE_INFO = "UNKNOWN";
 
     public enum DeviceStates {
         ACTIVE,
@@ -453,7 +453,7 @@ public class DeviceManagementController {
         if (checkingDevice != null) {
             return checkingDevice.getLabel();
         }
-        return UNKNOWN_DEVICE_LABEL;
+        return UNKNOWN_DEVICE_INFO;
     }
 
     public void processSendingQueryBasedOnTemplate(boolean first, int deviceId, int templateId) {

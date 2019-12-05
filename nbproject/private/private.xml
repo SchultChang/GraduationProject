@@ -15,6 +15,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/helpers/DeviceQueryHelper.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/UserManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/DeviceNetworkInterface.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/PushDeviceInfoCallbackStage2.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/InterfaceManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/NotificationExtraData.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/configs/Notification_NotificationExtraData.cfg.xml</file>
@@ -43,6 +44,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Notification.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Template.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/DialogChoosingTemplates.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/DeviceActiveCheckingCallback.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/build.xml</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/ApplicationWindow.java</file>
@@ -54,7 +56,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelImportedDevices.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelNotificationInfo.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/InterfaceQueryCallbackStage3.java</file>
-            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/helpers/MergingDataHelper.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/PushDeviceInfoCallbackStage1.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceInterfaceDynamicDataManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceNetworkInterfaceManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelMonitoringDevice.java</file>

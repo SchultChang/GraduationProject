@@ -8,14 +8,19 @@ package graduationproject.data.model_managers;
 import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
+import graduationproject.data.models.DeviceInterfaceDynamicData;
+import graduationproject.data.models.DeviceNetworkInterface;
 import graduationproject.data.models.User;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.hibernate.transform.Transformers;
@@ -225,8 +230,8 @@ public class DeviceManager {
 
                 if (resultList != null && !resultList.isEmpty()) {
                     result = resultList.get(0);
-                } 
-                if (order == DataOrders.CI_IP_ADDRESS) {            
+                }
+                if (order == DataOrders.CI_IP_ADDRESS) {
                     cri = session.createCriteria(Device.class, "device");
                     cri.createAlias("device.contactInterface", "contactInterface");
                     cri.add(Restrictions.eq("contactInterface.ipAddress", value));
@@ -249,6 +254,41 @@ public class DeviceManager {
         }
 
         return result;
+    }
+
+    public Device getDevice(String macAddress) {
+        Session session = null;
+        Transaction tx = null;
+        Device result = null;
+        List<Device> resultList = null;
+
+        if (macAddress != null) {
+            try {
+                session = this.sessionFactory.openSession();
+                tx = session.beginTransaction();
+                
+                String hql = "SELECT d FROM " + Device.class.getSimpleName() + " d JOIN d.networkInterfaces  i WHERE i.macAddress=:macAddress";
+                Query query = session.createQuery(hql);
+                query.setParameter("macAddress", macAddress);
+                
+                resultList = query.list();
+                if (!resultList.isEmpty()) {
+                    result = resultList.get(0);
+                }
+
+                tx.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                tx.rollback();
+            } finally {
+                if (session != null) {
+                    session.close();
+                }
+            }
+        }
+
+        return result;
+
     }
 
 }

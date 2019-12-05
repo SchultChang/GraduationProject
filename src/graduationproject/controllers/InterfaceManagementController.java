@@ -132,8 +132,8 @@ public class InterfaceManagementController {
         return true;
     }
     
-    public void processCollectedData(int deviceId, List<InterfaceRawData> interfaceList) {
-        if (interfaceList.isEmpty()) {
+    public void processCollectedData(int deviceId, List<InterfaceRawData> rawDataList) {
+        if (rawDataList.isEmpty()) {
             return;
         }
 
@@ -142,21 +142,20 @@ public class InterfaceManagementController {
         if (device == null) {
             return;
         }
-        //public DeviceNetworkInterface(String name, String macAddress, String type) {
         
         int tempSize = device.getNetworkInterfaces().size();
         for (int i = 0; i < tempSize; i++) {
-            device.getNetworkInterfaces().get(i).setName(interfaceList.get(i).getName());
-            device.getNetworkInterfaces().get(i).setMacAddress(interfaceList.get(i).getMacAddress());
-            device.getNetworkInterfaces().get(i).setType(interfaceList.get(i).getType());
+            device.getNetworkInterfaces().get(i).setName(rawDataList.get(i).getName());
+            device.getNetworkInterfaces().get(i).setMacAddress(rawDataList.get(i).getMacAddress());
+            device.getNetworkInterfaces().get(i).setType(rawDataList.get(i).getType());
         }
 
-        int tempSize2 = interfaceList.size();
+        int tempSize2 = rawDataList.size();
         if (tempSize < tempSize2) {
             for (int i = tempSize; i < tempSize2; i++) {
-                device.getNetworkInterfaces().add(new DeviceNetworkInterface(interfaceList.get(i).getName(),
-                        interfaceList.get(i).getMacAddress(),
-                        interfaceList.get(i).getType()));
+                device.getNetworkInterfaces().add(new DeviceNetworkInterface(rawDataList.get(i).getName(),
+                        rawDataList.get(i).getMacAddress(),
+                        rawDataList.get(i).getType()));
             }
             tempSize = tempSize2;
         }
@@ -167,13 +166,12 @@ public class InterfaceManagementController {
         DeviceInterfaceDynamicData needToViewDynamicData = null;        
         
         Date importedTime = new Date();
-//        System.out.println("INSERTING INTERFACE DYNAMIC DATA");
         for (int i = 0; i < tempSize; i++) {
+            List<Object> rawData = rawDataList.get(i).getDynamicData();
+            this.findNextNodeInfo(rawData, rawDataList.get(i).getNextNodeMac());
             DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                    interfaceList.get(i).getDynamicData(), importedTime, null);
-            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(
-                    device.getNetworkInterfaces().get(i).getId(),
-                    dynamicData);
+                    rawData, importedTime, device.getNetworkInterfaces().get(i));
+            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
             
             if (i == displayedInterfaceId) {
                 needToViewDynamicData = dynamicData;
@@ -186,10 +184,10 @@ public class InterfaceManagementController {
         InterfaceStates[] interfaceStates = new InterfaceStates[tempSize];
 
         for (int i = 0; i < tempSize; i++) {
-            names[i] = interfaceList.get(i).getName();
-//            interfaceIds[i] = interfaceList.get(i).getIndex();
+            names[i] = rawDataList.get(i).getName();
+//            interfaceIds[i] = rawDataList.get(i).getIndex();
             interfaceIds[i] = i;
-            interfaceStates[i] = (interfaceList.get(i).getOperStatus() != 1) ? InterfaceStates.DOWN : InterfaceStates.UP;
+            interfaceStates[i] = (rawDataList.get(i).getOperStatus() != 1) ? InterfaceStates.DOWN : InterfaceStates.UP;
         }
 
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelInterfaces(deviceId, interfaceIds, names, interfaceStates);
@@ -206,6 +204,14 @@ public class InterfaceManagementController {
         
     }
 
+    private void findNextNodeInfo(List<Object> data, String macAddress) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(macAddress);
+        if (device != null) {
+            data.set(DataOrders.NEXT_NODE_NAME.getValue(), device.getName());
+            data.set(DataOrders.NEXT_NODE_LABEL.getValue(), device.getLabel());
+        } 
+    }
+    
     public List<Object> processGettingInterfaceFromDatabase(int deviceId, int interfaceListId) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
         if (device == null) {
