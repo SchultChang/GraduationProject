@@ -6,6 +6,8 @@
 package graduationproject.data.model_managers;
 
 import graduationproject.data.models.Device;
+import graduationproject.data.models.DeviceInterfaceDynamicData;
+import graduationproject.data.models.DeviceNetworkInterface;
 import graduationproject.data.models.Notification;
 import graduationproject.snmpd.helpers.NotificationParser.NotificationType;
 import java.util.Calendar;
@@ -229,5 +231,33 @@ public class NotificationManager {
         return result;
     }
 
-    
+    public boolean deleteNotifications(Device device) {
+        Session session = null;
+        Transaction tx = null;
+        boolean result = false;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            String hql = "delete from " + Notification.class.getSimpleName() 
+                    + " where device=:device";
+            Query query = session.createQuery(hql);
+            query.setParameter("device", device);
+            query.executeUpdate();
+            
+            tx.commit();
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+            
+        return result;
+    }
+
 }

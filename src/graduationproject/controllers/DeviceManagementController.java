@@ -410,6 +410,10 @@ public class DeviceManagementController {
         String[] liveData;
 
         checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(DataOrders.CI_IP_ADDRESS, target.getAddress());
+        if (checkingDevice == null) {
+            return;
+        }
+        
         if (community == null) {
             community = checkingDevice.getContactInterface().getCommunity();
             liveData = new DeviceQueryHelper().getDeviceIdentification(target, community);

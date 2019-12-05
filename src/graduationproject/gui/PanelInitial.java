@@ -776,7 +776,8 @@ public class PanelInitial extends JPanel {
             public void mouseMoved(MouseEvent e) {
                 Point p = new Point(e.getX(), e.getY());
                 int index = listAccounts.locationToIndex(p);
-                if (index != mouseHoverListId && index > -1) {
+                if (index != mouseHoverListId) {
+                    mouseHoverListId = index;
                     listAccounts.setSelectedIndex(index);
                     listAccounts.repaint();
                 }

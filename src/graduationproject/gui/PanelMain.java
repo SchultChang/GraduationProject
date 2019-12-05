@@ -70,7 +70,7 @@ public class PanelMain extends JPanel {
 
     private MouseAdapter listenerPanel;
     private MouseAdapter listenerPanelMotion;
-    private MouseAdapter listenerLabel;    
+    private MouseAdapter listenerLabel;
 
     private final Color HOVER_COLOR = new Color(134, 189, 240);
 
@@ -460,7 +460,7 @@ public class PanelMain extends JPanel {
                 }
             }
         };
-        
+
         this.panelDeviceMenu.addMouseMotionListener(this.listenerPanelMotion);
         this.panelTemplateMenu.addMouseMotionListener(this.listenerPanelMotion);
         this.panelAccountMenu.addMouseMotionListener(this.listenerPanelMotion);
@@ -482,11 +482,11 @@ public class PanelMain extends JPanel {
         }
         this.panelDeviceMenu.repaint();
     }
-    
+
     private void processMouseMovedOnPanelAccountMenu(int x, int y) {
         JLabel[] labels = {this.labelProfile, this.labelLogout};
         int temp = this.getMouseOnLabelId(labels, x, y);
-        
+
         if (temp < labels.length) {
             if (labels[temp] == this.labelProfile) {
                 this.labelProfile.setOpaque(true);
@@ -496,14 +496,14 @@ public class PanelMain extends JPanel {
                 this.labelLogout.setOpaque(true);
                 this.labelProfile.setOpaque(false);
             }
-        }        
+        }
         this.panelAccountMenu.repaint();
     }
-    
+
     private void processMouseMovedOnPanelTemplateMenu(int x, int y) {
         JLabel[] labels = {this.labelSingularTemplates, this.labelTabularTemplates};
         int temp = this.getMouseOnLabelId(labels, x, y);
-        
+
         if (temp < labels.length) {
             if (labels[temp] == this.labelSingularTemplates) {
                 this.labelSingularTemplates.setOpaque(true);
@@ -588,6 +588,19 @@ public class PanelMain extends JPanel {
     private void hideMenu(JPanel panelMenu) {
         panelMenu.setVisible(false);
         panelMenu.setEnabled(false);
+
+        if (panelMenu == this.panelAccountMenu) {
+            this.labelProfile.setOpaque(false);
+            this.labelLogout.setOpaque(false);
+        } else {
+            if (panelMenu == this.panelDeviceMenu) {
+                this.labelImportedDevices.setOpaque(false);
+                this.labelScannedDevices.setOpaque(false);
+            } else if (panelMenu == this.panelTemplateMenu) {
+                this.labelSingularTemplates.setOpaque(false);
+                this.labelTabularTemplates.setOpaque(false);
+            }
+        }
     }
 
     private void initChildPanels() {
@@ -697,7 +710,7 @@ public class PanelMain extends JPanel {
         if (this.isVisible()) {
             if (!this.panelNotificationBoard.isVisible()) {
                 int tempSize = this.listNotifications.size();
-                for (int i = 0; i < tempSize; i++) {
+                for (int i = tempSize - 1; i >= 0; i--) {
                     if (this.listNotifications.get(i).isRead()) {
                         this.panelNotifications.remove(this.listNotifications.get(i));
                         this.listNotifications.remove(i);

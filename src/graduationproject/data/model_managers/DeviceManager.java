@@ -194,6 +194,7 @@ public class DeviceManager {
             for (int i = 0; i < tempSize; i++) {
                 DataManager.getInstance().getInterfaceDynamicDataManager().deleteDynamicData(device.getNetworkInterfaces().get(i));
             }
+            DataManager.getInstance().getNotificationManager().deleteNotifications(device);
             session.delete(device);
 
             tx.commit();
