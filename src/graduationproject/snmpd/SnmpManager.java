@@ -23,7 +23,7 @@ import org.soulwing.snmp.SnmpTarget;
  */
 public class SnmpManager {
 
-    private final String[] MIB_MODULES = {"SNMPv2-MIB", "IP-MIB", "IF-MIB", "RFC1213-MIB"};
+    private final String[] MIB_MODULES = {"RFC1213-MIB", "SNMPv2-MIB", "IP-MIB", "IF-MIB"};
     private final SnmpVersion[] SNMP_VERSIONS = {
         SnmpVersion.VERSION_1, SnmpVersion.VERSION_2, SnmpVersion.VERSION_2_COMMUNITY, SnmpVersion.VERSION_3};
     

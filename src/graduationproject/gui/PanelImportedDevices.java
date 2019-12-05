@@ -548,6 +548,16 @@ public class PanelImportedDevices extends JPanel {
 //    public void refreshPanel() {
 //        this.hideDisplayedPanel();
 //    }
+    
+    public synchronized DeviceStates getDeviceState(int deviceId) {
+        int tempSize = this.labelDevices.size();
+        for (int i = 0; i < tempSize; i++) 
+            if (this.labelDevices.get(i).getDeviceId() == deviceId) {
+                return this.labelDevices.get(i).getDeviceState();
+            }
+        return DeviceStates.DEACTIVE;
+    }
+    
     public int getSelectedDeviceId() {
         return this.currentChosenLabelDevice.getDeviceId();
     }
@@ -566,6 +576,10 @@ public class PanelImportedDevices extends JPanel {
 
     public PanelMonitoringDevice getPanelMonitoringDevice() {
         return panelMonitoringDevice;
+    }
+
+    public PanelDeviceInfo getPanelDeviceInfo() {
+        return panelDeviceInfo;
     }
 
     @Override

@@ -7,6 +7,7 @@ package graduationproject.snmpd.callbacks;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.gui.ApplicationWindow;
+import org.soulwing.snmp.SimpleSnmpV2cTarget;
 import org.soulwing.snmp.SnmpCallback;
 import org.soulwing.snmp.SnmpEvent;
 import org.soulwing.snmp.VarbindCollection;
@@ -30,15 +31,19 @@ public class DeviceActiveCheckingCallback implements SnmpCallback<VarbindCollect
         try {
             VarbindCollection varbinds = se.getResponse().get();
             Object result = varbinds.get(queryObject);
-            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
-                    .updateLabelDeviceState(deviceId, DeviceManagementController.DeviceStates.ACTIVE);
+
+            if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                    .getDeviceState(deviceId) == DeviceManagementController.DeviceStates.DEACTIVE) {
+                DeviceManagementController deviceController = new DeviceManagementController();
+                deviceController.processPushingDeviceInfo(deviceId, null, se.getContext());
+
+                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                        .updateLabelDeviceState(deviceId, DeviceManagementController.DeviceStates.ACTIVE);
+            }
         } catch (Exception e) {
             ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                     .updateLabelDeviceState(deviceId, DeviceManagementController.DeviceStates.DEACTIVE);
-        } finally {
             se.getContext().close();
         }
-
     }
-    
 }

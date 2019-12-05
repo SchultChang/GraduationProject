@@ -7,11 +7,13 @@ package graduationproject.snmpd.helpers;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.snmpd.SnmpManager;
+import graduationproject.snmpd.callbacks.PushDeviceInfoCallbackStage1;
 import graduationproject.snmpd.callbacks.QueryGetNextCallback;
 import graduationproject.snmpd.callbacks.QueryWalkCallback;
 import java.util.ArrayList;
 import java.util.List;
 import org.soulwing.snmp.SnmpContext;
+import org.soulwing.snmp.SnmpTarget;
 import org.soulwing.snmp.VarbindCollection;
 
 /**
@@ -19,6 +21,8 @@ import org.soulwing.snmp.VarbindCollection;
  * @author cloud
  */
 public class DeviceQueryHelper {
+
+    public static final String DEVICE_ID_SEP = ":_:";
 
     public void startTemplateQuery(TemplateQuery query) {
         if (query.isTable) {
@@ -43,6 +47,67 @@ public class DeviceQueryHelper {
         List<String> nonRepeater = new ArrayList<String>();
         nonRepeater.add("sysUpTime");
         context.asyncWalk(queryCallback, nonRepeater, query.itemList);
+    }
+
+    //NOTE: identification = name + label    
+    public String[] getDeviceIdentification(SnmpTarget target) {
+        String objName = "sysName";
+
+        SnmpContext queryContext = SnmpManager.getInstance().createContext(target);
+        VarbindCollection varbind = queryContext.getNext(objName).get();
+        String retrievedData = varbind.get(objName).asString();
+
+        String[] result = new String[DataOrders.END.getValue()];
+        int sepPosition = retrievedData.lastIndexOf(this.DEVICE_ID_SEP);
+        if (sepPosition >= 0) {
+            result[DataOrders.DEVICE_NAME.getValue()] = retrievedData.substring(0, sepPosition);
+            result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData.substring(sepPosition + this.DEVICE_ID_SEP.length());
+        } else {
+            result[DataOrders.DEVICE_NAME.getValue()] = retrievedData;
+            result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData;
+        }
+
+        return result;
+    }
+
+    //push other device info and get device description
+    public void pushInfoIntoDevice(String ipAddress, String community,  int deviceId, String name, String label, String location, String userInfo) {
+        SnmpContext snmpContext = SnmpManager.getInstance()
+                        .createContext(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), ipAddress, community);
+        this.pushInfoIntoDevice(snmpContext, deviceId, name, label, location, userInfo);
+    }
+    
+    public void pushInfoIntoDevice(SnmpContext snmpContext, int deviceId, String name, String label, String location, String userInfo) {
+        String[] getObjects = {"sysName", "sysLocation", "sysDescr", "sysContact"};
+        try {
+            System.out.println("START PUSHING DATA INTO DEVICE");
+            String deviceName = name + DEVICE_ID_SEP + label;  
+            PushDeviceInfoCallbackStage1 stage1Callback = new PushDeviceInfoCallbackStage1(deviceId, deviceName, location, userInfo);
+            snmpContext.asyncGetNext(stage1Callback, getObjects);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String[] getDeviceIdentification(SnmpTarget target, String community) {
+        return this.getDeviceIdentification(SnmpManager.getInstance()
+                .createTarget(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY, target.getAddress(), community));
+    }
+
+    public enum DataOrders {
+        DEVICE_NAME(0),
+        DEVICE_LABEL(1),
+        END(2);
+
+        private int value;
+
+        private DataOrders(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
     }
 
     public static class ResponseDataProcessor {

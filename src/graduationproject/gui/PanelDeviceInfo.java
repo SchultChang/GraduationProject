@@ -61,10 +61,10 @@ public class PanelDeviceInfo extends JPanel {
     private JTextField tfieldName;
 
     private DialogChoosingTemplates dialogChoosingTemplates;
-    
+
     private ActionListener listenerButton;
-    
-    private int deviceId;    
+
+    private int deviceId;
 
     public PanelDeviceInfo() {
         initComponents();
@@ -72,7 +72,6 @@ public class PanelDeviceInfo extends JPanel {
     }
 
     public void initComponents() {
-
 
         panelBasicInfo = new JPanel();
         label1 = new JLabel();
@@ -132,10 +131,15 @@ public class PanelDeviceInfo extends JPanel {
         label4.setText("Description:");
         panelBasicInfo.add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 280, -1, 30));
 
+        scrollpane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollpane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        
         tareaDescription.setBackground(java.awt.Color.white);
         tareaDescription.setColumns(20);
         tareaDescription.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         tareaDescription.setRows(5);
+        tareaDescription.setEditable(false);
+        tareaDescription.setLineWrap(true);
         scrollpane1.setViewportView(tareaDescription);
 
         panelBasicInfo.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 280, 350, 120));
@@ -164,7 +168,7 @@ public class PanelDeviceInfo extends JPanel {
         add(panelBasicInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 70, 920, 500));
 
         panelSNMPInfo.setBackground(java.awt.Color.white);
-        panelSNMPInfo.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), 
+        panelSNMPInfo.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)),
                 "SNMP Information", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 1, 14))); // NOI18N
         panelSNMPInfo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -224,7 +228,7 @@ public class PanelDeviceInfo extends JPanel {
         buttonMonitor.setBackground(new java.awt.Color(207, 62, 69));
         buttonMonitor.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         buttonMonitor.setForeground(java.awt.Color.white);
-        buttonMonitor.setText("Monitor");
+        buttonMonitor.setText("Advance");
         buttonMonitor.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         buttonMonitor.setOpaque(true);
         add(buttonMonitor, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 830, 100, 40));
@@ -232,7 +236,7 @@ public class PanelDeviceInfo extends JPanel {
         dialogChoosingTemplates = new DialogChoosingTemplates();
         dialogChoosingTemplates.dispose();
     }
-    
+
     private void initListeners() {
         this.listenerButton = new ActionListener() {
             @Override
@@ -254,25 +258,25 @@ public class PanelDeviceInfo extends JPanel {
                     dialogChoosingTemplates.setVisible(true);
                 }
             }
-            
+
         };
-        
+
         this.buttonSave.addActionListener(this.listenerButton);
         this.buttonCancel.addActionListener(this.listenerButton);
-        this.buttonMonitor.addActionListener(this.listenerButton);        
+        this.buttonMonitor.addActionListener(this.listenerButton);
     }
-    
+
     public void initData(int deviceId) {
         this.deviceId = deviceId;
-        
+
         DeviceManagementController deviceController = new DeviceManagementController();
         List<String> data = deviceController.processGettingDeviceInfo(deviceId);
-        
+
         if (data == null) {
             JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
             return;
         }
-        
+
         this.tfieldName.setText(data.get(DataOrders.NAME.getValue()));
         this.tfieldLabel.setText(data.get(DataOrders.LABEL.getValue()));
         this.cboxType.setSelectedItem(data.get(DataOrders.TYPE.getValue()));
@@ -283,7 +287,7 @@ public class PanelDeviceInfo extends JPanel {
         this.tfieldIpAddress.setText(data.get(DataOrders.CI_IP_ADDRESS.getValue()));
         this.tfieldCommunity.setText(data.get(DataOrders.CI_COMMUNITY.getValue()));
     }
-    
+
     public List<String> getDeviceDataForUpdate() {
         List<String> result = new ArrayList<String>();
         result.add(DataOrders.NAME.getValue(), this.tfieldName.getText());
@@ -299,8 +303,14 @@ public class PanelDeviceInfo extends JPanel {
         return result;
     }
 
+    public synchronized void updateDeviceDescription(int deviceId, String description) {
+        if (deviceId == this.deviceId) {
+            this.tareaDescription.setText(description);
+        }
+    }
+
     public int getDeviceId() {
         return deviceId;
     }
-    
+
 }

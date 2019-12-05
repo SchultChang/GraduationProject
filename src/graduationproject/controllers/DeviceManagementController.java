@@ -20,7 +20,6 @@ import graduationproject.snmpd.callbacks.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.TemplateQuery;
-import graduationproject.snmpd.helpers.MergingDataHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,12 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.soulwing.snmp.SimpleSnmpV2cTarget;
 import org.soulwing.snmp.SnmpContext;
 import org.soulwing.snmp.SnmpTarget;
-import org.soulwing.snmp.VarbindCollection;
 
 /**
  *
@@ -162,6 +158,42 @@ public class DeviceManagementController {
         }
 
         return result;
+    }
+
+    public void processPushingDeviceInfo(int deviceId, Device device, SnmpContext snmpContext) {
+        System.out.println("START PUSING DEVICE INFO");
+        boolean result = false;
+
+        if (device == null) {
+            device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        }
+
+        User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
+        String userInfo = "";
+        try {
+            userInfo = (user.getEmail() != null) ? user.getEmail() : userInfo;
+        } catch (Exception e) {
+        }
+
+        DeviceQueryHelper queryHelper = new DeviceQueryHelper();
+        List<Object> pushingResult = null;
+        if (snmpContext == null) {
+            queryHelper.pushInfoIntoDevice(
+                    device.getContactInterface().getIpAddress(), device.getContactInterface().getCommunity(), 
+                    deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
+        } else {
+            queryHelper.pushInfoIntoDevice(snmpContext, deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
+        }
+    }
+
+    public void processUpdatingDeviceDescription(int deviceId, String description) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device != null) {
+            device.setDescription(description);
+            DataManager.getInstance().getDeviceManager().updateDevice(device);
+            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo()
+                    .updateDeviceDescription(deviceId, device.getDescription());
+        }
     }
 
     public List<String> processGettingImportedDevices(DataOrders order) {
@@ -294,13 +326,14 @@ public class DeviceManagementController {
         device.setName(data.get(DataOrders.NAME.getValue()));
         device.setLabel(data.get(DataOrders.LABEL.getValue()));
         device.setType(data.get(DataOrders.TYPE.getValue()));
-        device.setDescription(data.get(DataOrders.DESCRIPTION.getValue()));
+//        device.setDescription(data.get(DataOrders.DESCRIPTION.getValue()));
         device.setLocation(data.get(DataOrders.LOCATION.getValue()));
         device.setSnmpVersion(data.get(DataOrders.SNMP_VERSION.getValue()));
         device.getContactInterface().setCommunity(data.get(DataOrders.CI_COMMUNITY.getValue()));
         device.getContactInterface().setIpAddress(data.get(DataOrders.CI_IP_ADDRESS.getValue()));
         device.getContactInterface().setUpdatedTime(new Date());
 
+        //update now is called in processPushingDeviceInfo
         if (!DataManager.getInstance().getDeviceManager().updateDevice(device)) {
             this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_OTHER;
             return false;
@@ -308,6 +341,9 @@ public class DeviceManagementController {
 
         this.extraStringData = (String) device.getData(
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getCurrentDataOrder());
+
+        this.processPushingDeviceInfo(deviceId, device, null);
+
         return true;
     }
 
@@ -328,7 +364,7 @@ public class DeviceManagementController {
         return -1;
     }
 
-    public int processDeviceInfoWithLinkNOtification(SnmpTarget snmpTarget, int interfaceId, boolean isUp, boolean merge) {
+    public int processDeviceInfoWithLinkNotification(SnmpTarget snmpTarget, int interfaceId, boolean isUp, boolean merge) {
         this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
             if (isUp) {
@@ -376,17 +412,17 @@ public class DeviceManagementController {
             checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(DataOrders.CI_IP_ADDRESS, target.getAddress());
             community = checkingDevice.getContactInterface().getCommunity();
 
-            liveData = new MergingDataHelper().getDeviceIdentification(target, community);
+            liveData = new DeviceQueryHelper().getDeviceIdentification(target, community);
         } else {
-            liveData = new MergingDataHelper().getDeviceIdentification(target);
+            liveData = new DeviceQueryHelper().getDeviceIdentification(target);
         }
 
-        if (liveData != null && checkingDevice.getName() != liveData[MergingDataHelper.DataOrders.DEVICE_NAME.getValue()]) {
+        if (liveData != null && checkingDevice.getName() != liveData[DeviceQueryHelper.DataOrders.DEVICE_NAME.getValue()]) {
             this.checkingDevice = null;
             return;
         }
 
-        if (liveData != null && checkingDevice.getLabel() != liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]) {
+        if (liveData != null && checkingDevice.getLabel() != liveData[DeviceQueryHelper.DataOrders.DEVICE_LABEL.getValue()]) {
 //            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
 //                    DataOrders.LABEL,
 //                    liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
@@ -481,6 +517,8 @@ public class DeviceManagementController {
         public String DELETING_FAILED_OTHER = "Some errors happened when deleting device data in database.";
 
         public String QUERYING_FAILED_IN_PREPARING = "Some errors happened when preparing query to send to the client.";
+
+        public String PUSHING_FAILED_OTHER = "Some errors happened when saving device info onto device. Please try again later";
     }
 
 }

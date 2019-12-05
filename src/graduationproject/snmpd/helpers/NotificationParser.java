@@ -72,7 +72,7 @@ public class NotificationParser {
     private void parseLinkDownNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int interfaceId = varbinds.get("ifIndex").asInt();
-        int deviceId = deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, false, true);
+        int deviceId = deviceController.processDeviceInfoWithLinkNotification(target, interfaceId, false, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
         result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
@@ -90,7 +90,7 @@ public class NotificationParser {
     private void parseLinkUpNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int interfaceId = varbinds.get("ifIndex").asInt();
-        int deviceId = deviceController.processDeviceInfoWithLinkNOtification(target, interfaceId, true, true);
+        int deviceId = deviceController.processDeviceInfoWithLinkNotification(target, interfaceId, true, true);
         result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
         result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
