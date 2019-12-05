@@ -6,7 +6,10 @@
 package graduationproject.gui;
 
 import graduationproject.controllers.UserManagementController;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import static java.awt.SystemColor.text;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,6 +25,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -31,6 +35,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -123,11 +128,12 @@ public class PanelInitial extends JPanel {
     private JPanel panelSubmitQuestions;
 
     private JPanel currentDisplayedPanel;
-
+   
     private MouseAdapter listenerLabel;
     private ActionListener listenerButton;
-    private ListSelectionListener listenerList;
+    private MouseAdapter listenerListHover, listenerListClick;
 
+    private int mouseHoverListId = -1;     
     private int accountId;
     private int[] rememberedAccountIds;
 
@@ -223,7 +229,7 @@ public class PanelInitial extends JPanel {
         scrollpaneAccountList.setBorder(null);
         scrollpaneAccountList.setOpaque(false);
 
-        listAccounts.setFont(new java.awt.Font("SansSerif", 0, 15));
+        listAccounts.setFont(new java.awt.Font("SansSerif", 0, 16));
         listAccounts.setModel(new DefaultListModel());
         listAccounts.setBorder(null);
         listAccounts.setOpaque(false);
@@ -738,9 +744,9 @@ public class PanelInitial extends JPanel {
         this.buttonCancelSubmission.addActionListener(this.listenerButton);
         this.buttonSubmitAnswers.addActionListener(this.listenerButton);
 
-        this.listenerList = new ListSelectionListener() {
+        this.listenerListClick = new MouseAdapter() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
+            public void mouseReleased(MouseEvent e) {
                 if (listAccounts.getSelectedIndex() >= 0) {
                     accountId = rememberedAccountIds[listAccounts.getSelectedIndex()];
                     
@@ -763,8 +769,20 @@ public class PanelInitial extends JPanel {
                 }
             }
         };
-
-        this.listAccounts.addListSelectionListener(this.listenerList);
+        this.listAccounts.addMouseListener(this.listenerListClick);
+        
+        this.listenerListHover = new MouseAdapter(){
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Point p = new Point(e.getX(), e.getY());
+                int index = listAccounts.locationToIndex(p);
+                if (index != mouseHoverListId && index > -1) {
+                    listAccounts.setSelectedIndex(index);
+                    listAccounts.repaint();
+                }
+            }
+        };
+        this.listAccounts.addMouseMotionListener(this.listenerListHover);
     }
 
     private void initData() {
@@ -948,4 +966,5 @@ public class PanelInitial extends JPanel {
 
         return result;
     }
+    
 }

@@ -157,8 +157,8 @@ public class NotificationParser {
     }
 
     public enum NotificationType {
-        COLD_START("Cold Start", "1.3.6.1.6.3.1.1.5.1", "Device has restarted"),
-        WARM_START("Warm Start", "1.3.6.1.6.3.1.1.5.2", "Device has restarted without changing its configuration"),
+        COLD_START("Cold Start", "1.3.6.1.6.3.1.1.5.1", "Device has just started"),
+        WARM_START("Warm Start", "1.3.6.1.6.3.1.1.5.2", "Device has just started without changing its configuration"),
         LINK_DOWN("Link Down", "1.3.6.1.6.3.1.1.5.3"),
         LINK_UP("Link Up", "1.3.6.1.6.3.1.1.5.4"),
         AUTHENTICATION_FAILURE("Authentication Failure", "1.3.6.1.6.3.1.1.5.5", "Someone is trying to access the device with wrong community."),
