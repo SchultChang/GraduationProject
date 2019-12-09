@@ -5,8 +5,10 @@
  */
 package graduationproject.data;
 
+import graduationproject.data.model_managers.DeviceCPUStateManager;
 import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
+import graduationproject.data.model_managers.DeviceMemoryStateManager;
 import graduationproject.data.model_managers.NotificationManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
@@ -35,6 +37,8 @@ public class DataManager {
     private TemplateManager templateManager;
     private TemplateItemManager templateItemManager;
     private NotificationManager notificationManager;
+    private DeviceCPUStateManager deviceCpuManager;
+    private DeviceMemoryStateManager deviceMemoryManager;
     
     private int activeAccountId;
     private Calendar startTime;
@@ -54,6 +58,8 @@ public class DataManager {
         this.templateManager = new TemplateManager(this.sessionFactory);
         this.templateItemManager = new TemplateItemManager(this.sessionFactory);
         this.notificationManager = new NotificationManager(this.sessionFactory);
+        this.deviceCpuManager = new DeviceCPUStateManager(this.sessionFactory);
+        this.deviceMemoryManager = new DeviceMemoryStateManager(this.sessionFactory);
         
         this.startTime = Calendar.getInstance();
         this.startTime.add(Calendar.DATE, -1);
@@ -106,6 +112,14 @@ public class DataManager {
 
     public NotificationManager getNotificationManager() {
         return notificationManager;
+    }
+
+    public DeviceCPUStateManager getDeviceCpuManager() {
+        return deviceCpuManager;
+    }
+
+    public DeviceMemoryStateManager getDeviceMemoryManager() {
+        return deviceMemoryManager;
     }
     
     public int getActiveAccountId() {

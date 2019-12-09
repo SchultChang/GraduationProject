@@ -66,11 +66,39 @@
         <property name="nextNodeLabel" column="next_node_label" type="string"/>
         <property name="nextNodeIPAddress" column="next_node_ip_address" type="string"/>
         <property name="nextNodeMacAddress" column="next_node_mac_address" type="string"/>
-
         <property name="updatedTime" column="updated_time" type="date"/>
         
         <many-to-one name="networkInterface" column="network_interface_id" cascade="save-update"
                      class="graduationproject.data.models.DeviceNetworkInterface" />        
+    </class>
+
+    <class name="graduationproject.data.models.DeviceCPUState" table="DEVICE_CPU_STATES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="firmwareId" column="firmware_id" type="string"/>
+        <property name="description" column="description" type="string"/>
+        <property name="cpuLoad" column="cpu_load" type="int"/>
+        <property name="updatedTime" column="updated_time" type="calendar"/>
+        
+        <many-to-one name="device" column="device_id" cascade="save-update"
+                     class="graduationproject.data.models.Device"/>
+    </class>
+    
+    <class name="graduationproject.data.models.DeviceMemoryState" table="DEVICE_MEMORY_STATES">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="type" column="type" type="string"/>
+        <property name="description" column="description" type="string"/>
+        <property name="totalSize" column="total_size" type="long"/>
+        <property name="usedSize" column="used_size" type="long"/>
+        <property name="updatedTime" column="updated_time" type="calendar"/>
+        
+        <many-to-one name="device" column="device_id" cascade="save-update"
+                     class="graduationproject.data.models.Device"/>
     </class>
     
 </hibernate-mapping>

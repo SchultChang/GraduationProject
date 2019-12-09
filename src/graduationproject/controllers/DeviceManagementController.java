@@ -10,6 +10,8 @@ import graduationproject.data.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;
+import graduationproject.data.models.DeviceCPUState;
+import graduationproject.data.models.DeviceMemoryState;
 import graduationproject.data.models.DeviceNetworkInterface;
 import graduationproject.data.models.Setting;
 import graduationproject.data.models.Template;
@@ -19,12 +21,16 @@ import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.callbacks.DeviceActiveCheckingCallback;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.DeviceQueryHelper;
+import graduationproject.snmpd.helpers.DeviceQueryHelper.DeviceCpuData;
+import graduationproject.snmpd.helpers.DeviceQueryHelper.DeviceMemoryData;
+import graduationproject.snmpd.helpers.DeviceQueryHelper.MemoryType;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.TemplateQuery;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
@@ -61,7 +67,14 @@ public class DeviceManagementController {
         LAST_ACCESS(6),
         IMPORTED_TIME(7),
         CI_IP_ADDRESS(8),
-        CI_COMMUNITY(9);
+        CI_COMMUNITY(9),
+        //based on positions in memory data list of a resource data collector
+        MEMORY_RAM(0),
+        MEMORY_VIRTUAL(1),
+        MEMORY_OTHER(2),
+        MEMORY_DISK(3),
+        MEMORY_TOTAL(1),
+        MEMORY_USED(2);
 
         private final int value;
 
@@ -232,7 +245,7 @@ public class DeviceManagementController {
 
         User currentUser = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         Setting setting = currentUser.getSetting();
-        SnmpManager.getInstance().getQueryTimerManager().startDeviceTimer(checkingTask, 0, setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
+        SnmpManager.getInstance().getQueryTimerManager().startDeviceActiveTimer(checkingTask, 0, setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
     }
 
     public void startCheckingStateOfDevices(int deviceIds[]) {
@@ -413,7 +426,7 @@ public class DeviceManagementController {
         if (checkingDevice == null) {
             return;
         }
-        
+
         if (community == null) {
             community = checkingDevice.getContactInterface().getCommunity();
             liveData = new DeviceQueryHelper().getDeviceIdentification(target, community);
@@ -482,7 +495,6 @@ public class DeviceManagementController {
                 displayNames.add(templateItem.getDisplayName());
             }
         }
-//        public TemplateQuery(String deviceId, String ipAddress, String community, String templateId, List<String> itemList, boolean isTable) {
 
         if (!queryItems.isEmpty()) {
             if (first) {
@@ -504,6 +516,71 @@ public class DeviceManagementController {
                 completedQuery.getDeviceId(), completedQuery.getTemplateId(),
                 new DataConverter().convertCalendarToString(completedQuery.getReceivedTime()),
                 completedQuery.getResult(), completedQuery.isIsTable());
+    }
+
+    public boolean processGettingDeviceResource(int deviceId, DeviceStates deviceState) {
+        if (deviceState == DeviceStates.ACTIVE) {
+            this.getLiveDeviceResource(deviceId);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void getLiveDeviceResource(int deviceId) {
+        System.out.println("START CHECKING DEVICE RESOURCES");
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+                if (device == null) {
+                    return;
+                }
+
+                DeviceQueryHelper deviceQueryHelper = new DeviceQueryHelper();
+                deviceQueryHelper.startQueryDeviceResource(
+                        deviceId,
+                        SnmpManager.getInstance().createContext(
+                                SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(),
+                                device.getContactInterface().getIpAddress(),
+                                device.getContactInterface().getCommunity()));
+
+            }
+        };
+
+        Setting setting = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting();
+        if (setting != null) {
+            SnmpManager.getInstance().getQueryTimerManager().startDeviceResourceTimer(
+                    timerTask, 0, setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
+        }
+    }
+
+    public void processCollectedResourceData(int deviceId, List<DeviceCpuData> cpuDataList, List<DeviceMemoryData> memoryDataList) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            return;
+        }
+
+        Calendar updatedTime = Calendar.getInstance();
+
+        List<Object> cpuDataToView = new ArrayList<Object>();
+        for (DeviceCpuData cpuData : cpuDataList) {
+            cpuDataToView.add(new Object[]{cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
+            DataManager.getInstance().getDeviceCpuManager().saveDeviceCPUState(
+                    new DeviceCPUState(cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad(), updatedTime, device));
+        }
+
+        List<Object> memoryDataToView = new ArrayList<Object>();
+        for (DeviceMemoryData memoryData : memoryDataList) {
+            memoryDataToView.add(new Object[]{memoryData.getDescription(), memoryData.getTotalSize(), memoryData.getUsedSize()});
+            DataManager.getInstance().getDeviceMemoryManager().saveDeviceMemoryState(
+                    new DeviceMemoryState(memoryData.getType(), memoryData.getDescription(), memoryData.getTotalSize(), memoryData.getUsedSize(), updatedTime, device));
+        }
+
+        ApplicationWindow.getInstance()
+                .getPanelMain().getPanelImportedDevices().getPanelDeviceResources()
+                .updateView(deviceId, cpuDataToView, memoryDataToView, new DataConverter().convertCalendarToString(updatedTime));
     }
 
     public class ResultMessageGenerator {

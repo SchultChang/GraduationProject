@@ -21,9 +21,9 @@ import org.soulwing.snmp.SnmpTarget;
  *
  * @author cloud
  */
-public class SnmpManager {
+public class SnmpManager {       
 
-    private final String[] MIB_MODULES = {"RFC1213-MIB", "SNMPv2-MIB", "IP-MIB", "IF-MIB"};
+    private final String[] MIB_MODULES = {"RFC1213-MIB", "SNMPv2-MIB", "IP-MIB", "IF-MIB", "HOST-RESOURCES-MIB"};
     private final SnmpVersion[] SNMP_VERSIONS = {
         SnmpVersion.VERSION_1, SnmpVersion.VERSION_2, SnmpVersion.VERSION_2_COMMUNITY, SnmpVersion.VERSION_3};
     
@@ -115,8 +115,9 @@ public class SnmpManager {
     }
 
     public void close() {
-        this.queryTimerManager.cancelDeviceTimer();
+        this.queryTimerManager.cancelDeviceActiveTimer();
         this.queryTimerManager.cancelInterfaceTimer();
+        this.queryTimerManager.cancelDeviceResourceTimer();
     }
 
     public QueryTimerManager getQueryTimerManager() {

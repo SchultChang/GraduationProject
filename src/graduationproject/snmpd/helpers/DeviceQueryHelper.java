@@ -7,6 +7,7 @@ package graduationproject.snmpd.helpers;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.snmpd.SnmpManager;
+import graduationproject.snmpd.callbacks.DeviceResourceCheckingCallbackStage1;
 import graduationproject.snmpd.callbacks.PushDeviceInfoCallbackStage1;
 import graduationproject.snmpd.callbacks.QueryGetNextCallback;
 import graduationproject.snmpd.callbacks.QueryWalkCallback;
@@ -24,23 +25,27 @@ import org.soulwing.snmp.VarbindCollection;
 public class DeviceQueryHelper {
 
     public static final String DEVICE_ID_SEP = ":_:";
+    public static final String[] processorLoadTable = {"sysUpTime", "hrProcessorFrwID", "hrProcessorLoad"};
+    public static final String[] deviceTable = {"sysUpTime", "hrDeviceType", "hrDeviceDescr", "hrDeviceID"};
+    private static final String CPU_DEVICE_TYPEOID = "1.3.6.1.2.1.25.3.1.3";
+    public static final String[] memoryTable = {"sysUpTime", "hrStorageType", "hrStorageDescr", "hrStorageSize", "hrStorageUsed"};
 
     public void startTemplateQuery(TemplateQuery query) {
         if (query.isTable) {
-            this.startWalkQuery(query);
+            this.startTemplateWalkQuery(query);
         } else {
-            this.startGetNextQuery(query);
+            this.startTemplateGetNextQuery(query);
         }
     }
 
-    private void startGetNextQuery(TemplateQuery query) {
+    private void startTemplateGetNextQuery(TemplateQuery query) {
         QueryGetNextCallback queryCallback = new QueryGetNextCallback(query);
         SnmpContext context = SnmpManager.getInstance().createContext(
                 SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), query.ipAddress, query.community);
         context.asyncGetNext(queryCallback, query.itemList);
     }
 
-    private void startWalkQuery(TemplateQuery query) {
+    private void startTemplateWalkQuery(TemplateQuery query) {
         QueryWalkCallback queryCallback = new QueryWalkCallback(query);
         SnmpContext context = SnmpManager.getInstance().createContext(
                 SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), query.ipAddress, query.community);
@@ -72,17 +77,17 @@ public class DeviceQueryHelper {
     }
 
     //push other device info and get device description
-    public void pushInfoIntoDevice(String ipAddress, String community,  int deviceId, String name, String label, String location, String userInfo) {
+    public void pushInfoIntoDevice(String ipAddress, String community, int deviceId, String name, String label, String location, String userInfo) {
         SnmpContext snmpContext = SnmpManager.getInstance()
-                        .createContext(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), ipAddress, community);
+                .createContext(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), ipAddress, community);
         this.pushInfoIntoDevice(snmpContext, deviceId, name, label, location, userInfo);
     }
-    
+
     public void pushInfoIntoDevice(SnmpContext snmpContext, int deviceId, String name, String label, String location, String userInfo) {
         String[] getObjects = {"sysName", "sysLocation", "sysDescr", "sysContact"};
         try {
             System.out.println("START PUSHING DATA INTO DEVICE");
-            String deviceName = name + DEVICE_ID_SEP + label;  
+            String deviceName = name + DEVICE_ID_SEP + label;
             PushDeviceInfoCallbackStage1 stage1Callback = new PushDeviceInfoCallbackStage1(deviceId, deviceName, location, userInfo);
             snmpContext.asyncGetNext(stage1Callback, getObjects);
         } catch (Exception e) {
@@ -93,6 +98,12 @@ public class DeviceQueryHelper {
     public String[] getDeviceIdentification(SnmpTarget target, String community) {
         return this.getDeviceIdentification(SnmpManager.getInstance()
                 .createTarget(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY, target.getAddress(), community));
+    }
+
+    public void startQueryDeviceResource(int deviceId, SnmpContext context) {
+        DeviceResourceDataCollector dataCollector = new DeviceResourceDataCollector(deviceId);
+        DeviceResourceCheckingCallbackStage1 stage1Callback = new DeviceResourceCheckingCallbackStage1(dataCollector);
+        context.asyncWalk(stage1Callback, 1, processorLoadTable);
     }
 
     public enum DataOrders {
@@ -108,6 +119,48 @@ public class DeviceQueryHelper {
 
         public int getValue() {
             return this.value;
+        }
+    }
+
+    public enum MemoryType {
+        RAM(0, "1.3.6.1.2.1.25.2.1.2", "RAM"),
+        VIRTUAL(1, "1.3.6.1.2.1.25.2.1.3", "VIRTUAL"),
+        OTHER(2, "1.3.6.1.2.1.25.2.1.1", "OTHER"),
+        DISK(3, "1.3.6.1.2.1.25.2.1.4", "DISK");
+
+        private String typeOid;
+        private String displayType;
+        private int listPosition;
+
+        private MemoryType(int listPosition, String typeOid, String displayType) {
+            this.typeOid = typeOid;
+            this.listPosition = listPosition;
+            this.displayType = displayType;
+        }
+
+        public int getListPosition() {
+            return this.listPosition;
+        }
+
+        public String getTypeOid() {
+            return typeOid;
+        }
+
+        public String getDisplayType() {
+            return displayType;
+        }
+
+        public static String convertTypeOidToDisplayType(String typeOid) {
+            if (RAM.typeOid.equals(typeOid)) {
+                return RAM.displayType;
+            }
+            if (VIRTUAL.typeOid.equals(typeOid)) {
+                return VIRTUAL.displayType;
+            }
+            if (OTHER.typeOid.equals(typeOid)) {
+                return OTHER.displayType;
+            }
+            return DISK.displayType;
         }
     }
 
@@ -148,6 +201,155 @@ public class DeviceQueryHelper {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static class DeviceResourceDataCollector {
+
+        private int deviceId;
+        private List<DeviceCpuData> deviceCpuData;
+        private List<DeviceMemoryData> deviceMemoryData;
+
+        public DeviceResourceDataCollector(int deviceId) {
+            this.deviceId = deviceId;
+            this.deviceCpuData = new ArrayList<DeviceCpuData>();
+
+            this.deviceMemoryData = new ArrayList<DeviceMemoryData>();
+            this.deviceMemoryData.add(MemoryType.RAM.getListPosition(), new DeviceMemoryData(MemoryType.RAM.getDisplayType()));
+            this.deviceMemoryData.add(MemoryType.VIRTUAL.getListPosition(), new DeviceMemoryData(MemoryType.VIRTUAL.getDisplayType()));
+            this.deviceMemoryData.add(MemoryType.OTHER.getListPosition(), new DeviceMemoryData(MemoryType.OTHER.getDisplayType()));
+        }
+
+        public void processCPUData(VarbindCollection varbindCol) {
+            this.deviceCpuData.add(new DeviceCpuData(
+                    varbindCol.get("hrProcessorFrwID").asString(),
+                    varbindCol.get("hrProcessorLoad").asInt())
+            );
+        }
+
+        public void processDeviceData(VarbindCollection varbindCol) {
+            int tempSize = this.deviceCpuData.size();
+            int i = 0;
+
+            if (varbindCol.get("hrDeviceType").asString().equals(CPU_DEVICE_TYPEOID)) {
+                for (i = 0; i < tempSize; i++) {
+                    DeviceCpuData temp = this.deviceCpuData.get(i);
+                    if (temp.description == null && temp.firmwareId.equals(varbindCol.get("hrDeviceID").asString())) {
+                        temp.description = varbindCol.get("hrDeviceDescr").asString();
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void processMemoryData(VarbindCollection varbindCol) {
+            int limit = MemoryType.DISK.getListPosition();
+            int i = 0;
+            for (i = 0; i < limit; i++) {
+                DeviceMemoryData temp = this.deviceMemoryData.get(i);
+                if (temp.type.equals(MemoryType.convertTypeOidToDisplayType(varbindCol.get("hrStorageType").asString()))) {
+                    temp.addTotalSize(varbindCol.get("hrStorageSize").asLong());
+                    temp.addUsedSize(varbindCol.get("hrStorageUsed").asLong());
+                    break;
+                }
+            }
+            if (i == limit) {
+                this.deviceMemoryData.add(new DeviceMemoryData(
+                        MemoryType.convertTypeOidToDisplayType(varbindCol.get("hrStorageType").asString()),
+                        varbindCol.get("hrStorageDescr").asString(),
+                        varbindCol.get("hrStorageSize").asLong(),
+                        varbindCol.get("hrStorageUsed").asLong()));
+            }
+        }
+
+        public int getDeviceId() {
+            return deviceId;
+        }
+
+        public List<DeviceCpuData> getDeviceCpuData() {
+            return deviceCpuData;
+        }
+
+        public List<DeviceMemoryData> getDeviceMemoryData() {
+            return deviceMemoryData;
+        }
+
+    }
+
+    public static class DeviceCpuData {
+
+        private String firmwareId;
+        private String description;
+        private int load;
+
+        public DeviceCpuData(String firmwareId, int load) {
+            this.firmwareId = firmwareId;
+            this.load = load;
+            this.description = null;
+        }
+
+        public String getFirmwareId() {
+            return firmwareId;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public int getLoad() {
+            return load;
+        }
+    }
+
+    public static class DeviceMemoryData {
+
+        private String type;
+        private String description;
+        private long totalSize;
+        private long usedSize;
+
+        public DeviceMemoryData(String type) {
+            this.type = type;
+            this.description = type;
+
+            this.totalSize = 0;
+            this.usedSize = 0;
+        }
+
+        public DeviceMemoryData(String type, String description, long totalSize, long usedSize) {
+            this.type = type;
+            this.description = description;
+            this.totalSize = totalSize;
+            this.usedSize = usedSize;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public void addTotalSize(long amount) {
+            this.totalSize += amount;
+        }
+
+        public void addUsedSize(long amount) {
+            this.usedSize += amount;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public long getTotalSize() {
+            return totalSize;
+        }
+
+        public long getUsedSize() {
+            return usedSize;
+        }
+
     }
 
     public static class TemplateQuery {

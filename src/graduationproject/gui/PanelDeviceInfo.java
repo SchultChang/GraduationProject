@@ -35,9 +35,11 @@ import javax.swing.border.TitledBorder;
 public class PanelDeviceInfo extends JPanel {
 
     private JButton buttonCancel;
-    private JButton buttonMonitor;
+    private JButton buttonResources;
+    private JButton buttonAdvance;
+    private JButton buttonSummary;
     private JButton buttonSave;
-    private JButton buttonNotification;
+
     private JComboBox<String> cboxSNMPVersion;
     private JComboBox<String> cboxType;
     private JLabel label1;
@@ -94,10 +96,11 @@ public class PanelDeviceInfo extends JPanel {
         cboxSNMPVersion = new JComboBox<>();
         label10 = new JLabel();
         tfieldIpAddress = new JTextField();
-        buttonNotification = new JButton();
         buttonCancel = new JButton();
         buttonSave = new JButton();
-        buttonMonitor = new JButton();
+        buttonResources = new JButton();
+        buttonSummary = new JButton();
+        buttonAdvance = new JButton();
 
         setPreferredSize(new java.awt.Dimension(1160, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -133,7 +136,7 @@ public class PanelDeviceInfo extends JPanel {
 
         scrollpane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollpane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        
+
         tareaDescription.setBackground(java.awt.Color.white);
         tareaDescription.setColumns(20);
         tareaDescription.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
@@ -199,16 +202,6 @@ public class PanelDeviceInfo extends JPanel {
 
         add(panelSNMPInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 590, 920, 210));
 
-        buttonNotification.setBackground(new java.awt.Color(207, 62, 69));
-        buttonNotification.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        buttonNotification.setForeground(java.awt.Color.white);
-        buttonNotification.setText("Notifications");
-        buttonNotification.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        buttonNotification.setOpaque(true);
-        buttonNotification.setVisible(false);
-        buttonNotification.setEnabled(false);
-        add(buttonNotification, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
-
         buttonCancel.setBackground(new java.awt.Color(38, 56, 163));
         buttonCancel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         buttonCancel.setForeground(java.awt.Color.white);
@@ -225,13 +218,29 @@ public class PanelDeviceInfo extends JPanel {
         buttonSave.setOpaque(true);
         add(buttonSave, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 830, 100, 40));
 
-        buttonMonitor.setBackground(new java.awt.Color(207, 62, 69));
-        buttonMonitor.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        buttonMonitor.setForeground(java.awt.Color.white);
-        buttonMonitor.setText("Advance");
-        buttonMonitor.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        buttonMonitor.setOpaque(true);
-        add(buttonMonitor, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 830, 100, 40));
+        buttonResources.setBackground(new java.awt.Color(207, 62, 69));
+        buttonResources.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonResources.setForeground(java.awt.Color.white);
+        buttonResources.setText("Resources");
+        buttonResources.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        buttonResources.setOpaque(true);
+        add(buttonResources, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 830, 100, 40));
+
+        buttonSummary.setBackground(new java.awt.Color(207, 62, 69));
+        buttonSummary.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonSummary.setForeground(java.awt.Color.white);
+        buttonSummary.setText("Summary");
+        buttonSummary.setBorder(new SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        buttonSummary.setOpaque(true);
+        add(buttonSummary, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
+        
+        buttonAdvance.setBackground(new java.awt.Color(207, 62, 69));
+        buttonAdvance.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonAdvance.setForeground(java.awt.Color.white);
+        buttonAdvance.setText("Advance");
+        buttonAdvance.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        buttonAdvance.setOpaque(true);
+        add(buttonAdvance, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 830, 100, 40));
 
         dialogChoosingTemplates = new DialogChoosingTemplates();
         dialogChoosingTemplates.dispose();
@@ -254,16 +263,24 @@ public class PanelDeviceInfo extends JPanel {
                 if (source == buttonCancel) {
                     initData(deviceId);
                 }
-                if (source == buttonMonitor) {
+                if (source == buttonResources) {
+                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                            .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_RESOURCES);
+                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceResources().initData(deviceId);
+                }
+                if (source == buttonAdvance) {
                     dialogChoosingTemplates.setVisible(true);
                 }
+
             }
 
         };
 
         this.buttonSave.addActionListener(this.listenerButton);
         this.buttonCancel.addActionListener(this.listenerButton);
-        this.buttonMonitor.addActionListener(this.listenerButton);
+        this.buttonResources.addActionListener(this.listenerButton);
+        this.buttonSummary.addActionListener((this.listenerButton));
+        this.buttonAdvance.addActionListener(this.listenerButton);
     }
 
     public void initData(int deviceId) {

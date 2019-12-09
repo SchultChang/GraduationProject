@@ -62,6 +62,7 @@ public class PanelImportedDevices extends JPanel {
     private PanelDeviceInfo panelDeviceInfo;
     private PanelInterfaceInfo panelInterfaceInfo;
     private PanelMonitoringDevice panelMonitoringDevice;
+    private PanelDeviceResources panelDeviceResources;
 
     private List<LabelDevice> labelDevices;
     private List<LabelInterface> labelInterfaces;
@@ -94,7 +95,8 @@ public class PanelImportedDevices extends JPanel {
     public enum PANELS {
         PANEL_DEVICE_INFO,
         PANEL_INTERFACE_INFO,
-        PANEL_MONITORING_DEVICE
+        PANEL_MONITORING_DEVICE,
+        PANEL_DEVICE_RESOURCES
     }
 
 //    private List<DeviceStates> deviceStates;
@@ -170,6 +172,10 @@ public class PanelImportedDevices extends JPanel {
         this.panelMonitoringDevice = new PanelMonitoringDevice();
         this.panelMonitoringDevice.setVisible(false);
         this.panelMonitoringDevice.setEnabled(false);
+        
+        this.panelDeviceResources = new PanelDeviceResources();
+        this.panelDeviceResources.setVisible(false);
+        this.panelDeviceResources.setEnabled(false);
     }
 
     private void initMenu() {
@@ -196,7 +202,7 @@ public class PanelImportedDevices extends JPanel {
                         if (!deviceController.processImportingDevicesFromFile(file)) {
                             JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
                         } else {
-                            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
+                            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
                             SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                             initData();
                         }
@@ -521,6 +527,10 @@ public class PanelImportedDevices extends JPanel {
                 break;
             case PANEL_MONITORING_DEVICE:
                 this.displayPanel(panelMonitoringDevice, 440, 0, -1, -1);
+                break;
+            case PANEL_DEVICE_RESOURCES:
+                this.displayPanel(panelDeviceResources, 440, 0, -1, -1);
+                break;
         }
 
         this.revalidate();
@@ -584,12 +594,16 @@ public class PanelImportedDevices extends JPanel {
         return panelDeviceInfo;
     }
 
+    public PanelDeviceResources getPanelDeviceResources() {
+        return panelDeviceResources;
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
 
         if (!enabled) {
-            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceTimer();
+            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
             SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
         }
     }
