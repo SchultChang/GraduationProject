@@ -13,6 +13,8 @@ import graduationproject.snmpd.helpers.DeviceQueryHelper.MemoryType;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -23,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
+import org.knowm.xchart.internal.chartpart.Chart;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 
 /**
@@ -32,12 +35,11 @@ import org.netbeans.lib.awtextra.AbsoluteConstraints;
 public class PanelDeviceSummary extends JPanel {
 
     private final AbsoluteConstraints PANEL_CPU_POSITION = new AbsoluteConstraints(80, 120, 990, 190);
-    private final AbsoluteConstraints PANEL_RAM_POSITION = new AbsoluteConstraints(80, 380, 990, 190);
+    private final AbsoluteConstraints PANEL_MEMORY_POSITION = new AbsoluteConstraints(80, 380, 990, 190);
     private final AbsoluteConstraints PANEL_BANDWIDTH_POSITION = new AbsoluteConstraints(80, 650, 990, 190);
     private final String DEFAULT_CHOICE_VALUE = "All";
-    private String[] memoryChoices = {DEFAULT_CHOICE_VALUE,
-        MemoryType.RAM.getDisplayType(), MemoryType.VIRTUAL.getDisplayType(), MemoryType.OTHER.getDisplayType()};
-//    private String[] interfaceChoices;
+    private String[] memoryChoices = {MemoryType.RAM.getDisplayType(), MemoryType.VIRTUAL.getDisplayType(), MemoryType.OTHER.getDisplayType()};
+    private String[] interfaceChoices;
 
     private ButtonGroup buttonGroup;
     private JRadioButton button3days;
@@ -54,11 +56,14 @@ public class PanelDeviceSummary extends JPanel {
     private JLabel label6;
 
     private XChartPanel currentCPUPanel;
-    private XChartPanel currentRamPanel;
+    private XChartPanel currentMemoryPanel;
     private XChartPanel currentBandwidthPanel;
 
-    private ActionListener listenerCheckBox;
+    private ActionListener listenerRadioButton;
+    private ItemListener listenerComboBox;
 
+    private int currentMemoryChoiceId;
+    private int currentInterfaceChoiceId;
     private int deviceId;
 
     public PanelDeviceSummary() {
@@ -138,6 +143,7 @@ public class PanelDeviceSummary extends JPanel {
 
         cboxInterfaces.setFont(new java.awt.Font("SansSerif", 0, 16));
         cboxInterfaces.setModel(new DefaultComboBoxModel<>(new String[]{DEFAULT_CHOICE_VALUE}));
+        cboxInterfaces.setSelectedIndex(0);
         add(cboxInterfaces, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 610, 290, 30));
 
         label6.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -145,13 +151,19 @@ public class PanelDeviceSummary extends JPanel {
         add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 340, -1, 30));
 
         cboxMemory.setFont(new java.awt.Font("SansSerif", 0, 16));
-        cboxMemory.setModel(new javax.swing.DefaultComboBoxModel<>(this.memoryChoices));
+        DefaultComboBoxModel memoryModel = new DefaultComboBoxModel<>();
+        memoryModel.addElement(DEFAULT_CHOICE_VALUE);
+        for (String memoryChoice : memoryChoices) {
+            memoryModel.addElement(memoryChoice);
+        }
+        cboxMemory.setModel(memoryModel);
+        cboxMemory.setSelectedIndex(0);
         add(cboxMemory, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 340, 290, 30));
 
     }
 
     private void initListeners() {
-        listenerCheckBox = new ActionListener() {
+        listenerRadioButton = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JRadioButton source = (JRadioButton) e.getSource();
@@ -160,45 +172,113 @@ public class PanelDeviceSummary extends JPanel {
             }
         };
 
-        this.buttonToday.addActionListener(listenerCheckBox);
-        this.buttonYesterday.addActionListener(listenerCheckBox);
-        this.button3days.addActionListener(listenerCheckBox);
-        this.button7days.addActionListener(listenerCheckBox);
+        this.buttonToday.addActionListener(listenerRadioButton);
+        this.buttonYesterday.addActionListener(listenerRadioButton);
+        this.button3days.addActionListener(listenerRadioButton);
+        this.button7days.addActionListener(listenerRadioButton);
+
+        listenerComboBox = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    JComboBox source = (JComboBox) e.getSource();
+                    if (source == cboxMemory) {
+                        if (source.getSelectedIndex() != currentMemoryChoiceId) {
+                            currentMemoryChoiceId = cboxMemory.getSelectedIndex();
+                            ChartManagementController chartController = new ChartManagementController();
+
+                            Chart chart = chartController.processGettingChart(deviceId,
+                                    ChartManagementController.DataType.MEMORY_USAGE,
+                                    buttonGroup.getSelection().getActionCommand(),
+                                    getMemoryChoices());
+                            if (chart == null) {
+                                JOptionPane.showMessageDialog(null, chartController.getResultMessage());
+                                return;
+                            }
+
+                            currentMemoryPanel = displayChart(currentMemoryPanel, chart, PANEL_MEMORY_POSITION);
+                            PanelDeviceSummary.this.revalidate();
+                            PanelDeviceSummary.this.repaint();
+                        }
+                    }
+                    if (source == cboxInterfaces) {
+                        if (source.getSelectedIndex() != currentInterfaceChoiceId) {
+                            currentInterfaceChoiceId = cboxInterfaces.getSelectedIndex();
+                            ChartManagementController chartController = new ChartManagementController();
+
+                            Chart chart = chartController.processGettingChart(deviceId,
+                                    ChartManagementController.DataType.BANDWIDTH_USAGE,
+                                    buttonGroup.getSelection().getActionCommand(),
+                                    getInterfaceChoices());
+                            if (chart == null) {
+                                JOptionPane.showMessageDialog(null, chartController.getResultMessage());
+                                return;
+                            }
+
+                            currentBandwidthPanel = displayChart(currentBandwidthPanel, chart, PANEL_BANDWIDTH_POSITION);
+                            PanelDeviceSummary.this.revalidate();
+                            PanelDeviceSummary.this.repaint();
+                        }
+                    }
+                }
+            }
+
+        };
+
+        this.cboxInterfaces.addItemListener(listenerComboBox);
+        this.cboxMemory.addItemListener(listenerComboBox);
     }
 
     public void initData(int deviceId) {
         this.deviceId = deviceId;
+        this.currentMemoryChoiceId = 0;
+        this.currentInterfaceChoiceId = 0;
+
         this.buttonToday.setSelected(true);
 
-        {
-            List<String> interfaceNames = new InterfaceManagementController().processGettingInterfaceNames(this.deviceId);
-            
-            if (interfaceNames != null && !interfaceNames.isEmpty()) {
-                DefaultComboBoxModel cboxModel = (DefaultComboBoxModel) this.cboxInterfaces.getModel();
-                cboxModel.removeAllElements();
-                cboxModel.addElement(DEFAULT_CHOICE_VALUE);
-                
-                for (String interfaceName : interfaceNames) {
-                    cboxModel.addElement(interfaceName);
-                }
+        List<String> interfaceNames = new InterfaceManagementController().processGettingInterfaceNames(this.deviceId);
+        if (interfaceNames != null && !interfaceNames.isEmpty()) {
+            DefaultComboBoxModel cboxModel = (DefaultComboBoxModel) this.cboxInterfaces.getModel();
+            cboxModel.removeAllElements();
+            cboxModel.addElement(DEFAULT_CHOICE_VALUE);
+
+            int tempSize = interfaceNames.size();
+            this.interfaceChoices = new String[tempSize];
+            for (int i = 0; i < tempSize; i++) {
+                this.interfaceChoices[i] = interfaceNames.get(i);
+                cboxModel.addElement(this.interfaceChoices[i]);
             }
         }
 
         this.cboxInterfaces.setSelectedIndex(0);
         this.cboxMemory.setSelectedIndex(0);
-        
+
         this.displayAllCharts(deviceId, this.buttonToday.getActionCommand());
     }
 
     private void displayAllCharts(int deviceId, String period) {
         ChartManagementController chartController = new ChartManagementController();
-        XYChart chart = chartController.processGettingChart(deviceId, ChartManagementController.DataType.CPU_LOAD, period);
+
+        Chart chart = chartController.processGettingChart(deviceId, ChartManagementController.DataType.CPU_LOAD, period, null);
         if (chart == null) {
             JOptionPane.showMessageDialog(null, chartController.getResultMessage());
             return;
         }
-
         this.currentCPUPanel = this.displayChart(this.currentCPUPanel, chart, PANEL_CPU_POSITION);
+
+        chart = chartController.processGettingChart(deviceId, ChartManagementController.DataType.MEMORY_USAGE, period, this.getMemoryChoices());
+        if (chart == null) {
+            JOptionPane.showMessageDialog(null, chartController.getResultMessage());
+            return;
+        }
+        this.currentMemoryPanel = this.displayChart(this.currentMemoryPanel, chart, PANEL_MEMORY_POSITION);
+
+        chart = chartController.processGettingChart(deviceId, ChartManagementController.DataType.BANDWIDTH_USAGE, period, this.getInterfaceChoices());
+        if (chart == null) {
+            JOptionPane.showConfirmDialog(null, chartController.getResultMessage());
+            return;
+        }
+        this.currentBandwidthPanel = this.displayChart(this.currentBandwidthPanel, chart, PANEL_BANDWIDTH_POSITION);
 
         this.revalidate();
         this.repaint();
@@ -206,13 +286,28 @@ public class PanelDeviceSummary extends JPanel {
         System.gc();
     }
 
-    private XChartPanel<XYChart> displayChart(XChartPanel removableChart, XYChart newChart, AbsoluteConstraints position) {
+    private XChartPanel displayChart(XChartPanel removableChart, Chart newChart, AbsoluteConstraints position) {
         if (removableChart != null) {
             this.remove(removableChart);
         }
 
-        XChartPanel<XYChart> newPanel = new XChartPanel<XYChart>(newChart);
+        XChartPanel<Chart> newPanel = new XChartPanel<Chart>(newChart);
         this.add(newPanel, position);
         return newPanel;
     }
+
+    private String[] getMemoryChoices() {
+        if (this.cboxMemory.getSelectedItem().toString().equals(DEFAULT_CHOICE_VALUE)) {
+            return this.memoryChoices;
+        }
+        return new String[]{this.cboxMemory.getSelectedItem().toString()};
+    }
+
+    private String[] getInterfaceChoices() {
+        if (this.cboxInterfaces.getSelectedItem().toString().equals(DEFAULT_CHOICE_VALUE)) {
+            return this.interfaceChoices;
+        }
+        return new String[]{this.cboxInterfaces.getSelectedItem().toString()};
+    }
+
 }

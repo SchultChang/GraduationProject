@@ -12,11 +12,16 @@ import graduationproject.data.models.DeviceInterfaceDynamicData;
 import graduationproject.data.models.DeviceMemoryState;
 import graduationproject.data.models.DeviceNetworkInterface;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
+import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 
@@ -35,7 +40,7 @@ public class ChartManagementController {
     public enum DataType {
         CPU_LOAD,
         MEMORY_USAGE,
-        BANDWIDTH_UTILIZATION
+        BANDWIDTH_USAGE
     }
 
     public enum QueryPeriod {
@@ -59,35 +64,105 @@ public class ChartManagementController {
         return resultMessage;
     }
 
-    public XYChart processGettingChart(int deviceId, DataType dataType, String period) {
+    public Chart processGettingChart(int deviceId, DataType dataType, String period, String[] choices) {
         if (dataType == DataType.CPU_LOAD) {
-            List<double[]> data = this.getDataForChart(deviceId, dataType, period, null);
+            List<Object> data = this.getDataForChart(deviceId, dataType, period, null);
             if (data != null) {
-                XYChart chart = new XYChartBuilder()
-                        .width(CHART_WIDTH)
-                        .height(CHART_HEIGHT)
-                        .xAxisTitle("Hour")
-                        .yAxisTitle("Load")
-                        .build();
+                String xTitle = "Hour";
+                String yTitle = "Avg Load(%)";
+                String seriesName = "CPU Load";
+                if (QueryPeriod.TODAY.getValue().equals(period) || QueryPeriod.YESTERDAY.getValue().equals(period)) {
+                    XYChart chart = this.buildChartForADay(xTitle, yTitle);
+                    chart.addSeries(seriesName, (double[]) data.get(0), (double[]) data.get(1));
+                    return chart;
+                }
 
-                chart.getStyler().setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Line);
-                chart.getStyler().setYAxisLabelAlignment(Styler.TextAlignment.Right);
-                chart.getStyler().setYAxisMin(0.0);
-                chart.getStyler().setPlotMargin(0);
-                chart.getStyler().setPlotContentSize(.95);
-                chart.addSeries("CPU Load", data.get(0), data.get(1));
-                return chart;
+                xTitle = "Day";
+                if (QueryPeriod.LAST_3_DAYS.getValue().equals(period) || QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
+                    CategoryChart chart = this.buildChartForDays(xTitle, yTitle);
+                    chart.addSeries(seriesName, Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
+                    return chart;
+                }
+
             }
         }
 
-        if (dataType == DataType.MEMORY_USAGE) {
+        if (dataType == DataType.MEMORY_USAGE || dataType == DataType.BANDWIDTH_USAGE) {
+            String xTitle = "Hour";
+            String yTitle = "Avg Usage(%)";
+            if (QueryPeriod.TODAY.getValue().equals(period) || QueryPeriod.YESTERDAY.getValue().equals(period)) {
+                XYChart chart = this.buildChartForADay(xTitle, yTitle);
+                List<Object> data = null;
+                if (choices != null) {
+                    for (String choice : choices) {
+                        data = this.getDataForChart(deviceId, dataType, period, choice);
+//                        double[] values = (double[]) data.get(1);
+//                        System.out.println("VALUES OF " + choice);
+//                        for (double value : values) {
+//                            System.out.println(value);
+//                        }
+                        if (data != null) {
+                            chart.addSeries(choice, (double[]) data.get(0), (double[]) data.get(1));
+                        }
+                    }
+                }
+                return chart;
+            }
 
+            xTitle = "Day";
+            if (QueryPeriod.LAST_3_DAYS.getValue().equals(period) || QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
+                CategoryChart chart = this.buildChartForDays(xTitle, yTitle);
+                List<Object> data = null;
+                if (choices != null) {
+                    for (String choice : choices) {
+                        data = this.getDataForChart(deviceId, dataType, period, choice);
+                        if (data != null) {
+                            chart.addSeries(choice, Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
+                        }
+                    }
+                }
+                return chart;
+            }
         }
 
         return null;
     }
 
-    public List<double[]> getDataForChart(int deviceId, DataType dataType, String period, String choice) {
+    private XYChart buildChartForADay(String xTitle, String yTitle) {
+        XYChart chart = new XYChartBuilder()
+                .width(CHART_WIDTH)
+                .height(CHART_HEIGHT)
+                .xAxisTitle(xTitle)
+                .yAxisTitle(yTitle)
+                .build();
+
+        chart.getStyler().setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Line);
+        chart.getStyler().setYAxisLabelAlignment(Styler.TextAlignment.Right);
+        chart.getStyler().setYAxisMin(0.0);
+        chart.getStyler().setLegendPadding(2);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        chart.getStyler().setLegendVisible(true);
+        return chart;
+    }
+
+    private CategoryChart buildChartForDays(String xTitle, String yTitle) {
+        CategoryChart chart = new CategoryChartBuilder()
+                .width(CHART_WIDTH)
+                .height(CHART_HEIGHT)
+                .xAxisTitle(xTitle)
+                .yAxisTitle(yTitle)
+                .theme(Styler.ChartTheme.XChart)
+                .build();
+        chart.getStyler().setDatePattern("dd-MM");
+        chart.getStyler().setYAxisLabelAlignment(Styler.TextAlignment.Right);
+        chart.getStyler().setYAxisMin(0.0);
+        chart.getStyler().setLegendPadding(2);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        chart.getStyler().setLegendVisible(true);
+        return chart;
+    }
+
+    public List<Object> getDataForChart(int deviceId, DataType dataType, String period, String choice) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
         if (device == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
@@ -97,18 +172,26 @@ public class ChartManagementController {
         Calendar day = Calendar.getInstance();
 
         if (QueryPeriod.TODAY.getValue().equals(period)) {
-            return this.getDataForDay(device, dataType, day, choice);
+            return this.getDataForADay(device, dataType, day, choice);
         }
         if (QueryPeriod.YESTERDAY.getValue().equals(period)) {
             day.add(Calendar.DAY_OF_YEAR, -1);
-            return this.getDataForDay(device, dataType, day, choice);
+            return this.getDataForADay(device, dataType, day, choice);
+        }
+        if (QueryPeriod.LAST_3_DAYS.getValue().equals(period)) {
+            day.add(Calendar.DAY_OF_YEAR, -4);
+            return this.getDataForDays(device, dataType, day, 3, choice);
+        }
+        if (QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
+            day.add(Calendar.DAY_OF_YEAR, -8);
+            return this.getDataForDays(device, dataType, day, 7, choice);
         }
 
         return null;
     }
 
-    public List<double[]> getDataForDay(Device device, DataType dataType, Calendar day, String choice) {
-        List<double[]> result = new ArrayList<double[]>();
+    public List<Object> getDataForADay(Device device, DataType dataType, Calendar day, String choice) {
+        List<Object> result = new ArrayList<Object>();
         int startHour = 0;
         int endHour = 23;
 
@@ -135,9 +218,43 @@ public class ChartManagementController {
         return result;
     }
 
+    public List<Object> getDataForDays(Device device, DataType dataType, Calendar day, int dayCount, String choice) {
+        List<Object> result = new ArrayList<Object>();
+
+        Calendar startTime = (Calendar) day.clone();
+        startTime.set(Calendar.HOUR_OF_DAY, 0);
+        startTime.set(Calendar.MINUTE, 0);
+        startTime.set(Calendar.SECOND, 0);
+
+        Calendar endTime = (Calendar) day.clone();
+        endTime.set(Calendar.HOUR_OF_DAY, 23);
+        endTime.set(Calendar.MINUTE, 59);
+        endTime.set(Calendar.SECOND, 59);
+
+        Date[] xValues = new Date[dayCount];
+        Double[] yValues = new Double[dayCount];
+
+        for (int i = 0; i < dayCount; i++) {
+            startTime.add(Calendar.DAY_OF_YEAR, 1);
+            endTime.add(Calendar.DAY_OF_YEAR, 1);
+            xValues[i] = startTime.getTime();
+            yValues[i] = this.getDataForTime(device, dataType, startTime, endTime, choice);
+        }
+
+        result.add(xValues);
+        result.add(yValues);
+        return result;
+    }
+
     public double getDataForTime(Device device, DataType dataType, Calendar startTime, Calendar endTime, String choice) {
         if (dataType == DataType.CPU_LOAD) {
             return this.getAverageCpuLoadForTime(device, startTime, endTime);
+        }
+        if (dataType == DataType.MEMORY_USAGE) {
+            return this.getAverageMemoryUsageForTime(device, startTime, endTime, choice);
+        }
+        if (dataType == DataType.BANDWIDTH_USAGE) {
+            return this.getAverageBandwidthUsageForTime(device, startTime, endTime, choice);
         }
         return 0;
     }
@@ -160,11 +277,21 @@ public class ChartManagementController {
             percentageSum += memoryState.getUsagePercentage();
         }
 
-        return percentageSum / tempSize;
+        if (tempSize != 0) {
+            return percentageSum / tempSize;
+        }
+        return 0.0;
     }
 
     public double getAverageBandwidthUsageForTime(Device device, Calendar startTime, Calendar endTime, String choice) {
-        DeviceNetworkInterface networkInterface = DataManager.getInstance().getNetworkInterfaceManager().getNetworkInterface(device, choice);
+        DeviceNetworkInterface networkInterface = null;
+        List<DeviceNetworkInterface> networkInterfaces = device.getNetworkInterfaces();
+        for (DeviceNetworkInterface temp : networkInterfaces) {
+            if (temp.getName().equals(choice)) {
+                networkInterface = temp;
+                break;
+            }
+        }
         if (networkInterface == null) {
             return 0.0;
         }
@@ -188,10 +315,15 @@ public class ChartManagementController {
                     current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
             lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
                     - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
-            percentageSum += (upperPart / lowerPart);
+            if (lowerPart != 0) {
+                percentageSum += (upperPart / lowerPart);
+            }
         }
 
-        return percentageSum / tempSize;
+        if (tempSize != 0) {
+            return percentageSum / tempSize;
+        }
+        return 0.0;
     }
 
     public class ResultMessageGenerator {

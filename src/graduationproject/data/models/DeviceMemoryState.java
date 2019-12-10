@@ -90,7 +90,7 @@ public class DeviceMemoryState {
     }
     
     public double getUsagePercentage() {
-        return this.usedSize * 1.0d / this.totalSize;
+        return this.usedSize * 100.0d / this.totalSize;
     }
     
 }

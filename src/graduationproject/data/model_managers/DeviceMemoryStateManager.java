@@ -69,6 +69,7 @@ public class DeviceMemoryStateManager {
                     .add(Restrictions.eq("device", device))
                     .add(Restrictions.ge("updatedTime", startTime))
                     .add(Restrictions.le("updatedTime", endTime))
+                    .add(Restrictions.eq("type", type))
                     .setResultTransformer(Transformers.aliasToBean(DeviceMemoryState.class));
             result = cri.list();
             

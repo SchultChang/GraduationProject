@@ -27,31 +27,30 @@ public class DeviceNetworkInterfaceManager {
         this.sessionFactory = sessionFactory;
     }
 
-    public DeviceNetworkInterface getNetworkInterface(Device device, String name) {
-        Session session = null;
-        Transaction tx = null;
-        DeviceNetworkInterface result = null;
-
-        try {
-            session = this.sessionFactory.openSession();
-            tx = session.beginTransaction();
-
-            Criteria cri = session.createCriteria(DeviceNetworkInterface.class);
-            cri.add(Restrictions.eq("device", device))
-                    .add(Restrictions.eq("name", name));
-            result = (DeviceNetworkInterface) cri.uniqueResult();
-
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            tx.rollback();
-        } finally {
-            if (session != null) {
-                session.close();
-            }
-        }
-
-        return result;
-
-    }
+//    public DeviceNetworkInterface getNetworkInterface(Device device, String name) {
+//        Session session = null;
+//        Transaction tx = null;
+//        DeviceNetworkInterface result = null;
+//
+//        try {
+//            session = this.sessionFactory.openSession();
+//            tx = session.beginTransaction();
+//
+//            Criteria cri = session.createCriteria(DeviceNetworkInterface.class);
+//            cri.add(Restrictions.eq("device", device))
+//                    .add(Restrictions.eq("name", name));
+//            result = (DeviceNetworkInterface) cri.uniqueResult();
+//
+//            tx.commit();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            tx.rollback();
+//        } finally {
+//            if (session != null) {
+//                session.close();
+//            }
+//        }
+//
+//        return result;
+//    }
 }
