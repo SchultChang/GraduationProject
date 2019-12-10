@@ -7,6 +7,7 @@ package graduationproject.data.models;
 
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -32,14 +33,14 @@ public class DeviceInterfaceDynamicData {
     private String nextNodeIPAddress;
     private String nextNodeMacAddress;
     
-    private Date updatedTime;
+    private Calendar updatedTime;
     
     private DeviceNetworkInterface networkInterface; 
     
     public DeviceInterfaceDynamicData() {
     }
     
-    public DeviceInterfaceDynamicData(List<Object> data, Date importedTime, DeviceNetworkInterface networkInterface) {
+    public DeviceInterfaceDynamicData(List<Object> data, Calendar updatedTime, DeviceNetworkInterface networkInterface) {
         this.ipAddress = (String) data.get(DataOrders.IP_ADDRESS.getValue());
         this.netmask = (String) data.get(DataOrders.NETMASK.getValue());
         this.mtu = (long) data.get(DataOrders.MTU.getValue());
@@ -57,7 +58,7 @@ public class DeviceInterfaceDynamicData {
         this.nextNodeIPAddress = (String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue());
         this.nextNodeMacAddress = (String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue());
 
-        this.updatedTime = importedTime;
+        this.updatedTime = updatedTime;
         
         this.networkInterface = networkInterface;
     }
@@ -191,15 +192,14 @@ public class DeviceInterfaceDynamicData {
         this.networkInterface = networkInterface;
     }
 
-    public Date getUpdatedTime() {
+    public Calendar getUpdatedTime() {
         return updatedTime;
     }
 
-    public void setUpdatedTime(Date updatedTime) {
+    public void setUpdatedTime(Calendar updatedTime) {
         this.updatedTime = updatedTime;
     }
-    
-    
+
     
     
 }

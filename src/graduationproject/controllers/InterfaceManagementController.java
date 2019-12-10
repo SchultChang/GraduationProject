@@ -18,6 +18,7 @@ import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper.InterfaceRawData;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
@@ -165,12 +166,12 @@ public class InterfaceManagementController {
                 .getPanelInterfaceInfo().getInterfaceListId();
         DeviceInterfaceDynamicData needToViewDynamicData = null;        
         
-        Date importedTime = new Date();
+        Calendar updatedTime = Calendar.getInstance();
         for (int i = 0; i < tempSize; i++) {
             List<Object> rawData = rawDataList.get(i).getDynamicData();
             this.findNextNodeInfo(rawData, rawDataList.get(i).getNextNodeMac());
             DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                    rawData, importedTime, device.getNetworkInterfaces().get(i));
+                    rawData, updatedTime, device.getNetworkInterfaces().get(i));
             DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
             
             if (i == displayedInterfaceId) {
@@ -289,7 +290,7 @@ public class InterfaceManagementController {
         result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), data.getNextNodeIPAddress());
         result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), data.getNextNodeMacAddress());
         result.add(DataOrders.UPDATED_TIME.getValue(), 
-                new DataConverter().convertDateToString(data.getUpdatedTime()));
+                new DataConverter().convertCalendarToString(data.getUpdatedTime()));
         
         result.add(DataOrders.NAME.getValue(), networkInterface.getName());
         result.add(DataOrders.MAC_ADDRESS.getValue(), networkInterface.getMacAddress());
