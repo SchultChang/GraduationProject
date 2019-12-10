@@ -298,6 +298,21 @@ public class InterfaceManagementController {
         return result;
     }
     
+    public List<String> processGettingInterfaceNames(int deviceId) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) 
+            return null;
+        
+        List<DeviceNetworkInterface> networkInterfaces = device.getNetworkInterfaces();
+        List<String> result = new ArrayList<String>();
+        
+        for (DeviceNetworkInterface networkInterface : networkInterfaces) {
+            result.add(networkInterface.getName());
+        }
+        
+        return result;
+    }
+    
     public class ResultMessageGenerator {
         public String GETTING_FAILED_OTHER = "Some errors happened when getting interface data. Please try again later.";
         

@@ -7,6 +7,9 @@ package graduationproject.gui;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.controllers.DeviceManagementController.DataOrders;
+import graduationproject.controllers.DeviceResourceManagementController;
+import graduationproject.snmpd.SnmpManager;
+import java.awt.Color;
 import java.util.Calendar;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -99,6 +102,7 @@ public class PanelDeviceResources extends JPanel {
 
         setPreferredSize(new java.awt.Dimension(1160, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setBackground(Color.white);
 
         panelCPU.setBackground(java.awt.Color.white);
         panelCPU.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)),
@@ -237,9 +241,10 @@ public class PanelDeviceResources extends JPanel {
 
     public synchronized void initData(int deviceId) {
         this.deviceId = deviceId;
-        DeviceManagementController deviceController = new DeviceManagementController();
-        if (!deviceController.processGettingDeviceResource(deviceId, ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates())) {
-            JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
+        DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
+        if (!resourceController.processGettingDeviceResource(deviceId, 
+                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates())) {
+            JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
         }
     }
 
@@ -280,6 +285,15 @@ public class PanelDeviceResources extends JPanel {
         int rowCount = tableModel.getRowCount();
         for (int i = rowCount - 1; i >= 0; i--) {
             tableModel.removeRow(i);
+        }
+    }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        if (!enabled) {
+            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
         }
     }
 }

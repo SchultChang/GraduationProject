@@ -12,6 +12,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Device.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/TemplateManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/NotificationManagementController.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelDeviceSummary.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/configs/hibernate.cfg.xml</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/helpers/DeviceQueryHelper.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/DeviceResourceCheckingCallbackStage3.java</file>
@@ -28,6 +29,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelUserProfile.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/TemplateItemManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/NotificationHandler.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/DeviceResourceManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/UserManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/ContactNetworkInterface.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelInterfaceInfo.java</file>
@@ -58,6 +60,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/DeviceCPUState.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/build.xml</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/ChartManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelDeviceResources.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/ApplicationWindow.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/NotificationManager.java</file>

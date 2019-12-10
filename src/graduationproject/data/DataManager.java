@@ -9,6 +9,7 @@ import graduationproject.data.model_managers.DeviceCPUStateManager;
 import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
 import graduationproject.data.model_managers.DeviceMemoryStateManager;
+import graduationproject.data.model_managers.DeviceNetworkInterfaceManager;
 import graduationproject.data.model_managers.NotificationManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
 import graduationproject.data.model_managers.SettingManager;
@@ -34,6 +35,7 @@ public class DataManager {
     private SettingManager settingManager;
     private DeviceManager deviceManager;    
     private DeviceInterfaceDynamicDataManager interfaceDynamicDataManager;
+    private DeviceNetworkInterfaceManager networkInterfaceManager;
     private TemplateManager templateManager;
     private TemplateItemManager templateItemManager;
     private NotificationManager notificationManager;
@@ -55,6 +57,7 @@ public class DataManager {
 //        this.recoveryQuestionManager = new RecoveryQuestionManager(this.sessionFactory);
         this.deviceManager = new DeviceManager(this.sessionFactory);
         this.interfaceDynamicDataManager = new DeviceInterfaceDynamicDataManager(this.sessionFactory);
+        this.networkInterfaceManager = new DeviceNetworkInterfaceManager(this.sessionFactory);
         this.templateManager = new TemplateManager(this.sessionFactory);
         this.templateItemManager = new TemplateItemManager(this.sessionFactory);
         this.notificationManager = new NotificationManager(this.sessionFactory);
@@ -120,6 +123,10 @@ public class DataManager {
 
     public DeviceMemoryStateManager getDeviceMemoryManager() {
         return deviceMemoryManager;
+    }
+
+    public DeviceNetworkInterfaceManager getNetworkInterfaceManager() {
+        return networkInterfaceManager;
     }
     
     public int getActiveAccountId() {

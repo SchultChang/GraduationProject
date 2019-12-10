@@ -89,6 +89,8 @@ public class DeviceMemoryState {
         this.device = device;
     }
     
-    
+    public double getUsagePercentage() {
+        return this.usedSize * 1.0d / this.totalSize;
+    }
     
 }

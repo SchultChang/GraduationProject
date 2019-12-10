@@ -40,4 +40,8 @@ public class DataConverter {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         return formatter.format(time.getTime());
     }
+    
+    public double convertCalendarTimeToSecond(Calendar time) {
+        return time.get(Calendar.HOUR_OF_DAY) * 3600 * 1.0 + time.get(Calendar.MINUTE) * 60 + time.get(Calendar.SECOND);
+    }
 }

@@ -63,6 +63,7 @@ public class PanelImportedDevices extends JPanel {
     private PanelInterfaceInfo panelInterfaceInfo;
     private PanelMonitoringDevice panelMonitoringDevice;
     private PanelDeviceResources panelDeviceResources;
+    private PanelDeviceSummary panelDeviceSummary;
 
     private List<LabelDevice> labelDevices;
     private List<LabelInterface> labelInterfaces;
@@ -96,7 +97,8 @@ public class PanelImportedDevices extends JPanel {
         PANEL_DEVICE_INFO,
         PANEL_INTERFACE_INFO,
         PANEL_MONITORING_DEVICE,
-        PANEL_DEVICE_RESOURCES
+        PANEL_DEVICE_RESOURCES,
+        PANEL_DEVICE_SUMMARY
     }
 
 //    private List<DeviceStates> deviceStates;
@@ -176,6 +178,10 @@ public class PanelImportedDevices extends JPanel {
         this.panelDeviceResources = new PanelDeviceResources();
         this.panelDeviceResources.setVisible(false);
         this.panelDeviceResources.setEnabled(false);
+      
+        this.panelDeviceSummary = new PanelDeviceSummary();
+        this.panelDeviceSummary.setVisible(false);
+        this.panelDeviceSummary.setEnabled(false);
     }
 
     private void initMenu() {
@@ -531,6 +537,9 @@ public class PanelImportedDevices extends JPanel {
             case PANEL_DEVICE_RESOURCES:
                 this.displayPanel(panelDeviceResources, 440, 0, -1, -1);
                 break;
+            case PANEL_DEVICE_SUMMARY:
+                this.displayPanel(panelDeviceSummary, 440, 0, -1, -1);
+                break;
         }
 
         this.revalidate();
@@ -598,6 +607,10 @@ public class PanelImportedDevices extends JPanel {
         return panelDeviceResources;
     }
 
+    public PanelDeviceSummary getPanelDeviceSummary() {
+        return panelDeviceSummary;
+    }
+    
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
@@ -605,6 +618,7 @@ public class PanelImportedDevices extends JPanel {
         if (!enabled) {
             SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
             SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
         }
     }
 

@@ -199,7 +199,6 @@ public class DeviceInterfaceDynamicData {
     public void setUpdatedTime(Calendar updatedTime) {
         this.updatedTime = updatedTime;
     }
-
-    
+   
     
 }

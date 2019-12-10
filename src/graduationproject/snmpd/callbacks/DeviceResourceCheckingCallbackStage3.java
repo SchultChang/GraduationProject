@@ -6,6 +6,7 @@
 package graduationproject.snmpd.callbacks;
 
 import graduationproject.controllers.DeviceManagementController;
+import graduationproject.controllers.DeviceResourceManagementController;
 import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import org.soulwing.snmp.SnmpAsyncWalker;
 import org.soulwing.snmp.SnmpCallback;
@@ -42,8 +43,8 @@ public class DeviceResourceCheckingCallbackStage3 implements SnmpCallback<SnmpAs
                 }
             }
 
-            DeviceManagementController deviceController = new DeviceManagementController();
-            deviceController.processCollectedResourceData(this.dataCollector.getDeviceId(), 
+            DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
+            resourceController.processCollectedResourceData(this.dataCollector.getDeviceId(), 
                     this.dataCollector.getDeviceCpuData(), this.dataCollector.getDeviceMemoryData());
         } catch (Exception e) {
 //            e.printStackTrace();
