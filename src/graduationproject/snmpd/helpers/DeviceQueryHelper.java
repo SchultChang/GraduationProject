@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.List;
 import org.soulwing.snmp.SnmpContext;
 import org.soulwing.snmp.SnmpTarget;
+import org.soulwing.snmp.TimeoutException;
 import org.soulwing.snmp.VarbindCollection;
 
 /**
@@ -56,12 +57,13 @@ public class DeviceQueryHelper {
     }
 
     //NOTE: identification = name + label    
-    public String[] getDeviceIdentification(SnmpTarget target) {
+    public String[] getDeviceIdentification(SnmpTarget target) throws TimeoutException {
         String objName = "sysName";
+        String retrievedData = null;
 
         SnmpContext queryContext = SnmpManager.getInstance().createContext(target);
         VarbindCollection varbind = queryContext.getNext(objName).get();
-        String retrievedData = varbind.get(objName).asString();
+        retrievedData = varbind.get(objName).asString();
 
         String[] result = new String[DataOrders.END.getValue()];
         int sepPosition = retrievedData.lastIndexOf(this.DEVICE_ID_SEP);
@@ -95,7 +97,7 @@ public class DeviceQueryHelper {
         }
     }
 
-    public String[] getDeviceIdentification(SnmpTarget target, String community) {
+    public String[] getDeviceIdentification(SnmpTarget target, String community) throws TimeoutException {
         return this.getDeviceIdentification(SnmpManager.getInstance()
                 .createTarget(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY, target.getAddress(), community));
     }

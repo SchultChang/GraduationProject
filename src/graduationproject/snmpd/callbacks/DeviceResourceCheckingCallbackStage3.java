@@ -49,6 +49,8 @@ public class DeviceResourceCheckingCallbackStage3 implements SnmpCallback<SnmpAs
         } catch (Exception e) {
 //            e.printStackTrace();
             se.getContext().close();
+        } finally {
+            se.getContext().close();
         }
 
     }

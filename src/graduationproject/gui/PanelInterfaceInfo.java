@@ -7,12 +7,16 @@ package graduationproject.gui;
 
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
+import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.helpers.ActiveDeviceDataCollector.NextNodeDataOrders;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,6 +32,8 @@ import javax.swing.border.TitledBorder;
  */
 public class PanelInterfaceInfo extends JPanel {
 
+    private final String DEFAULT_VALUE = ". . .";
+    
     private JButton buttonStop;
     private JButton buttonStart;
     private JLabel label1;
@@ -58,7 +64,7 @@ public class PanelInterfaceInfo extends JPanel {
     private JLabel labelMacAddress;
     private JLabel labelName;
     private JLabel labelNetmask;
-    private JLabel labelNextNodeIpAddress;
+    private JComboBox cboxNextNodeIpAddresses;
     private JLabel labelNextNodeLabel;
     private JLabel labelNextNodeMacAddress;
     private JLabel labelNextNodeName;
@@ -119,7 +125,7 @@ public class PanelInterfaceInfo extends JPanel {
         labelType = new JLabel();
         panelConnectedNode = new JPanel();
         label5 = new JLabel();
-        labelNextNodeIpAddress = new JLabel();
+        cboxNextNodeIpAddresses = new JComboBox();
         label6 = new JLabel();
         labelNextNodeMacAddress = new JLabel();
         label8 = new JLabel();
@@ -150,7 +156,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 280, -1, 30));
 
         labelInPackAmount.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelInPackAmount.setText(". . .");
+        labelInPackAmount.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelInPackAmount, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 280, 90, 30));
 
         label12.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -158,7 +164,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label12, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 340, -1, 30));
 
         labelOutPackAmount.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelOutPackAmount.setText(". . .");
+        labelOutPackAmount.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelOutPackAmount, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 340, 90, 30));
 
         label13.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -166,7 +172,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label13, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, -1, 30));
 
         labelInboundBytes.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelInboundBytes.setText(". . .");
+        labelInboundBytes.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelInboundBytes, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 400, 90, 30));
 
         label14.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -174,7 +180,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label14, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 460, -1, 30));
 
         labelOutboundBytes.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelOutboundBytes.setText(". . .");
+        labelOutboundBytes.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelOutboundBytes, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 460, 90, 30));
 
         label15.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -182,7 +188,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label15, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 520, -1, 30));
 
         labelInDiscardCount.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelInDiscardCount.setText(". . .");
+        labelInDiscardCount.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelInDiscardCount, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 520, 90, 30));
 
         label16.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -190,11 +196,11 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label16, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 580, -1, 30));
 
         labelOutDiscardCount.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelOutDiscardCount.setText(". . .");
+        labelOutDiscardCount.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelOutDiscardCount, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 580, 90, 30));
 
         labelMTU.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelMTU.setText(". . .");
+        labelMTU.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelMTU, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 50, 200, 30));
 
         label17.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -206,7 +212,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelAdditionalInformation.add(label18, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, -1, 30));
 
         labelCurrentBandwidth.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelCurrentBandwidth.setText(". . .");
+        labelCurrentBandwidth.setText(DEFAULT_VALUE);
         panelAdditionalInformation.add(labelCurrentBandwidth, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, 200, 30));
         panelAdditionalInformation.add(separator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 210, 520, 10));
         panelAdditionalInformation.add(separator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 220, 520, 10));
@@ -224,7 +230,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelBasicInformation.add(label1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, 30));
 
         labelName.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelName.setText(". . .");
+        labelName.setText(DEFAULT_VALUE);
         panelBasicInformation.add(labelName, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 50, 240, 30));
 
         label3.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -232,7 +238,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelBasicInformation.add(label3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, -1, 30));
 
         labelIPAddress.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelIPAddress.setText(". . .");
+        labelIPAddress.setText(DEFAULT_VALUE);
         panelBasicInformation.add(labelIPAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 210, 240, 30));
 
         label4.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -240,7 +246,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelBasicInformation.add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, 30));
 
         labelNetmask.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNetmask.setText(". . .");
+        labelNetmask.setText(DEFAULT_VALUE);
         panelBasicInformation.add(labelNetmask, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 270, 240, 30));
 
         label2.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -248,7 +254,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelBasicInformation.add(label2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, -1, 30));
 
         labelType.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelType.setText(". . .");
+        labelType.setText(DEFAULT_VALUE);
         panelBasicInformation.add(labelType, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 150, 240, 30));
 
         panelConnectedNode.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Connected Node", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 1, 14)));
@@ -259,16 +265,17 @@ public class PanelInterfaceInfo extends JPanel {
         label5.setText("IP Address:");
         panelConnectedNode.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, -1, 30));
 
-        labelNextNodeIpAddress.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeIpAddress.setText(". . .");
-        panelConnectedNode.add(labelNextNodeIpAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, 240, 30));
+        cboxNextNodeIpAddresses.setFont(new java.awt.Font("SansSerif", 0, 16));
+        cboxNextNodeIpAddresses.setModel(new DefaultComboBoxModel());
+//        cboxNextNodeIpAddresses.setText(DEFAULT_VALUE);
+        panelConnectedNode.add(cboxNextNodeIpAddresses, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, 240, 30));
 
         label6.setFont(new java.awt.Font("SansSerif", 1, 16));
         label6.setText("MAC Address:");
         panelConnectedNode.add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, -1, 30));
 
         labelNextNodeMacAddress.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeMacAddress.setText(". . .");
+        labelNextNodeMacAddress.setText(DEFAULT_VALUE);
         panelConnectedNode.add(labelNextNodeMacAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 230, 240, 30));
 
         label8.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -276,7 +283,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelConnectedNode.add(label8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, 30));
 
         labelNextNodeLabel.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeLabel.setText(". . .");
+        labelNextNodeLabel.setText(DEFAULT_VALUE);
         panelConnectedNode.add(labelNextNodeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 110, 240, 30));
 
         label9.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -284,7 +291,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelConnectedNode.add(label9, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, 30));
 
         labelNextNodeName.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeName.setText(". . .");
+        labelNextNodeName.setText(DEFAULT_VALUE);
         panelConnectedNode.add(labelNextNodeName, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 50, 240, 30));
 
         panelBasicInformation.add(panelConnectedNode, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 460, 350));
@@ -294,7 +301,7 @@ public class PanelInterfaceInfo extends JPanel {
         panelBasicInformation.add(label7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, -1, 30));
 
         labelMacAddress.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelMacAddress.setText(". . .");
+        labelMacAddress.setText(DEFAULT_VALUE);
         panelBasicInformation.add(labelMacAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 100, 240, 30));
 
         add(panelBasicInformation, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 460, 730));
@@ -329,7 +336,7 @@ public class PanelInterfaceInfo extends JPanel {
         add(label20, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 830, -1, 30));
 
         labelUpdatedTime.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelUpdatedTime.setText(". . .");
+        labelUpdatedTime.setText(DEFAULT_VALUE);
         add(labelUpdatedTime, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 830, 310, 30));
 
     }
@@ -344,16 +351,16 @@ public class PanelInterfaceInfo extends JPanel {
                 }
                 if (source == buttonStart) {
                     PanelInterfaceInfo.this.setStopUpdate(false);
-                    
+
                     InterfaceManagementController interfaceController = new InterfaceManagementController();
                     if (!interfaceController.processChangingInterfaceCheckingPeriod(
                             Integer.parseInt(tfieldUpdatePeriod.getText()), deviceId, interfaceListId)) {
-                            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+                        JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
                     }
                 }
             }
         };
-        
+
         this.buttonStart.addActionListener(this.listenerButton);
         this.buttonStop.addActionListener(this.listenerButton);
     }
@@ -375,42 +382,83 @@ public class PanelInterfaceInfo extends JPanel {
             return;
         }
 
-        this.updateView(data);
+        this.updateView(deviceId, data);
     }
 
-    public synchronized void updateView(List<Object> data) {
-        if (!this.stopUpdate) {
-            this.labelName.setText((String) data.get(DataOrders.NAME.getValue()));
-            this.labelMacAddress.setText((String) data.get(DataOrders.MAC_ADDRESS.getValue()));
-            this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
-            this.labelIPAddress.setText((String) data.get(DataOrders.IP_ADDRESS.getValue()));
-            this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
+    public synchronized void updateView(int deviceId, List<Object> data) {
+        if (deviceId != this.deviceId) {
+            return;
+        }
 
-            this.labelNextNodeName.setText((String) data.get(DataOrders.NEXT_NODE_NAME.getValue()));
-            this.labelNextNodeLabel.setText((String) data.get(DataOrders.NEXT_NODE_LABEL.getValue()));
-            this.labelNextNodeIpAddress.setText((String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue()));
-            this.labelNextNodeMacAddress.setText((String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue()));
+        try {
+            if (!this.stopUpdate) {
+                this.labelName.setText((String) data.get(DataOrders.NAME.getValue()));
+                this.labelMacAddress.setText((String) data.get(DataOrders.MAC_ADDRESS.getValue()));
+                this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
+                this.labelIPAddress.setText((String) data.get(DataOrders.IP_ADDRESS.getValue()));
+                this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
 
-            this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
-            this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
-            this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
-            this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
-            this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
-            this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
-            this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
-            this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
+                this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
+                this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
+                this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
+                this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
+                this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
+                this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
+                this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
+                this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
 
-            this.labelUpdatedTime.setText((String) data.get(DataOrders.UPDATED_TIME.getValue()));
+                this.labelUpdatedTime.setText((String) data.get(DataOrders.UPDATED_TIME.getValue()));
 
-            if (data.size() > DataOrders.UPDATED_TIME.getValue() + 1) {
-                this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
+                if (data.size() >= DataOrders.UPDATE_PERIOD.getValue() + 1) {
+                    this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
+                }
+
+                this.displayNextNodeInformation(this.deviceId, true);
+
+//            ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId, (String) data.get(DataOrders.MAC_ADDRESS.getValue()));
+//            this.labelNextNodeName.setText((String) data.get(DataOrders.NEXT_NODE_NAME.getValue()));
+//            this.labelNextNodeLabel.setText((String) data.get(DataOrders.NEXT_NODE_LABEL.getValue()));
+//            this.cboxNextNodeIpAddresses.setText((String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue()));
+//            this.labelNextNodeMacAddress.setText((String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue()));
+                this.revalidate();
+                this.repaint();
             }
-
-            this.revalidate();
-            this.repaint();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
+    private synchronized void displayNextNodeInformation(int deviceId, boolean firstTime) {
+        List<Object> data = null;
+        if (firstTime) { //the first time of updating next node info 
+            data = ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId, this.labelMacAddress.getText(), null);
+
+            if (data != null) {
+                DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxNextNodeIpAddresses.getModel();
+                boxModel.removeAllElements();
+
+                String[] ips = (String[]) data.get(NextNodeDataOrders.IP_ADDRESSES.getValue());
+                for (String ip : ips) {
+                    boxModel.addElement(ip);
+                }
+                this.cboxNextNodeIpAddresses.setSelectedIndex(0);
+            }
+        } else {
+            data = ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId,
+                    this.labelMacAddress.getText(), (String) this.cboxNextNodeIpAddresses.getSelectedItem());
+        }
+
+        if (data != null) {
+            this.labelNextNodeName.setText((String) data.get(NextNodeDataOrders.NAME.getValue()));
+            this.labelNextNodeLabel.setText((String) data.get(NextNodeDataOrders.LABEL.getValue()));
+            this.labelNextNodeMacAddress.setText((String) data.get(NextNodeDataOrders.MAC_ADDRESS.getValue()));
+        } else {
+            this.labelNextNodeName.setText(DEFAULT_VALUE);
+            this.labelNextNodeLabel.setText(DEFAULT_VALUE);
+            this.labelNextNodeMacAddress.setText(DEFAULT_VALUE);
+        }
+    }
+    
     public int getInterfaceListId() {
         return interfaceListId;
     }
@@ -422,6 +470,5 @@ public class PanelInterfaceInfo extends JPanel {
     public synchronized void setStopUpdate(boolean stopUpdate) {
         this.stopUpdate = stopUpdate;
     }
-    
 
 }

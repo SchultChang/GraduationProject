@@ -65,7 +65,7 @@ public class InterfaceQueryHelper {
                 }
             }
         }
-        
+
         public void processCollectedData() {
             InterfaceManagementController interfaceController = new InterfaceManagementController();
             interfaceController.processCollectedData(deviceId, interfaces);
@@ -93,10 +93,12 @@ public class InterfaceQueryHelper {
         private String ipAddress;
         private String netmask;
 
-        private String nextNodeMac;
-        private String nextNodeIP;
+        private List<String> nextNodeMacs;
+        private List<String> nextNodeIPs;
 
         public InterfaceRawData() {
+            this.nextNodeIPs = new ArrayList<String>();
+            this.nextNodeMacs = new ArrayList<String>();
         }
 
         public void parseIfTable(VarbindCollection varbind) {
@@ -132,8 +134,8 @@ public class InterfaceQueryHelper {
                 return false;
             }
 
-            this.nextNodeMac = varbind.get("ipNetToMediaPhysAddress").asString();
-            this.nextNodeIP = varbind.get("ipNetToMediaNetAddress").asString();
+            this.nextNodeMacs.add(varbind.get("ipNetToMediaPhysAddress").asString());
+            this.nextNodeIPs.add(varbind.get("ipNetToMediaNetAddress").asString());
             return true;
         }
 
@@ -148,23 +150,27 @@ public class InterfaceQueryHelper {
         public String getName() {
             return name;
         }
-        
+
         public String getType() {
             return this.type;
         }
+
+        public String getIpAddress() {
+            return ipAddress;
+        }
         
         public String getMacAddress() {
-            return  this.macAddress;
+            return this.macAddress;
         }
 
-        public String getNextNodeMac() {
-            return nextNodeMac;
+        public List<String> getNextNodeMacs() {
+            return nextNodeMacs;
         }
 
-        public String getNextNodeIP() {
-            return nextNodeIP;
+        public List<String> getNextNodeIPs() {
+            return nextNodeIPs;
         }
-        
+
         public List<Object> getDynamicData() {
             List<Object> result = new ArrayList<Object>();
             result.add(DataOrders.IP_ADDRESS.getValue(), this.ipAddress);
@@ -177,10 +183,10 @@ public class InterfaceQueryHelper {
             result.add(DataOrders.OUT_BYTES.getValue(), this.outBytes);
             result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), this.inDiscard);
             result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), this.outDiscard);
-            result.add(DataOrders.NEXT_NODE_NAME.getValue(), new String());
-            result.add(DataOrders.NEXT_NODE_LABEL.getValue(), new String());
-            result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), this.nextNodeIP);
-            result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), this.nextNodeMac);
+//            result.add(DataOrders.NEXT_NODE_NAME.getValue(), new String());
+//            result.add(DataOrders.NEXT_NODE_LABEL.getValue(), new String());
+//            result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), this.nextNodeIPs);
+//            result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), this.nextNodeMacs);
             return result;
         }
     }

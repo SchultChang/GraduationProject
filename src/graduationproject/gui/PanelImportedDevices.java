@@ -174,11 +174,11 @@ public class PanelImportedDevices extends JPanel {
         this.panelMonitoringDevice = new PanelMonitoringDevice();
         this.panelMonitoringDevice.setVisible(false);
         this.panelMonitoringDevice.setEnabled(false);
-        
+
         this.panelDeviceResources = new PanelDeviceResources();
         this.panelDeviceResources.setVisible(false);
         this.panelDeviceResources.setEnabled(false);
-      
+
         this.panelDeviceSummary = new PanelDeviceSummary();
         this.panelDeviceSummary.setVisible(false);
         this.panelDeviceSummary.setEnabled(false);
@@ -231,6 +231,7 @@ public class PanelImportedDevices extends JPanel {
                         updateDeviceList(deviceController.getDeviceIds(), data);
                         if (data != null) {
                             deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+                            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
                         }
                     } else {
                         super.keyReleased(e);
@@ -267,31 +268,34 @@ public class PanelImportedDevices extends JPanel {
 
                         PanelImportedDevices.this.clearLabelInterfaces();
 
-                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-                        if (source.getDeviceState() == DeviceStates.ACTIVE) {
-                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
-                            enableInterfaces = false;
-                        } else {
-                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-                            if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
-                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
-                            };
-                        }
+//                        InterfaceManagementController interfaceController = new InterfaceManagementController();
+//                        if (source.getDeviceState() == DeviceStates.DEACTIVE) {
+//                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+//                            enableInterfaces = false;
+//                        } else {
+//                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+//                            if (!interfaceController.processGettingSavedInterfacesOfDevice(source.getDeviceId())) {
+//                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+//                            };
+                        PanelImportedDevices.this.displaySavedInterfacesOfDevice(source.getDeviceId());
+                        enableInterfaces = false;
+//                        }
                     } else if (!enableInterfaces) {
-                        SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+//                        SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                         PanelImportedDevices.this.clearLabelInterfaces();
                         enableInterfaces = true;
                     } else {
-                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-                        if (source.getDeviceState() == DeviceStates.ACTIVE) {
-                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
-                        } else {
-                            if (!interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), false)) {
-                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
-                            };
-                        }
-                        enableInterfaces = false;
+//                        InterfaceManagementController interfaceController = new InterfaceManagementController();
+//                        if (source.getDeviceState() == DeviceStates.DEACTIVE) {
+//                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
+//                        } else {
+//                            if (!interfaceController.processGettingSavedInterfacesOfDevice(source.getDeviceId())) {
+//                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+//                            };
+                        PanelImportedDevices.this.displaySavedInterfacesOfDevice(source.getDeviceId());
                     }
+                    enableInterfaces = false;
+//                    }
                 } else {
                     pmenuDevices.show(source, e.getX(), e.getY());
                     pendingLabelToDelete = source;
@@ -355,7 +359,6 @@ public class PanelImportedDevices extends JPanel {
                         return;
                     }
 
-                    SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                     initData();
                     System.gc();
                 }
@@ -390,6 +393,7 @@ public class PanelImportedDevices extends JPanel {
         this.updateDeviceList(deviceController.getDeviceIds(), data);
         if (data != null) {
             deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
         }
     }
 
@@ -417,12 +421,10 @@ public class PanelImportedDevices extends JPanel {
             LabelDevice temp = this.labelDevices.get(i);
             if (temp.getDeviceId() == deviceId) {
                 if (temp.setDeviceState(deviceState) && this.currentChosenLabelDevice == temp) {
-                    if (deviceState == DeviceStates.ACTIVE) {
-                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-                        interfaceController.processGettingInterfacesOfDevice(temp.getDeviceId(), true);
-                    } else {
-                        SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-
+                    if (deviceState == DeviceStates.DEACTIVE) {
+//                        InterfaceManagementController interfaceController = new InterfaceManagementController();
+//                        interfaceController.processGettingInterfacesOfDevice(temp.getDeviceId(), true);
+//                    } else {
                         int tempSize1 = this.labelInterfaces.size();
                         for (int j = 0; j < tempSize1; j++) {
                             this.labelInterfaces.get(j).setInterfaceState(InterfaceStates.DOWN);
@@ -446,6 +448,13 @@ public class PanelImportedDevices extends JPanel {
                 }
             }
         }
+    }
+
+    public void displaySavedInterfacesOfDevice(int deviceId) {
+        InterfaceManagementController interfaceController = new InterfaceManagementController();
+        if (!interfaceController.processGettingSavedInterfacesOfDevice(deviceId)) {
+            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+        };
     }
 
     public void clearLabelInterfaces() {
@@ -610,7 +619,7 @@ public class PanelImportedDevices extends JPanel {
     public PanelDeviceSummary getPanelDeviceSummary() {
         return panelDeviceSummary;
     }
-    
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);

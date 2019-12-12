@@ -14,6 +14,7 @@ import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.gui.PanelInterfaceInfo;
+import graduationproject.helpers.ActiveDeviceDataCollector;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper.InterfaceRawData;
@@ -29,7 +30,7 @@ import org.soulwing.snmp.SnmpContext;
  * @author cloud
  */
 public class InterfaceManagementController {
-    
+
     private String resultMessage;
 
     public enum DataOrders {
@@ -43,15 +44,15 @@ public class InterfaceManagementController {
         OUT_BYTES(7),
         IN_DISCARD_PACK_NUMBER(8),
         OUT_DISCARD_PACK_NUMBER(9),
-        NEXT_NODE_NAME(10),
-        NEXT_NODE_LABEL(11),
-        NEXT_NODE_IP_ADDRESS(12),
-        NEXT_NODE_MAC_ADDRESS(13),
-        UPDATED_TIME(14), 
-        NAME(15),
-        MAC_ADDRESS(16), 
-        TYPE(17), 
-        UPDATE_PERIOD(18); 
+        //        NEXT_NODE_NAME(10),
+        //        NEXT_NODE_LABEL(11),
+        //        NEXT_NODE_IP_ADDRESS(12),
+        //        NEXT_NODE_MAC_ADDRESS(13),
+        UPDATED_TIME(10),
+        NAME(11),
+        MAC_ADDRESS(12),
+        TYPE(13),
+        UPDATE_PERIOD(14);
 
         private int value;
 
@@ -72,51 +73,56 @@ public class InterfaceManagementController {
     public String getResultMessage() {
         return resultMessage;
     }
-    
-    public boolean processGettingInterfacesOfDevice(int deviceId, boolean isActive) {
-        if (isActive) {
-            this.getLiveInterfaces(deviceId);
-            return true;
-        } else {
-            return this.getSavedInterfaces(deviceId);
-        }
-    }
-    
-    public void getLiveInterfaces(int deviceId) {
-        System.out.println("START CHECKING INTERFACE STATES");
+
+//    public boolean processGettingSavedInterfacesOfDevice(int deviceId, boolean isActive) {
+//        if (!isActive) {
+//            this.getLiveInterfaces(deviceId);
+//            return true;
+//        } else {
+//            return this.getSavedInterfaces(deviceId);
+//        }
+//        return false;
+//    }
+    public void processGettingInterfacesOfActiveDevices() {
+//        System.out.println("START CHECKING INTERFACE STATES");
         TimerTask queryTask = new TimerTask() {
             @Override
             public void run() {
-                Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
-                if (device == null) {
-                    return;
+                System.out.println("START CHECKING INTERFACE STATES");
+                int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
+                for (int deviceId : deviceIds) {
+                    Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+                    if (device == null) {
+                        return;
+                    }
+                    SnmpContext snmpContext = SnmpManager.getInstance().createContext(
+                            device.getSnmpVersion(), device.getContactInterface().getIpAddress(),
+                            device.getContactInterface().getCommunity());
+                    InterfaceQueryHelper helper = new InterfaceQueryHelper();
+                    helper.startQueryAllInterfaces(deviceId, snmpContext);
                 }
-                SnmpContext snmpContext = SnmpManager.getInstance().createContext(
-                        device.getSnmpVersion(), device.getContactInterface().getIpAddress(),
-                        device.getContactInterface().getCommunity());
-                InterfaceQueryHelper helper = new InterfaceQueryHelper();
-                helper.startQueryAllInterfaces(deviceId, snmpContext);
             }
         };
 
         User currentUser = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         Setting setting = currentUser.getSetting();
-        SnmpManager.getInstance().getQueryTimerManager().startInterfaceTimer(queryTask, 0, setting.getNormalizedTime(setting.getInterfaceCheckingPeriod()));
+        SnmpManager.getInstance().getQueryTimerManager().startInterfaceTimer(queryTask,
+                setting.getNormalizedTime(setting.getDeviceCheckingPeriod()), setting.getNormalizedTime(setting.getInterfaceCheckingPeriod()));
     }
-    
-    public boolean getSavedInterfaces(int deviceId) {
+
+    public boolean processGettingSavedInterfacesOfDevice(int deviceId) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
         if (device == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return false;
         }
-        
+
         List<DeviceNetworkInterface> interfaceList = device.getNetworkInterfaces();
         if (interfaceList == null || interfaceList.isEmpty()) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return false;
         }
-        
+
         int tempSize = interfaceList.size();
         String[] names = new String[tempSize];
         int[] interfaceIds = new int[tempSize];
@@ -132,7 +138,7 @@ public class InterfaceManagementController {
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelInterfaces(deviceId, interfaceIds, names, interfaceStates);
         return true;
     }
-    
+
     public void processCollectedData(int deviceId, List<InterfaceRawData> rawDataList) {
         if (rawDataList.isEmpty()) {
             return;
@@ -143,7 +149,7 @@ public class InterfaceManagementController {
         if (device == null) {
             return;
         }
-        
+
         int tempSize = device.getNetworkInterfaces().size();
         for (int i = 0; i < tempSize; i++) {
             device.getNetworkInterfaces().get(i).setName(rawDataList.get(i).getName());
@@ -161,24 +167,36 @@ public class InterfaceManagementController {
             tempSize = tempSize2;
         }
         DataManager.getInstance().getDeviceManager().updateDevice(device);
-        
+
         int displayedInterfaceId = ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                 .getPanelInterfaceInfo().getInterfaceListId();
-        DeviceInterfaceDynamicData needToViewDynamicData = null;        
-        
+        DeviceInterfaceDynamicData needToViewDynamicData = null;
+
         Calendar updatedTime = Calendar.getInstance();
         for (int i = 0; i < tempSize; i++) {
-            List<Object> rawData = rawDataList.get(i).getDynamicData();
-            this.findNextNodeInfo(rawData, rawDataList.get(i).getNextNodeMac());
-            DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                    rawData, updatedTime, device.getNetworkInterfaces().get(i));
-            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
-            
-            if (i == displayedInterfaceId) {
-                needToViewDynamicData = dynamicData;
-            }
+            InterfaceRawData temp = rawDataList.get(i);
+            List<Object> rawData = temp.getDynamicData();
+//            this.findNextNodeInfo(rawDataList.get(i).getNextNodeMacs());
+//            try {
+                ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
+                        temp.getName(),
+                        temp.getIpAddress(),
+                        temp.getMacAddress(),
+                        this.findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                        temp.getNextNodeIPs(),
+                        temp.getNextNodeMacs());
+                DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
+                        rawData, updatedTime, device.getNetworkInterfaces().get(i));
+                DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
+
+                if (i == displayedInterfaceId) {
+                    needToViewDynamicData = dynamicData;
+                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
-        
+
         //for display
         String[] names = new String[tempSize];
         int[] interfaceIds = new int[tempSize];
@@ -192,89 +210,97 @@ public class InterfaceManagementController {
         }
 
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelInterfaces(deviceId, interfaceIds, names, interfaceStates);
-        
+
         //to display on interface info
         PanelInterfaceInfo infoPanel = ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelInterfaceInfo();
         if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelInterfaceInfo().isVisible()) {
             if (infoPanel.getDeviceId() == deviceId && displayedInterfaceId < tempSize) {
-                infoPanel.updateView(this.convertDataForView(
-                        device.getNetworkInterfaces().get(displayedInterfaceId), 
+                infoPanel.updateView(deviceId, this.convertDataForView(
+                        device.getNetworkInterfaces().get(displayedInterfaceId),
                         needToViewDynamicData));
             }
         }
-        
+
     }
 
-    private void findNextNodeInfo(List<Object> data, String macAddress) {
-        Device device = DataManager.getInstance().getDeviceManager().getDevice(macAddress);
-        if (device != null) {
-            data.set(DataOrders.NEXT_NODE_NAME.getValue(), device.getName());
-            data.set(DataOrders.NEXT_NODE_LABEL.getValue(), device.getLabel());
-        } 
+    private int[] findNextNodeId(List<String> ipAddresses, List<String> macAddresses) {
+        int tempSize = macAddresses.size();
+        int[] result = new int[tempSize];
+        for (int i = 0; i < tempSize; i++) {
+            Device device = DataManager.getInstance().getDeviceManager().getDevice(macAddresses.get(i));
+            if (device != null) {
+                result[i] = device.getId();
+            } else if (ActiveDeviceDataCollector.getInstance().isConnectedToManager(ipAddresses.get(i), macAddresses.get(i))) {
+                result[i] = ActiveDeviceDataCollector.MANAGER_DEVICE_ID;
+            } else {
+                result[i] = ActiveDeviceDataCollector.UNKNOWN_DEVICE_ID;
+            }
+        }
+        return result;
     }
-    
+
     public List<Object> processGettingInterfaceFromDatabase(int deviceId, int interfaceListId) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
         if (device == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return null;
         }
-        
+
         DeviceNetworkInterface deviceInterface = device.getNetworkInterfaces().get(interfaceListId);
         if (deviceInterface == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return null;
         }
-        
+
         DeviceInterfaceDynamicData dynamicData = DataManager.getInstance().getInterfaceDynamicDataManager()
                 .getDynamicData(deviceInterface);
         if (dynamicData == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
             return null;
-        }        
-        
-        List<Object> result = this.convertDataForView(deviceInterface, dynamicData);
+        }
+
+//        List<Object> result = this.convertDataForView(deviceInterface, dynamicData);
         Setting setting = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting();
-        
+
         return this.convertDataForView(deviceInterface, dynamicData, setting);
     }
-    
+
     public boolean processChangingInterfaceCheckingPeriod(int newPeriod, int deviceId, int interfaceListId) {
         Setting setting;
         try {
-            setting = DataManager.getInstance().getUserManager().getUser( 
-            DataManager.getInstance().getActiveAccountId()).getSetting();
+            setting = DataManager.getInstance().getUserManager().getUser(
+                    DataManager.getInstance().getActiveAccountId()).getSetting();
         } catch (Exception e) {
             this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_GETTING;
             return false;
         }
-        
+
         if (setting == null) {
             this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_GETTING;
             return false;
         }
-        
+
         setting.setInterfaceCheckingPeriod(newPeriod);
         if (!DataManager.getInstance().getSettingManager().updateSetting(setting)) {
             this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_SETTING;
             return false;
         }
-        
-        this.processGettingInterfacesOfDevice(deviceId, true);
+
+        this.processGettingInterfacesOfActiveDevices();
         return true;
     }
-    
+
     private List<Object> convertDataForView(DeviceNetworkInterface networkInterface, DeviceInterfaceDynamicData data, Setting setting) {
         List<Object> temp = this.convertDataForView(networkInterface, data);
-        if (temp != null) {            
+        if (temp != null) {
             temp.add(DataOrders.UPDATE_PERIOD.getValue(), setting.getInterfaceCheckingPeriod());
         }
         return temp;
     }
-    
+
     private List<Object> convertDataForView(DeviceNetworkInterface networkInterface, DeviceInterfaceDynamicData data) {
         List<Object> result = new ArrayList<Object>();
-        
+
         result.add(DataOrders.IP_ADDRESS.getValue(), data.getIpAddress());
         result.add(DataOrders.NETMASK.getValue(), data.getNetmask());
         result.add(DataOrders.MTU.getValue(), data.getMtu());
@@ -285,37 +311,39 @@ public class InterfaceManagementController {
         result.add(DataOrders.OUT_BYTES.getValue(), data.getOutboundBytes());
         result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), data.getInboundDiscardPacketNumber());
         result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), data.getOutboundDiscardPacketNumber());
-        result.add(DataOrders.NEXT_NODE_NAME.getValue(), data.getNextNodeName());
-        result.add(DataOrders.NEXT_NODE_LABEL.getValue(), data.getNextNodeLabel());
-        result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), data.getNextNodeIPAddress());
-        result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), data.getNextNodeMacAddress());
-        result.add(DataOrders.UPDATED_TIME.getValue(), 
+//        result.add(DataOrders.NEXT_NODE_NAME.getValue(), data.getNextNodeName());
+//        result.add(DataOrders.NEXT_NODE_LABEL.getValue(), data.getNextNodeLabel());
+//        result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), data.getNextNodeIPAddress());
+//        result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), data.getNextNodeMacAddress());
+        result.add(DataOrders.UPDATED_TIME.getValue(),
                 new DataConverter().convertCalendarToString(data.getUpdatedTime()));
-        
+
         result.add(DataOrders.NAME.getValue(), networkInterface.getName());
         result.add(DataOrders.MAC_ADDRESS.getValue(), networkInterface.getMacAddress());
         result.add(DataOrders.TYPE.getValue(), networkInterface.getType());
         return result;
     }
-    
+
     public List<String> processGettingInterfaceNames(int deviceId) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
-        if (device == null) 
+        if (device == null) {
             return null;
-        
+        }
+
         List<DeviceNetworkInterface> networkInterfaces = device.getNetworkInterfaces();
         List<String> result = new ArrayList<String>();
-        
+
         for (DeviceNetworkInterface networkInterface : networkInterfaces) {
             result.add(networkInterface.getName());
         }
-        
+
         return result;
     }
-    
+
     public class ResultMessageGenerator {
+
         public String GETTING_FAILED_OTHER = "Some errors happened when getting interface data. Please try again later.";
-        
+
         public String CHANGING_FAILED_GETTING = "Some errors happened when getting setting from database.";
         public String CHANGING_FAILED_SETTING = "Some errors happened when saving your new configuration.";
     }

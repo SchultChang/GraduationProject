@@ -37,6 +37,7 @@ import java.util.TimerTask;
 import org.soulwing.snmp.SimpleSnmpV2cTarget;
 import org.soulwing.snmp.SnmpContext;
 import org.soulwing.snmp.SnmpTarget;
+import org.soulwing.snmp.TimeoutException;
 
 /**
  *
@@ -238,6 +239,7 @@ public class DeviceManagementController {
         TimerTask checkingTask = new TimerTask() {
             @Override
             public void run() {
+                System.gc();
                 DeviceManagementController deviceController = new DeviceManagementController();
                 deviceController.startCheckingStateOfDevices(deviceIds);
             }
@@ -371,7 +373,7 @@ public class DeviceManagementController {
     public int processDeviceInfoWithStartNotification(SnmpTarget snmpTarget, boolean merge) {
         this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
-            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
+//            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
             return checkingDevice.getId();
         }
         return -1;
@@ -380,15 +382,15 @@ public class DeviceManagementController {
     public int processDeviceInfoWithLinkNotification(SnmpTarget snmpTarget, int interfaceId, boolean isUp, boolean merge) {
         this.getCheckingDeviceWithNotificationData(snmpTarget, merge);
         if (checkingDevice != null) {
-            if (isUp) {
-                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
-                        .updateLabelInterfaceState(checkingDevice.getId(), interfaceId - 1, null, InterfaceManagementController.InterfaceStates.UP);
-            } else {
-                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
-                        .updateLabelInterfaceState(checkingDevice.getId(), interfaceId - 1, null, InterfaceManagementController.InterfaceStates.DOWN);
-            }
-
-            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
+//            if (isUp) {
+//                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+//                        .updateLabelInterfaceState(checkingDevice.getId(), interfaceId - 1, null, InterfaceManagementController.InterfaceStates.UP);
+//            } else {
+//                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+//                        .updateLabelInterfaceState(checkingDevice.getId(), interfaceId - 1, null, InterfaceManagementController.InterfaceStates.DOWN);
+//            }
+//
+//            ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceState(checkingDevice.getId(), DeviceStates.ACTIVE);
             return checkingDevice.getId();
         }
         return -1;
@@ -420,7 +422,8 @@ public class DeviceManagementController {
 
     private void getCheckingDeviceWithNotificationData(SnmpTarget target, boolean merge) {
         String community = ((SimpleSnmpV2cTarget) target).getCommunity();
-        String[] liveData;
+        String[] liveData = null;
+        boolean timeout = false;
 
         checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(DataOrders.CI_IP_ADDRESS, target.getAddress());
         if (checkingDevice == null) {
@@ -429,22 +432,32 @@ public class DeviceManagementController {
 
         if (community == null) {
             community = checkingDevice.getContactInterface().getCommunity();
-            liveData = new DeviceQueryHelper().getDeviceIdentification(target, community);
+            try {
+                liveData = new DeviceQueryHelper().getDeviceIdentification(target, community);
+            } catch (TimeoutException e) {
+                timeout = true;
+            }
         } else {
-            liveData = new DeviceQueryHelper().getDeviceIdentification(target);
+            try {
+                liveData = new DeviceQueryHelper().getDeviceIdentification(target);
+            } catch (TimeoutException e) {
+                timeout = true;
+            }
         }
 
-        if (liveData == null || !checkingDevice.getName().equals(liveData[DeviceQueryHelper.DataOrders.DEVICE_NAME.getValue()])) {
-            this.checkingDevice = null;
-            return;
-        }
+        if (!timeout) {
+            if (liveData == null || !checkingDevice.getName().equals(liveData[DeviceQueryHelper.DataOrders.DEVICE_NAME.getValue()])) {
+                this.checkingDevice = null;
+                return;
+            }
 
-        if (liveData == null || !checkingDevice.getLabel().equals(liveData[DeviceQueryHelper.DataOrders.DEVICE_LABEL.getValue()])) {
+            if (liveData == null || !checkingDevice.getLabel().equals(liveData[DeviceQueryHelper.DataOrders.DEVICE_LABEL.getValue()])) {
 //            checkingDevice = DataManager.getInstance().getDeviceManager().getDevice(
 //                    DataOrders.LABEL,
 //                    liveData[MergingDataHelper.DataOrders.DEVICE_LABEL.getValue()]);
-            checkingDevice = null;
-            return;
+                checkingDevice = null;
+                return;
+            }
         }
 
 //        if (checkingDevice != null && merge) {

@@ -28,10 +28,10 @@ public class DeviceInterfaceDynamicData {
     private long inboundDiscardPacketNumber;
     private long outboundDiscardPacketNumber;
     
-    private String nextNodeName;
-    private String nextNodeLabel;
-    private String nextNodeIPAddress;
-    private String nextNodeMacAddress;
+//    private String nextNodeName;
+//    private String nextNodeLabel;
+//    private String nextNodeIPAddress;
+//    private String nextNodeMacAddress;
     
     private Calendar updatedTime;
     
@@ -53,10 +53,10 @@ public class DeviceInterfaceDynamicData {
         this.inboundDiscardPacketNumber = (long) data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue());
         this.outboundDiscardPacketNumber = (long) data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue());
         
-        this.nextNodeName = (String) data.get(DataOrders.NEXT_NODE_NAME.getValue());
-        this.nextNodeLabel = (String) data.get(DataOrders.NEXT_NODE_LABEL.getValue());
-        this.nextNodeIPAddress = (String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue());
-        this.nextNodeMacAddress = (String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue());
+//        this.nextNodeName = (String) data.get(DataOrders.NEXT_NODE_NAME.getValue());
+//        this.nextNodeLabel = (String) data.get(DataOrders.NEXT_NODE_LABEL.getValue());
+//        this.nextNodeIPAddress = (String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue());
+//        this.nextNodeMacAddress = (String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue());
 
         this.updatedTime = updatedTime;
         
@@ -152,37 +152,37 @@ public class DeviceInterfaceDynamicData {
         this.outboundDiscardPacketNumber = outboundDiscardPacketNumber;
     }
 
-    public String getNextNodeName() {
-        return nextNodeName;
-    }
-
-    public void setNextNodeName(String nextNodeName) {
-        this.nextNodeName = nextNodeName;
-    }
-
-    public String getNextNodeLabel() {
-        return nextNodeLabel;
-    }
-
-    public void setNextNodeLabel(String nextNodeLabel) {
-        this.nextNodeLabel = nextNodeLabel;
-    }
-
-    public String getNextNodeIPAddress() {
-        return nextNodeIPAddress;
-    }
-
-    public void setNextNodeIPAddress(String nextNodeIPAddress) {
-        this.nextNodeIPAddress = nextNodeIPAddress;
-    }
-
-    public String getNextNodeMacAddress() {
-        return nextNodeMacAddress;
-    }
-
-    public void setNextNodeMacAddress(String nextNodeMacAddress) {
-        this.nextNodeMacAddress = nextNodeMacAddress;
-    }
+//    public String getNextNodeName() {
+//        return nextNodeName;
+//    }
+//
+//    public void setNextNodeName(String nextNodeName) {
+//        this.nextNodeName = nextNodeName;
+//    }
+//
+//    public String getNextNodeLabel() {
+//        return nextNodeLabel;
+//    }
+//
+//    public void setNextNodeLabel(String nextNodeLabel) {
+//        this.nextNodeLabel = nextNodeLabel;
+//    }
+//
+//    public String getNextNodeIPAddress() {
+//        return nextNodeIPAddress;
+//    }
+//
+//    public void setNextNodeIPAddress(String nextNodeIPAddress) {
+//        this.nextNodeIPAddress = nextNodeIPAddress;
+//    }
+//
+//    public String getNextNodeMacAddress() {
+//        return nextNodeMacAddress;
+//    }
+//
+//    public void setNextNodeMacAddress(String nextNodeMacAddress) {
+//        this.nextNodeMacAddress = nextNodeMacAddress;
+//    }
 
     public DeviceNetworkInterface getNetworkInterface() {
         return networkInterface;

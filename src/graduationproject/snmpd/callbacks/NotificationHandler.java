@@ -22,6 +22,7 @@ public class NotificationHandler implements SnmpNotificationHandler{
     @Override
     public Boolean handleNotification(SnmpNotificationEvent sne) {
         try {
+            System.out.println("RECEIVE A NOTIFICATION");
             VarbindCollection varbinds = sne.getSubject().getVarbinds();
             SimpleSnmpV2cTarget target = (SimpleSnmpV2cTarget) sne.getSubject().getPeer();
             Calendar currentTime = Calendar.getInstance();
