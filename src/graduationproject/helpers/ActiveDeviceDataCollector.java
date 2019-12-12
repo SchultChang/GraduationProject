@@ -5,6 +5,7 @@
  */
 package graduationproject.helpers;
 
+import graduationproject.data.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
 import java.net.InterfaceAddress;
@@ -35,27 +36,27 @@ public class ActiveDeviceDataCollector {
 
     private void initManagerData() {
         this.managerDevice = new ActiveDeviceData(MANAGER_DEVICE_ID);
+//        System.out.println("MANAGER:");
         try {
             Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+            DataConverter dataConverter = new DataConverter();
             while (en.hasMoreElements()) {
                 NetworkInterface intf = en.nextElement();
 
+                String macAddress = dataConverter.convertBytesToStringMacAddress(intf.getHardwareAddress());
                 List<InterfaceAddress> addresses = intf.getInterfaceAddresses();
-                String macAddress = null;
+
                 String ipAddress = null;
                 for (InterfaceAddress address : addresses) {
                     String temp = address.getAddress().getHostAddress();
-                    if (temp.contains(":")) {
-                        if (temp.contains("%")) {
-                            macAddress = temp.substring(0, temp.indexOf("%"));
-                        } else {
-                            macAddress = temp;
-                        }
-                    } else {
+                    if (!temp.contains(":")) {
                         ipAddress = temp;
                     }
                 }
-
+//                System.out.println("Name:" + intf.getName());
+//                if (macAddress != null)
+//                    System.out.println("Mac:"+ macAddress);
+//                System.out.println("IP:" + ipAddress);
                 this.managerDevice.interfaces.add(new InterfaceTopoData(intf.getName(), ipAddress, macAddress));
             }
         } catch (Exception ex) {
@@ -173,7 +174,7 @@ public class ActiveDeviceDataCollector {
 
         private boolean containInterface(String ip, String mac) {
             for (InterfaceTopoData interfaceData : this.interfaces) {
-                if (interfaceData.macAddress != null && interfaceData.macAddress.equals(mac)) {
+                if (interfaceData.macAddress != null && interfaceData.macAddress.equalsIgnoreCase(mac)) {
                     return true;
                 }
             }
@@ -182,7 +183,7 @@ public class ActiveDeviceDataCollector {
 
         public List<Object> getNextNodesForView(String mac, String nextNodeIp) {
             for (InterfaceTopoData interfaceData : this.interfaces) {
-                if (interfaceData.macAddress.equals(mac)) {
+                if (interfaceData.macAddress.equalsIgnoreCase(mac)) {
                     if (nextNodeIp == null) {
                         return interfaceData.getNextNodesForView();
                     } else {
@@ -229,7 +230,7 @@ public class ActiveDeviceDataCollector {
                 if (nextNode.id == nextNodeId && nextNode.id != UNKNOWN_DEVICE_ID) {
                     return nextNode;
                 }
-                if (nextNode.macAddress.equals(mac)) {
+                if (nextNode.macAddress.equalsIgnoreCase(mac)) {
                     return nextNode;
                 }
             }

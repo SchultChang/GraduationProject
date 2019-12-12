@@ -12,6 +12,8 @@ import graduationproject.helpers.ActiveDeviceDataCollector.NextNodeDataOrders;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -33,7 +35,7 @@ import javax.swing.border.TitledBorder;
 public class PanelInterfaceInfo extends JPanel {
 
     private final String DEFAULT_VALUE = ". . .";
-    
+
     private JButton buttonStop;
     private JButton buttonStart;
     private JLabel label1;
@@ -82,8 +84,10 @@ public class PanelInterfaceInfo extends JPanel {
     private JTextField tfieldUpdatePeriod;
 
     private ActionListener listenerButton;
+    private ItemListener listenerComboBox;
 
-    private boolean stopUpdate;
+    private boolean firstTime;
+    private int currentIpChoiceId;
     private int interfaceListId;
     private int deviceId;
 
@@ -360,20 +364,38 @@ public class PanelInterfaceInfo extends JPanel {
                 }
             }
         };
-
         this.buttonStart.addActionListener(this.listenerButton);
         this.buttonStop.addActionListener(this.listenerButton);
+
+        this.listenerComboBox = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                JComboBox source = (JComboBox) e.getSource();
+                if (source == cboxNextNodeIpAddresses) {
+                    if (source.getSelectedIndex() != currentIpChoiceId) {
+                        currentIpChoiceId = source.getSelectedIndex();
+                        firstTime = false;
+                        PanelInterfaceInfo.this.displayNextNodeInformation(deviceId, firstTime);
+//                        firstTime = false;
+                    }
+                }
+            }
+        };
+        this.cboxNextNodeIpAddresses.addItemListener(listenerComboBox);
     }
 
     private void initOtherComponents() {
-        this.stopUpdate = false;
+//        this.stopUpdate = false;
         this.deviceId = -1;
         this.interfaceListId = -1;
+        this.currentIpChoiceId = -1;
     }
 
     public void initData(int deviceId, int interfaceListId) {
         this.interfaceListId = interfaceListId;
         this.deviceId = deviceId;
+        this.firstTime = true;
+        this.currentIpChoiceId = -1;
 
         InterfaceManagementController interfaceController = new InterfaceManagementController();
         List<Object> data = interfaceController.processGettingInterfaceFromDatabase(deviceId, interfaceListId);
@@ -391,38 +413,36 @@ public class PanelInterfaceInfo extends JPanel {
         }
 
         try {
-            if (!this.stopUpdate) {
-                this.labelName.setText((String) data.get(DataOrders.NAME.getValue()));
-                this.labelMacAddress.setText((String) data.get(DataOrders.MAC_ADDRESS.getValue()));
-                this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
-                this.labelIPAddress.setText((String) data.get(DataOrders.IP_ADDRESS.getValue()));
-                this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
+            this.labelName.setText((String) data.get(DataOrders.NAME.getValue()));
+            this.labelMacAddress.setText((String) data.get(DataOrders.MAC_ADDRESS.getValue()));
+            this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
+            this.labelIPAddress.setText((String) data.get(DataOrders.IP_ADDRESS.getValue()));
+            this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
 
-                this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
-                this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
-                this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
-                this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
-                this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
-                this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
-                this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
-                this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
+            this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
+            this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
+            this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
+            this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
+            this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
+            this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
+            this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
+            this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
 
-                this.labelUpdatedTime.setText((String) data.get(DataOrders.UPDATED_TIME.getValue()));
+            this.labelUpdatedTime.setText((String) data.get(DataOrders.UPDATED_TIME.getValue()));
 
-                if (data.size() >= DataOrders.UPDATE_PERIOD.getValue() + 1) {
-                    this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
-                }
+            if (data.size() >= DataOrders.UPDATE_PERIOD.getValue() + 1) {
+                this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
+            }
 
-                this.displayNextNodeInformation(this.deviceId, true);
+            this.displayNextNodeInformation(this.deviceId, this.firstTime);
 
 //            ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId, (String) data.get(DataOrders.MAC_ADDRESS.getValue()));
 //            this.labelNextNodeName.setText((String) data.get(DataOrders.NEXT_NODE_NAME.getValue()));
 //            this.labelNextNodeLabel.setText((String) data.get(DataOrders.NEXT_NODE_LABEL.getValue()));
 //            this.cboxNextNodeIpAddresses.setText((String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue()));
 //            this.labelNextNodeMacAddress.setText((String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue()));
-                this.revalidate();
-                this.repaint();
-            }
+            this.revalidate();
+            this.repaint();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -458,7 +478,7 @@ public class PanelInterfaceInfo extends JPanel {
             this.labelNextNodeMacAddress.setText(DEFAULT_VALUE);
         }
     }
-    
+
     public int getInterfaceListId() {
         return interfaceListId;
     }
@@ -468,7 +488,7 @@ public class PanelInterfaceInfo extends JPanel {
     }
 
     public synchronized void setStopUpdate(boolean stopUpdate) {
-        this.stopUpdate = stopUpdate;
+//        this.stopUpdate = stopUpdate;
     }
 
 }

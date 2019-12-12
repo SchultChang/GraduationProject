@@ -14,34 +14,45 @@ import java.util.Date;
  * @author cloud
  */
 public class DataConverter {
+
     public String convertDateToString(Date date) {
         if (date == null) {
             return "";
         }
-        
+
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(date);
     }
-    
+
     public String convertCalendarToString(Calendar time) {
         if (time == null) {
             return "";
         }
-        
+
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.format(time.getTime());
     }
-    
+
     public String convertCalendarToTimeString(Calendar time) {
         if (time == null) {
             return "";
         }
-        
+
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         return formatter.format(time.getTime());
     }
-    
+
     public double convertCalendarTimeToSecond(Calendar time) {
         return time.get(Calendar.HOUR_OF_DAY) * 3600 * 1.0 + time.get(Calendar.MINUTE) * 60 + time.get(Calendar.SECOND);
+    }
+
+    public String convertBytesToStringMacAddress(byte[] mac) {
+        StringBuilder builder = new StringBuilder();
+        if (mac != null) {
+            for (int i = 0; i < mac.length; i++) {
+                builder.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? ":" : ""));
+            }
+        }
+        return builder.toString();
     }
 }

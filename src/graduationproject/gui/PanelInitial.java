@@ -6,6 +6,7 @@
 package graduationproject.gui;
 
 import graduationproject.controllers.UserManagementController;
+import graduationproject.helpers.ActiveDeviceDataCollector;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -722,6 +723,7 @@ public class PanelInitial extends JPanel {
                             checkboxRememberPassword.isSelected())) {
                         JOptionPane.showMessageDialog(null, userController.getResultMessage());
                     } else {
+                        ActiveDeviceDataCollector.getInstance();
                         ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_MAIN);
                     }
                 }
