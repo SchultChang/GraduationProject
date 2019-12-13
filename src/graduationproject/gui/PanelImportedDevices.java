@@ -10,6 +10,7 @@ import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.controllers.DeviceManagementController.DeviceStates;
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.InterfaceStates;
+import graduationproject.helpers.TopoDrawer;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -52,6 +53,7 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 public class PanelImportedDevices extends JPanel {
 
     private JButton buttonImport;
+    private JButton buttonTopology;
     private JLabel labelSearch;
     private JPanel panelDeviceList;
     private JPanel panelDevices;
@@ -59,6 +61,7 @@ public class PanelImportedDevices extends JPanel {
     private JTextField tfieldSearch;
 
     private JPanel currentDisplayedPanel;
+    private PanelBasicTopology panelTopology;
     private PanelDeviceInfo panelDeviceInfo;
     private PanelInterfaceInfo panelInterfaceInfo;
     private PanelMonitoringDevice panelMonitoringDevice;
@@ -94,6 +97,7 @@ public class PanelImportedDevices extends JPanel {
     private boolean enableInterfaces = true;
 
     public enum PANELS {
+        PANEL_TOPOLOGY,
         PANEL_DEVICE_INFO,
         PANEL_INTERFACE_INFO,
         PANEL_MONITORING_DEVICE,
@@ -116,6 +120,7 @@ public class PanelImportedDevices extends JPanel {
         panelDeviceList = new JPanel();
         labelSearch = new JLabel();
         buttonImport = new JButton();
+        buttonTopology = new JButton();
 
         setPreferredSize(new java.awt.Dimension(1600, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -125,7 +130,7 @@ public class PanelImportedDevices extends JPanel {
         panelDevices.setPreferredSize(new java.awt.Dimension(280, 940));
         panelDevices.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        tfieldSearch.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldSearch.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldSearch.setForeground(java.awt.Color.white);
         tfieldSearch.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, java.awt.Color.white));
         tfieldSearch.setCaretColor(java.awt.Color.white);
@@ -143,19 +148,27 @@ public class PanelImportedDevices extends JPanel {
         panelDevices.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 100, 360, 690));
 
         labelSearch.setHorizontalAlignment(SwingConstants.CENTER);
-        labelSearch.setIcon(new ImageIcon(getClass().getResource("/resources/icon_search_40.png"))); // NOI18N
+        labelSearch.setIcon(new ImageIcon(getClass().getResource("/resources/icon_search_40.png"))); 
         panelDevices.add(labelSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 40, 50, 30));
 
         buttonImport.setBackground(new java.awt.Color(38, 56, 163));
-        buttonImport.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonImport.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         buttonImport.setForeground(java.awt.Color.white);
-        buttonImport.setIcon(new ImageIcon(getClass().getResource("/resources/icon_plus_40.png"))); // NOI18N
+        buttonImport.setIcon(new ImageIcon(getClass().getResource("/resources/icon_plus_40.png"))); 
         buttonImport.setText("Import");
-
         buttonImport.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         buttonImport.setBorderPainted(false);
         panelDevices.add(buttonImport, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 830, 120, 40));
 
+        buttonTopology.setBackground(new java.awt.Color(38, 56, 163));
+        buttonTopology.setFont(new java.awt.Font("SansSerif", 1, 15)); 
+        buttonTopology.setForeground(java.awt.Color.white);
+        buttonTopology.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_network2_40.png"))); 
+        buttonTopology.setText("Topology");
+        buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        buttonTopology.setBorderPainted(false);
+        panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
+        
         add(panelDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 440, -1));
 
         initChildPanels();
@@ -182,6 +195,10 @@ public class PanelImportedDevices extends JPanel {
         this.panelDeviceSummary = new PanelDeviceSummary();
         this.panelDeviceSummary.setVisible(false);
         this.panelDeviceSummary.setEnabled(false);
+        
+        this.panelTopology = new PanelBasicTopology();
+        this.panelTopology.setVisible(false);
+        this.panelTopology.setEnabled(false);
     }
 
     private void initMenu() {
@@ -214,10 +231,16 @@ public class PanelImportedDevices extends JPanel {
                         }
                     }
                 }
+                if (source == buttonTopology) {
+                    panelDevices.setVisible(false);
+                    switchDisplayedPanel(PANELS.PANEL_TOPOLOGY);
+                    panelTopology.initTopo();
+                }
             }
 
         };
         this.buttonImport.addActionListener(this.listenerButton);
+        this.buttonTopology.addActionListener(this.listenerButton);
 
         this.listenerField = new KeyAdapter() {
             @Override
@@ -534,6 +557,9 @@ public class PanelImportedDevices extends JPanel {
         this.hideDisplayedPanel();
 
         switch (panel) {
+            case PANEL_TOPOLOGY:
+                this.displayPanel(panelTopology, 0, 0, -1, -1);
+                break;
             case PANEL_DEVICE_INFO:
                 this.displayPanel(panelDeviceInfo, 440, 0, -1, -1);
                 break;
