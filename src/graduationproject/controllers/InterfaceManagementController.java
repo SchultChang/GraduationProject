@@ -176,25 +176,20 @@ public class InterfaceManagementController {
         for (int i = 0; i < tempSize; i++) {
             InterfaceRawData temp = rawDataList.get(i);
             List<Object> rawData = temp.getDynamicData();
-//            this.findNextNodeInfo(rawDataList.get(i).getNextNodeMacs());
-//            try {
-                ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
-                        temp.getName(),
-                        temp.getIpAddress(),
-                        temp.getMacAddress(),
-                        this.findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
-                        temp.getNextNodeIPs(),
-                        temp.getNextNodeMacs());
-                DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                        rawData, updatedTime, device.getNetworkInterfaces().get(i));
-                DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
+            ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
+                    temp.getName(),
+                    temp.getIpAddress(),
+                    temp.getMacAddress(),
+                    this.findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                    temp.getNextNodeIPs(),
+                    temp.getNextNodeMacs());
+            DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
+                    rawData, updatedTime, device.getNetworkInterfaces().get(i));
+            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
 
-                if (i == displayedInterfaceId) {
-                    needToViewDynamicData = dynamicData;
-                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            if (i == displayedInterfaceId) {
+                needToViewDynamicData = dynamicData;
+            }
         }
 
         //for display

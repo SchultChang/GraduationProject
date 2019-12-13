@@ -56,10 +56,6 @@ public class ActiveDeviceDataCollector {
                         ipAddress = temp;
                     }
                 }
-//                System.out.println("Name:" + intf.getName());
-//                if (macAddress != null)
-//                    System.out.println("Mac:"+ macAddress);
-//                System.out.println("IP:" + ipAddress);
                 this.managerDevice.interfaces.add(new InterfaceTopoData(MANAGER_DEVICE_ID, intf.getName(), ipAddress, macAddress));
             }
         } catch (Exception ex) {
@@ -67,15 +63,15 @@ public class ActiveDeviceDataCollector {
         }
     }
 
-    public ActiveDeviceData getManagerDevice() {
+    public synchronized ActiveDeviceData getManagerDevice() {
         return managerDevice;
     }
 
-    public List<ActiveDeviceData> getImportedDevices() {
+    public synchronized List<ActiveDeviceData> getImportedDevices() {
         return importedDevices;
     }
 
-    public List<ActiveDeviceData> getUnknownDevices() {
+    public synchronized List<ActiveDeviceData> getUnknownDevices() {
         return unknownDevices;
     }
 
@@ -95,6 +91,7 @@ public class ActiveDeviceDataCollector {
             boolean isExisted = false;
             for (ActiveDeviceData deviceData : this.unknownDevices) {
                 if (deviceData.containInterface(ip, mac)) {
+                    deviceData.unknownLinkCount++;
                     isExisted = true;
                     break;
                 }
@@ -125,7 +122,6 @@ public class ActiveDeviceDataCollector {
             int i = 0;
             for (ActiveDeviceData deviceData : this.importedDevices) {
                 if (deviceData.id == deviceId) {
-//                    System.out.println("COLLECTOR -- REMOVING DEVICE :" + deviceId);
                     this.importedDevices.remove(deviceData);
                 }
             }
@@ -173,21 +169,25 @@ public class ActiveDeviceDataCollector {
     }
 
     private void updateNextNodeToManager(String managerIp, String managerMac, int deviceId, String deviceIp, String deviceMac) {
-        this.managerDevice.updateInterface(
-                null, managerIp, managerMac,
-                new int[]{deviceId},
-                Arrays.asList(deviceIp),
-                Arrays.asList(deviceMac));
+        synchronized (this.managerDevice) {
+            this.managerDevice.updateInterface(
+                    null, managerIp, managerMac,
+                    new int[]{deviceId},
+                    Arrays.asList(deviceIp),
+                    Arrays.asList(deviceMac));
+        }
     }
 
     public class ActiveDeviceData {
 
         private int id;
         List<InterfaceTopoData> interfaces;
+        private int unknownLinkCount;
 
         public ActiveDeviceData(int id) {
             this.id = id;
             this.interfaces = new ArrayList<InterfaceTopoData>();
+            this.unknownLinkCount = 1;
         }
 
         public ActiveDeviceData(int id, String name, String ip, String mac) {
@@ -252,6 +252,10 @@ public class ActiveDeviceDataCollector {
                 }
             }
             return null;
+        }
+        
+        public void onRemoved() {
+            
         }
 
         public List<NextNodeTopoData> getAllNextNodes() {

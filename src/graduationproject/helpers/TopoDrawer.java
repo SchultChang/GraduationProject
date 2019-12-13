@@ -24,12 +24,13 @@ public class TopoDrawer {
         UNKNOWN
     }
 
-    private final int MANAGER_X = 900;
+    private final int MANAGER_X = 800;
     private final int MANAGER_Y = 100;
     private final int MANAGER_ANGLE = 90;
     private final int DEFAULT_ANGLE_LIMIT = 180;
 //    private final int MANAGER_ANGLE_LIMIT = 360;
-    private final int RADIUS_PER_NODE = 100;
+    private final int DISTANCE_BETWEEN_NODE = 100;
+    private final int RADIUS_OF_NODE = 20;
 
     private List<TopoNodeData> topoNodes;
     private List<int[]> connectionList;                                         //each element of it is a pair of node list ids
@@ -57,8 +58,8 @@ public class TopoDrawer {
         this.managerDevice = ActiveDeviceDataCollector.getInstance().getManagerDevice();
         this.importedDevices = ActiveDeviceDataCollector.getInstance().getImportedDevices();
         this.unknownDevices = ActiveDeviceDataCollector.getInstance().getUnknownDevices();
-        importedSize = this.importedDevices.size();
-        unknownSize = this.unknownDevices.size();
+        this.importedSize = this.importedDevices.size();
+        this.unknownSize = this.unknownDevices.size();
 
         this.connectionList.clear();
         this.topoNodes.clear();
@@ -197,8 +198,8 @@ public class TopoDrawer {
         posAngle = currentNode.angle - (this.DEFAULT_ANGLE_LIMIT / 2 - anglePerNode * (childId + 1));
 //        }
 
-        currentNode.x = (int) (previous.x + this.RADIUS_PER_NODE * Math.cos(Math.toRadians(posAngle)));
-        currentNode.y = (int) (previous.y + this.RADIUS_PER_NODE * Math.sin(Math.toRadians(posAngle)));
+        currentNode.x = (int) (previous.x + this.DISTANCE_BETWEEN_NODE * Math.cos(Math.toRadians(posAngle)));
+        currentNode.y = (int) (previous.y + this.DISTANCE_BETWEEN_NODE * Math.sin(Math.toRadians(posAngle)));
     }
 
     public void constructTopo() {
@@ -207,8 +208,20 @@ public class TopoDrawer {
     }
 
     public int[] getConnectionCoordinates(int[] connection) {
-        return new int[]{this.topoNodes.get(connection[0]).x, this.topoNodes.get(connection[0]).y,
-            this.topoNodes.get(connection[1]).x, this.topoNodes.get(connection[1]).y};
+//        return new int[]{this.topoNodes.get(connection[0]).x, this.topoNodes.get(connection[0]).y,
+//            this.topoNodes.get(connection[1]).x, this.topoNodes.get(connection[1]).y};
+
+        int a = this.topoNodes.get(connection[0]).x - this.topoNodes.get(connection[1]).x;
+        int b = this.topoNodes.get(connection[0]).y - this.topoNodes.get(connection[1]).y;
+        int value = (int) Math.sqrt(a * a + b * b);
+        if (value != 0) {
+            int x1 = this.topoNodes.get(connection[0]).x + this.RADIUS_OF_NODE * (-a) / value;
+            int y1 = this.topoNodes.get(connection[0]).y + this.RADIUS_OF_NODE * (-b) / value;
+            int x2 = this.topoNodes.get(connection[1]).x + this.RADIUS_OF_NODE * a / value;
+            int y2 = this.topoNodes.get(connection[1]).y + this.RADIUS_OF_NODE * b / value;
+            return new int[] {x1, y1, x2, y2};
+        }
+        return null;
     }
 
     public List<TopoNodeData> getTopoNodes() {
@@ -240,6 +253,11 @@ public class TopoDrawer {
             return y;
         }
 
+        public void setPosition(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        
         public NodeTypes getNodeType() {
             if (this.id == 0) {
                 return NodeTypes.MANAGER;

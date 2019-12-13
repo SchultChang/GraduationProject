@@ -54,6 +54,8 @@ public class PanelImportedDevices extends JPanel {
 
     private JButton buttonImport;
     private JButton buttonTopology;
+    private JLabel labelHideDeviceList;
+    private JLabel labelShowDeviceList;
     private JLabel labelSearch;
     private JPanel panelDeviceList;
     private JPanel panelDevices;
@@ -78,6 +80,7 @@ public class PanelImportedDevices extends JPanel {
     private KeyAdapter listenerField;
     private MouseAdapter listenerListDevices;
     private MouseAdapter listenerListInterfaces;
+    private MouseAdapter listenerLabel;
     private ActionListener listenerItems;
 
     private final String ICON_DEVICE_ACTIVE_PATH = "/resources/icon_active_30.png";
@@ -118,6 +121,8 @@ public class PanelImportedDevices extends JPanel {
         tfieldSearch = new JTextField();
         scrollpane1 = new JScrollPane();
         panelDeviceList = new JPanel();
+        labelHideDeviceList = new JLabel();
+        labelShowDeviceList = new JLabel();
         labelSearch = new JLabel();
         buttonImport = new JButton();
         buttonTopology = new JButton();
@@ -126,11 +131,16 @@ public class PanelImportedDevices extends JPanel {
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         setBackground(Color.white);
 
+        labelShowDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_right_blue_40.png"))); 
+        add(labelShowDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 340, 40, 190));
+        labelShowDeviceList.setVisible(false);
+        labelShowDeviceList.setEnabled(false);
+        
         panelDevices.setBackground(new java.awt.Color(20, 51, 125));
         panelDevices.setPreferredSize(new java.awt.Dimension(280, 940));
         panelDevices.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        tfieldSearch.setFont(new java.awt.Font("SansSerif", 0, 15)); 
+        tfieldSearch.setFont(new java.awt.Font("SansSerif", 0, 15));
         tfieldSearch.setForeground(java.awt.Color.white);
         tfieldSearch.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, java.awt.Color.white));
         tfieldSearch.setCaretColor(java.awt.Color.white);
@@ -148,27 +158,30 @@ public class PanelImportedDevices extends JPanel {
         panelDevices.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 100, 360, 690));
 
         labelSearch.setHorizontalAlignment(SwingConstants.CENTER);
-        labelSearch.setIcon(new ImageIcon(getClass().getResource("/resources/icon_search_40.png"))); 
+        labelSearch.setIcon(new ImageIcon(getClass().getResource("/resources/icon_search_40.png")));
         panelDevices.add(labelSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 40, 50, 30));
 
         buttonImport.setBackground(new java.awt.Color(38, 56, 163));
-        buttonImport.setFont(new java.awt.Font("SansSerif", 1, 15)); 
+        buttonImport.setFont(new java.awt.Font("SansSerif", 1, 15));
         buttonImport.setForeground(java.awt.Color.white);
-        buttonImport.setIcon(new ImageIcon(getClass().getResource("/resources/icon_plus_40.png"))); 
+        buttonImport.setIcon(new ImageIcon(getClass().getResource("/resources/icon_plus_40.png")));
         buttonImport.setText("Import");
         buttonImport.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         buttonImport.setBorderPainted(false);
         panelDevices.add(buttonImport, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 830, 120, 40));
 
         buttonTopology.setBackground(new java.awt.Color(38, 56, 163));
-        buttonTopology.setFont(new java.awt.Font("SansSerif", 1, 15)); 
+        buttonTopology.setFont(new java.awt.Font("SansSerif", 1, 15));
         buttonTopology.setForeground(java.awt.Color.white);
-        buttonTopology.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_network2_40.png"))); 
+        buttonTopology.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_network2_40.png")));
         buttonTopology.setText("Topology");
         buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         buttonTopology.setBorderPainted(false);
         panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
-        
+
+        labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png"))); 
+        panelDevices.add(labelHideDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 330, 30, 190));
+
         add(panelDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 440, -1));
 
         initChildPanels();
@@ -195,7 +208,7 @@ public class PanelImportedDevices extends JPanel {
         this.panelDeviceSummary = new PanelDeviceSummary();
         this.panelDeviceSummary.setVisible(false);
         this.panelDeviceSummary.setEnabled(false);
-        
+
         this.panelTopology = new PanelBasicTopology();
         this.panelTopology.setVisible(false);
         this.panelTopology.setEnabled(false);
@@ -232,7 +245,7 @@ public class PanelImportedDevices extends JPanel {
                     }
                 }
                 if (source == buttonTopology) {
-                    panelDevices.setVisible(false);
+                    switchDeviceListVisibility();
                     switchDisplayedPanel(PANELS.PANEL_TOPOLOGY);
                     panelTopology.initTopo();
                 }
@@ -290,35 +303,15 @@ public class PanelImportedDevices extends JPanel {
                         currentChosenLabelDevice.switchBackground(LABEL_CLICK);
 
                         PanelImportedDevices.this.clearLabelInterfaces();
-
-//                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-//                        if (source.getDeviceState() == DeviceStates.DEACTIVE) {
-//                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
-//                            enableInterfaces = false;
-//                        } else {
-//                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-//                            if (!interfaceController.processGettingSavedInterfacesOfDevice(source.getDeviceId())) {
-//                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
-//                            };
                         PanelImportedDevices.this.displaySavedInterfacesOfDevice(source.getDeviceId());
                         enableInterfaces = false;
-//                        }
                     } else if (!enableInterfaces) {
-//                        SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                         PanelImportedDevices.this.clearLabelInterfaces();
                         enableInterfaces = true;
                     } else {
-//                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-//                        if (source.getDeviceState() == DeviceStates.DEACTIVE) {
-//                            interfaceController.processGettingInterfacesOfDevice(source.getDeviceId(), true);
-//                        } else {
-//                            if (!interfaceController.processGettingSavedInterfacesOfDevice(source.getDeviceId())) {
-//                                JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
-//                            };
                         PanelImportedDevices.this.displaySavedInterfacesOfDevice(source.getDeviceId());
                     }
                     enableInterfaces = false;
-//                    }
                 } else {
                     pmenuDevices.show(source, e.getX(), e.getY());
                     pendingLabelToDelete = source;
@@ -389,6 +382,22 @@ public class PanelImportedDevices extends JPanel {
 
         };
         this.mitemDelete.addActionListener(this.listenerItems);
+        
+        this.listenerLabel = new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                JLabel source = (JLabel) e.getSource();
+                if (source == labelHideDeviceList) {
+                    switchDeviceListVisibility();
+                }
+                if (source == labelShowDeviceList) {
+                    switchDeviceListVisibility();
+                }
+            }
+        };
+        
+        this.labelShowDeviceList.addMouseListener(this.listenerLabel);
+        this.labelHideDeviceList.addMouseListener(this.listenerLabel);
     }
 
     public void initOtherComponents() {
@@ -445,9 +454,6 @@ public class PanelImportedDevices extends JPanel {
             if (temp.getDeviceId() == deviceId) {
                 if (temp.setDeviceState(deviceState) && this.currentChosenLabelDevice == temp) {
                     if (deviceState == DeviceStates.DEACTIVE) {
-//                        InterfaceManagementController interfaceController = new InterfaceManagementController();
-//                        interfaceController.processGettingInterfacesOfDevice(temp.getDeviceId(), true);
-//                    } else {
                         int tempSize1 = this.labelInterfaces.size();
                         for (int j = 0; j < tempSize1; j++) {
                             this.labelInterfaces.get(j).setInterfaceState(InterfaceStates.DOWN);
@@ -551,6 +557,15 @@ public class PanelImportedDevices extends JPanel {
                 this.labelInterfaces.get(interfaceId).setInterfaceState(state);
             }
         }
+    }
+    
+    public void switchDeviceListVisibility() {
+        boolean temp = this.panelDevices.isVisible();
+        this.panelDevices.setVisible(!temp);
+        this.panelDevices.setEnabled(!temp);
+        
+        this.labelShowDeviceList.setVisible(temp);
+        this.labelShowDeviceList.setEnabled(temp);
     }
 
     public void switchDisplayedPanel(PANELS panel) {
