@@ -15,6 +15,7 @@ import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.gui.PanelInterfaceInfo;
 import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.helpers.TopoDrawer;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper.InterfaceRawData;
@@ -89,6 +90,7 @@ public class InterfaceManagementController {
             @Override
             public void run() {
                 System.out.println("START CHECKING INTERFACE STATES");
+                TopoDrawer.getInstance().checkRedrawingTopo();
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
                 for (int deviceId : deviceIds) {
                     Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
@@ -176,13 +178,15 @@ public class InterfaceManagementController {
         for (int i = 0; i < tempSize; i++) {
             InterfaceRawData temp = rawDataList.get(i);
             List<Object> rawData = temp.getDynamicData();
+            
             ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
                     temp.getName(),
                     temp.getIpAddress(),
                     temp.getMacAddress(),
-                    this.findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                    ActiveDeviceDataCollector.getInstance().findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
                     temp.getNextNodeIPs(),
                     temp.getNextNodeMacs());
+        
             DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
                     rawData, updatedTime, device.getNetworkInterfaces().get(i));
             DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
@@ -191,6 +195,8 @@ public class InterfaceManagementController {
                 needToViewDynamicData = dynamicData;
             }
         }
+            
+        ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);
 
         //for display
         String[] names = new String[tempSize];
@@ -216,22 +222,6 @@ public class InterfaceManagementController {
             }
         }
 
-    }
-
-    private int[] findNextNodeId(List<String> ipAddresses, List<String> macAddresses) {
-        int tempSize = macAddresses.size();
-        int[] result = new int[tempSize];
-        for (int i = 0; i < tempSize; i++) {
-            Device device = DataManager.getInstance().getDeviceManager().getDevice(macAddresses.get(i));
-            if (device != null) {
-                result[i] = device.getId();
-            } else if (ActiveDeviceDataCollector.getInstance().isConnectedToManager(ipAddresses.get(i), macAddresses.get(i))) {
-                result[i] = ActiveDeviceDataCollector.MANAGER_DEVICE_ID;
-            } else {
-                result[i] = ActiveDeviceDataCollector.UNKNOWN_DEVICE_ID;
-            }
-        }
-        return result;
     }
 
     public List<Object> processGettingInterfaceFromDatabase(int deviceId, int interfaceListId) {

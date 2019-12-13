@@ -5,12 +5,14 @@
  */
 package graduationproject.helpers;
 
+import graduationproject.gui.ApplicationWindow;
 import graduationproject.helpers.ActiveDeviceDataCollector.ActiveDeviceData;
-import graduationproject.helpers.ActiveDeviceDataCollector.NextNodeTopoData;
+import graduationproject.helpers.ActiveDeviceDataCollector.NextNodeData;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -24,6 +26,9 @@ public class TopoDrawer {
         UNKNOWN
     }
 
+    public int redrawTimerCounter;
+
+    private final int MAX_REDRAWING_TIMER_COUNT_VALUE = 2;
     private final int MANAGER_X = 800;
     private final int MANAGER_Y = 100;
     private final int MANAGER_ANGLE = 90;
@@ -52,6 +57,19 @@ public class TopoDrawer {
     private TopoDrawer() {
         this.connectionList = new ArrayList<int[]>();
         this.topoNodes = new ArrayList<TopoNodeData>();
+
+        this.redrawTimerCounter = 0;
+    }
+
+    public void checkRedrawingTopo() {
+        if (this.redrawTimerCounter == MAX_REDRAWING_TIMER_COUNT_VALUE) {
+            if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelTopology().checkRedrawing()) {
+                ActiveDeviceDataCollector.getInstance().newDataForTopo = false;
+            }
+            this.redrawTimerCounter = 0;
+        } else if (ActiveDeviceDataCollector.getInstance().newDataForTopo) {
+            this.redrawTimerCounter++;
+        }
     }
 
     public void prepareTopo() {
@@ -71,26 +89,32 @@ public class TopoDrawer {
         this.topoNodes.add(new TopoNodeData(0, -1));
         int left = 0, right = 0, current = 0;
 
-        List<NextNodeTopoData> nextNodes;
+        List<NextNodeData> nextNodes;
         while (left <= right) {
             nextNodes = this.getDeviceForTopoId(this.topoNodes.get(left).id).getAllNextNodes();
-
-            for (NextNodeTopoData nextNode : nextNodes) {
+            for (NextNodeData nextNode : nextNodes) {
                 int topoId = this.getTopoIdForData(nextNode);
-                if (topoId != -1 && !isAdded[topoId]) {
-                    isAdded[topoId] = true;
+//                System.out.println("PREPARE - TOPO ID: " + topoId);
+//                System.out.println("NEXT NODE INFO:" + nextNode.getId() + " AND " + nextNode.getIpAddress() + " AND " + nextNode.getMacAddress());
+                if (topoId != -1) {
+                    if (!isAdded[topoId]) {
+                        isAdded[topoId] = true;
 
-                    right++;
-                    current = right;
-                    this.topoNodes.add(new TopoNodeData(topoId, left));
-                } else {
-                    current = this.findNodeListId(topoId);
+                        right++;
+                        current = right;
+                        this.topoNodes.add(new TopoNodeData(topoId, left));
+                    } else {
+                        current = this.findNodeListId(topoId);
+                    }
+                    this.addConnection(left, current);
                 }
-                this.addConnection(left, current);
             }
-
             left++;
         }
+
+//        for (TopoNodeData topoNode : this.topoNodes) {
+//            topoNode.displayInfo();
+//        }
     }
 
     private ActiveDeviceData getDeviceForTopoId(int nodeId) {
@@ -109,7 +133,7 @@ public class TopoDrawer {
         return null;
     }
 
-    private int getTopoIdForData(NextNodeTopoData nextNode) {
+    private int getTopoIdForData(NextNodeData nextNode) {
         if (nextNode.getId() == ActiveDeviceDataCollector.MANAGER_DEVICE_ID) {
             return 0;
         }
@@ -219,7 +243,7 @@ public class TopoDrawer {
             int y1 = this.topoNodes.get(connection[0]).y + this.RADIUS_OF_NODE * (-b) / value;
             int x2 = this.topoNodes.get(connection[1]).x + this.RADIUS_OF_NODE * a / value;
             int y2 = this.topoNodes.get(connection[1]).y + this.RADIUS_OF_NODE * b / value;
-            return new int[] {x1, y1, x2, y2};
+            return new int[]{x1, y1, x2, y2};
         }
         return null;
     }
@@ -257,7 +281,7 @@ public class TopoDrawer {
             this.x = x;
             this.y = y;
         }
-        
+
         public NodeTypes getNodeType() {
             if (this.id == 0) {
                 return NodeTypes.MANAGER;

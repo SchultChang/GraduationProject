@@ -413,6 +413,8 @@ public class PanelImportedDevices extends JPanel {
 
     public void initDeviceList() {
         this.currentDataOrder = DataOrders.LABEL;
+        this.currentChosenLabelDevice = null;
+        this.currentChosenLabelInterface = null;
 
         DeviceManagementController deviceController = new DeviceManagementController();
         List<String> data = deviceController.processGettingImportedDevices(this.currentDataOrder);
@@ -659,6 +661,10 @@ public class PanelImportedDevices extends JPanel {
 
     public PanelDeviceSummary getPanelDeviceSummary() {
         return panelDeviceSummary;
+    }
+
+    public PanelBasicTopology getPanelTopology() {
+        return panelTopology;
     }
 
     @Override

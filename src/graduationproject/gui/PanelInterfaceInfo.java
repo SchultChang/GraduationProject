@@ -461,7 +461,9 @@ public class PanelInterfaceInfo extends JPanel {
                 for (String ip : ips) {
                     boxModel.addElement(ip);
                 }
-                this.cboxNextNodeIpAddresses.setSelectedIndex(0);
+                if (ips != null && ips.length > 0) {
+                    this.cboxNextNodeIpAddresses.setSelectedIndex(0);
+                }
             }
         } else {
             data = ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId,

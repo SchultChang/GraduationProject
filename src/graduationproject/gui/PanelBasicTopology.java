@@ -22,6 +22,7 @@ import java.awt.geom.Line2D;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
@@ -33,6 +34,7 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 public class PanelBasicTopology extends JPanel {
 
     private final int ICON_RADIUS = 20;
+    private final String MESSAGE_FOR_REDRAWING_DIALOG = "Your topology is out of sync. Would you like to redraw it?";
 
     private MouseAdapter listenerNodeClick;
     private MouseMotionListener listenerNodeMotion;
@@ -132,6 +134,22 @@ public class PanelBasicTopology extends JPanel {
         }
 
         System.gc();
+    }
+
+    public boolean checkRedrawing() {
+        if (this.isVisible()) {
+            int userChoice = JOptionPane.showConfirmDialog(null, this.MESSAGE_FOR_REDRAWING_DIALOG);
+            if (userChoice == JOptionPane.YES_OPTION) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        PanelBasicTopology.this.initTopo();
+                    }
+                }.start();
+                return true;
+            }
+        }
+        return false;
     }
 
     public class LabelNode extends JLabel {
