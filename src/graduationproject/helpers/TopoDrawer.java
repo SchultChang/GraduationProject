@@ -28,7 +28,7 @@ public class TopoDrawer {
 
     public int redrawTimerCounter;
 
-    private final int MAX_REDRAWING_TIMER_COUNT_VALUE = 2;
+    private final int MAX_REDRAWING_TIMER_COUNT_VALUE = 4;
     private final int MANAGER_X = 800;
     private final int MANAGER_Y = 100;
     private final int MANAGER_ANGLE = 90;

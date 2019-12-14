@@ -170,7 +170,7 @@ public class ActiveDeviceDataCollector {
                     device.unknownLinkCount--;
                     if (device.unknownLinkCount == 0) {
                         this.unknownDevices.remove(device);
-    
+
                         this.newDataForTopo = true;
                         System.out.println("REMOVE UNKNOWN DEVICE");
                     }
@@ -308,7 +308,8 @@ public class ActiveDeviceDataCollector {
                     for (NextNodeData currentNextNode : currentNextNodes) {
                         isExisted = false;
                         for (InterfaceData newInterface : this.newInterfaces) {
-                            if (newInterface.getNextNode(currentNextNode.getId(), currentNextNode.getMacAddress()) != null) {
+                            NextNodeData temp = newInterface.getNextNode(currentNextNode.getId(), currentNextNode.getMacAddress());
+                            if (temp != null && temp.getId() == currentNextNode.getId()) {
                                 isExisted = true;
                                 break;
                             }
@@ -451,7 +452,7 @@ public class ActiveDeviceDataCollector {
 
                 if (nextNodeIds[i] == MANAGER_DEVICE_ID) {
 //                    updateNextNodeToManager(nextNodeIps.get(i), nextNodeMacs.get(i), this.deviceId, this.ipAddress, this.macAddress);
-//                    System.out.println("ADDING NEXT NODE TO MANAGER " + this.deviceId);
+                    System.out.println("ADDING NEXT NODE TO MANAGER " + this.deviceId);
                     synchronized (managerDevice) {
                         managerDevice.updateInterface(
                                 null, nextNodeIps.get(i), nextNodeMacs.get(i),
@@ -467,6 +468,7 @@ public class ActiveDeviceDataCollector {
                 if (temp == null) {
                     this.nextNodes.add(new NextNodeData(nextNodeIds[i], nextNodeIps.get(i), nextNodeMacs.get(i)));
                 } else {
+                    temp.id = nextNodeIds[i];
                     temp.ipAddress = nextNodeIps.get(i);
                     temp.macAddress = nextNodeMacs.get(i);
                 }

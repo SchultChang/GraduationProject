@@ -35,6 +35,7 @@ public class DeviceActiveCheckingCallback implements SnmpCallback<VarbindCollect
 
             if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                     .getDeviceState(deviceId) == DeviceManagementController.DeviceStates.DEACTIVE) {
+//                System.out.println("DEVICE STARTED : " + this.deviceId);
                 DeviceManagementController deviceController = new DeviceManagementController();
                 deviceController.processPushingDeviceInfo(deviceId, null, se.getContext());
 
@@ -43,6 +44,9 @@ public class DeviceActiveCheckingCallback implements SnmpCallback<VarbindCollect
                         .updateLabelDeviceState(deviceId, DeviceManagementController.DeviceStates.ACTIVE);
             }
         } catch (Exception e) {
+//            if (this.deviceId == 17) {
+//                System.out.println("DEVICE 17 IS DYING");
+//            }
             if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                     .getDeviceState(deviceId) == DeviceManagementController.DeviceStates.ACTIVE) {
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()

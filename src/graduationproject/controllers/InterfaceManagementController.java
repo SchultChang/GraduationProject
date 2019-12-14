@@ -85,11 +85,11 @@ public class InterfaceManagementController {
 //        return false;
 //    }
     public void processGettingInterfacesOfActiveDevices() {
-//        System.out.println("START CHECKING INTERFACE STATES");
+        System.out.println("START CHECKING INTERFACE STATES");
         TimerTask queryTask = new TimerTask() {
             @Override
             public void run() {
-                System.out.println("START CHECKING INTERFACE STATES");
+//                System.out.println("START CHECKING INTERFACE STATES");
                 TopoDrawer.getInstance().checkRedrawingTopo();
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
                 for (int deviceId : deviceIds) {
