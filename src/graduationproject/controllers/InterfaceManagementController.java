@@ -15,6 +15,7 @@ import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.gui.PanelInterfaceInfo;
 import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.helpers.AddressParser;
 import graduationproject.helpers.TopoDrawer;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.InterfaceQueryHelper;
@@ -89,8 +90,8 @@ public class InterfaceManagementController {
         TimerTask queryTask = new TimerTask() {
             @Override
             public void run() {
-//                System.out.println("START CHECKING INTERFACE STATES");
                 TopoDrawer.getInstance().checkRedrawingTopo();
+                System.out.println("START CHECKING INTERFACE STATES");
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
                 for (int deviceId : deviceIds) {
                     Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
@@ -175,6 +176,8 @@ public class InterfaceManagementController {
         DeviceInterfaceDynamicData needToViewDynamicData = null;
 
         Calendar updatedTime = Calendar.getInstance();
+        AddressParser addressParser = new AddressParser();
+        try {
         for (int i = 0; i < tempSize; i++) {
             InterfaceRawData temp = rawDataList.get(i);
             List<Object> rawData = temp.getDynamicData();
@@ -182,6 +185,7 @@ public class InterfaceManagementController {
             ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
                     temp.getName(),
                     temp.getIpAddress(),
+                    addressParser.getNetworkIp(temp.getIpAddress(), temp.getNetmask()),
                     temp.getMacAddress(),
                     ActiveDeviceDataCollector.getInstance().findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
                     temp.getNextNodeIPs(),
@@ -194,6 +198,9 @@ public class InterfaceManagementController {
             if (i == displayedInterfaceId) {
                 needToViewDynamicData = dynamicData;
             }
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
             
         ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);

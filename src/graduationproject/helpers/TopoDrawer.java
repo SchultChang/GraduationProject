@@ -28,6 +28,9 @@ public class TopoDrawer {
 
     public int redrawTimerCounter;
 
+    public static final int VS_DEVICE_ID = -3;
+    private final String VS_DEVICE_LABEL = "vs";
+
     private final int MAX_REDRAWING_TIMER_COUNT_VALUE = 4;
     private final int MANAGER_X = 800;
     private final int MANAGER_Y = 100;
@@ -43,8 +46,9 @@ public class TopoDrawer {
     private ActiveDeviceData managerDevice;                                     //topo id = 0
     private List<ActiveDeviceData> importedDevices;                             //topo id = 1 + list id
     private List<ActiveDeviceData> unknownDevices;                              //topo id = 1 + size of imported list + list id
-    private int importedSize, unknownSize;
+    private List<VirtualSwitch> vsDevices;                                      //topo id = 1 + size of imported list + unknown size + list id
 
+    private int importedSize, unknownSize, vsSize;
     private static TopoDrawer instance;
 
     public static TopoDrawer getInstance() {
@@ -57,6 +61,7 @@ public class TopoDrawer {
     private TopoDrawer() {
         this.connectionList = new ArrayList<int[]>();
         this.topoNodes = new ArrayList<TopoNodeData>();
+        this.vsDevices = new ArrayList<VirtualSwitch>();
 
         this.redrawTimerCounter = 0;
     }
@@ -72,17 +77,72 @@ public class TopoDrawer {
         }
     }
 
-    public void prepareTopo() {
+    private void prepareTopoData() {                                            //merge connections into a network and create virtual switch
+        this.connectionList.clear();
+        this.topoNodes.clear();
+
         this.managerDevice = ActiveDeviceDataCollector.getInstance().getManagerDevice();
         this.importedDevices = ActiveDeviceDataCollector.getInstance().getImportedDevices();
         this.unknownDevices = ActiveDeviceDataCollector.getInstance().getUnknownDevices();
+
         this.importedSize = this.importedDevices.size();
         this.unknownSize = this.unknownDevices.size();
 
-        this.connectionList.clear();
-        this.topoNodes.clear();
+        this.vsDevices.clear();
+        this.createVirtualSwitchForDevice(0, this.managerDevice.getNetworkWithManyNextNodes());
+        for (int i = 0; i < this.importedSize; i++) {
+            this.createVirtualSwitchForDevice(1 + i, this.importedDevices.get(i).getNetworkWithManyNextNodes());
+        }
+        this.vsSize = this.vsDevices.size();
+
+        //add unknown node
+        for (int i = 0; i < this.unknownSize; i++) {
+            for (VirtualSwitch vs : this.vsDevices) {
+                if (this.unknownDevices.get(i).belongToNetwork(vs.networkAddress)) {
+                    vs.nextNodeTopoIds.add(i + this.importedSize + 1);
+                }
+            }
+        }
+
+        for (VirtualSwitch vs : this.vsDevices) {
+            vs.displayNextNodes();
+        }
+    }
+
+    private void createVirtualSwitchForDevice(int topoId, List<String> networkAddresses) {
+        int vsListId;
+        for (String networkAddress : networkAddresses) {
+            vsListId = this.findVsListId(networkAddress);
+            if (vsListId == -1) {
+                this.vsDevices.add(new VirtualSwitch(networkAddress, topoId));
+            } else {
+                this.vsDevices.get(vsListId).nextNodeTopoIds.add(topoId);
+            }
+        }
+    }
+
+    private int findVsListId(String networkAddress) {
+        int tempSize = this.vsDevices.size();
+        for (int i = 0; i < tempSize; i++) {
+            if (this.vsDevices.get(i).networkAddress.equalsIgnoreCase(networkAddress)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean isConnectedToVs(String networkAddress) {
+        for (VirtualSwitch vs : this.vsDevices) {
+            if (vs.networkAddress.equals(networkAddress)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void constructTopoModel() {
         System.gc();
-        boolean[] isAdded = new boolean[1 + importedSize + unknownSize];
+        boolean[] isAdded = new boolean[1 + importedSize + unknownSize + this.vsSize];
         Arrays.fill(isAdded, false);
 
         isAdded[0] = true;
@@ -90,12 +150,22 @@ public class TopoDrawer {
         int left = 0, right = 0, current = 0;
 
         List<NextNodeData> nextNodes;
+        List<Integer> topoIds;
         while (left <= right) {
-            nextNodes = this.getDeviceForTopoId(this.topoNodes.get(left).id).getAllNextNodes();
-            for (NextNodeData nextNode : nextNodes) {
-                int topoId = this.getTopoIdForData(nextNode);
-//                System.out.println("PREPARE - TOPO ID: " + topoId);
-//                System.out.println("NEXT NODE INFO:" + nextNode.getId() + " AND " + nextNode.getIpAddress() + " AND " + nextNode.getMacAddress());
+            Object device = this.getDeviceForTopoId(this.topoNodes.get(left).topoId);
+            if (this.topoNodes.get(left).topoId <= this.importedSize + this.unknownSize) {
+                nextNodes = ((ActiveDeviceData) device).getAllNextNodes();
+                topoIds = new ArrayList<Integer>();
+                if (nextNodes != null) {
+                    for (NextNodeData nextNode : nextNodes) {
+                        topoIds.add(this.getTopoIdForData(nextNode));
+                    }
+                }
+            } else {
+                topoIds = ((VirtualSwitch) device).nextNodeTopoIds;
+            }
+            
+            for (Integer topoId : topoIds) {
                 if (topoId != -1) {
                     if (!isAdded[topoId]) {
                         isAdded[topoId] = true;
@@ -117,7 +187,7 @@ public class TopoDrawer {
 //        }
     }
 
-    private ActiveDeviceData getDeviceForTopoId(int nodeId) {
+    private Object getDeviceForTopoId(int nodeId) {
         if (nodeId == 0) {
             return this.managerDevice;
         }
@@ -126,8 +196,12 @@ public class TopoDrawer {
             return this.importedDevices.get(nodeId - 1);
         }
 
-        if (this.importedSize < nodeId) {
+        if (this.importedSize < nodeId && nodeId <= this.importedSize + this.unknownSize) {
             return this.unknownDevices.get(nodeId - this.importedSize - 1);
+        }
+
+        if (this.importedSize + this.unknownSize < nodeId) {
+            return this.vsDevices.get(nodeId - this.importedSize - this.unknownSize - 1);
         }
 
         return null;
@@ -137,6 +211,7 @@ public class TopoDrawer {
         if (nextNode.getId() == ActiveDeviceDataCollector.MANAGER_DEVICE_ID) {
             return 0;
         }
+
         if (nextNode.getId() == ActiveDeviceDataCollector.UNKNOWN_DEVICE_ID) {
             for (int i = 0; i < this.unknownSize; i++) {
                 if (this.unknownDevices.get(i).containInterface(nextNode.getIpAddress(), nextNode.getMacAddress())) {
@@ -144,6 +219,11 @@ public class TopoDrawer {
                 }
             }
         }
+
+        if (nextNode.getId() == VS_DEVICE_ID) {
+            return this.findVsListId(nextNode.getNetworkIp()) + this.importedSize + this.unknownSize + 1;
+        }
+
         for (int i = 0; i < this.importedSize; i++) {
             if (this.importedDevices.get(i).getId() == nextNode.getId()) {
                 return i + 1;
@@ -155,20 +235,20 @@ public class TopoDrawer {
     private int findNodeListId(int topoId) {
         int tempSize = this.topoNodes.size();
         for (int i = 0; i < tempSize; i++) {
-            if (this.topoNodes.get(i).id == topoId) {
+            if (this.topoNodes.get(i).topoId == topoId) {
                 return i;
             }
         }
         return -1;
     }
 
-    public void addConnection(int id1, int id2) {
+    private void addConnection(int id1, int id2) {
         boolean isExisted = false;
         for (int[] connection : this.connectionList) {
-            if ((this.topoNodes.get(connection[0]).id == this.topoNodes.get(id1).id
-                    && this.topoNodes.get(connection[1]).id == this.topoNodes.get(id2).id)
-                    || (this.topoNodes.get(connection[0]).id == this.topoNodes.get(id2).id
-                    && this.topoNodes.get(connection[1]).id == this.topoNodes.get(id1).id)) {
+            if ((this.topoNodes.get(connection[0]).topoId == this.topoNodes.get(id1).topoId
+                    && this.topoNodes.get(connection[1]).topoId == this.topoNodes.get(id2).topoId)
+                    || (this.topoNodes.get(connection[0]).topoId == this.topoNodes.get(id2).topoId
+                    && this.topoNodes.get(connection[1]).topoId == this.topoNodes.get(id1).topoId)) {
                 isExisted = true;
                 break;
             }
@@ -178,7 +258,7 @@ public class TopoDrawer {
         }
     }
 
-    public void calculateTopo() {
+    public void constructTopoView() {
         this.topoNodes.get(0).x = MANAGER_X;
         this.topoNodes.get(0).y = MANAGER_Y;
         this.topoNodes.get(0).angle = MANAGER_ANGLE;
@@ -227,8 +307,9 @@ public class TopoDrawer {
     }
 
     public void constructTopo() {
-        this.prepareTopo();
-        this.calculateTopo();
+        this.prepareTopoData();
+        this.constructTopoModel();
+        this.constructTopoView();
     }
 
     public int[] getConnectionCoordinates(int[] connection) {
@@ -258,15 +339,15 @@ public class TopoDrawer {
 
     public class TopoNodeData {
 
-        private int id;
+        private int topoId;
         private int preListId;
         private int x;
         private int y;
         private int angle;
 
-        public TopoNodeData(int id, int preListId) {
+        public TopoNodeData(int topoId, int preListId) {
             this.preListId = preListId;
-            this.id = id;
+            this.topoId = topoId;
         }
 
         public int getX() {
@@ -283,28 +364,53 @@ public class TopoDrawer {
         }
 
         public NodeTypes getNodeType() {
-            if (this.id == 0) {
+            if (this.topoId == 0) {
                 return NodeTypes.MANAGER;
             }
-            if (1 <= this.id && this.id <= importedSize) {
+            if (1 <= this.topoId && this.topoId <= importedSize) {
                 return NodeTypes.IMPORTED;
             }
             return NodeTypes.UNKNOWN;
         }
 
         public int getDeviceId() {
-            ActiveDeviceData device = TopoDrawer.this.getDeviceForTopoId(id);
-            return device.getId();
+            if (this.topoId <= importedSize + unknownSize) {
+                ActiveDeviceData device = (ActiveDeviceData) TopoDrawer.this.getDeviceForTopoId(topoId);
+                return device.getId();
+            }
+            return VS_DEVICE_ID;
         }
 
         public String getDeviceLabel() {
-            ActiveDeviceData device = TopoDrawer.this.getDeviceForTopoId(this.id);
-            return device.getLabel();
+            if (this.topoId <= importedSize + unknownSize) {
+                ActiveDeviceData device = (ActiveDeviceData) TopoDrawer.this.getDeviceForTopoId(this.topoId);
+                return device.getLabel();
+            }
+            return VS_DEVICE_LABEL;
         }
 
         public void displayInfo() {
-            System.out.println("NODE TOPO ID: " + this.id + " NODE PRE LIST ID: " + this.preListId);
+            System.out.println("NODE TOPO ID: " + this.topoId + " NODE PRE LIST ID: " + this.preListId);
             System.out.println("NODE X:" + this.x + " NODE Y:" + this.y + " NODE ANGLE: " + this.angle);
+        }
+    }
+
+    public class VirtualSwitch {
+
+        private String networkAddress;
+        private List<Integer> nextNodeTopoIds;
+
+        public VirtualSwitch(String networkAddress, int nextNodeTopoId) {
+            this.networkAddress = networkAddress;
+            this.nextNodeTopoIds = new ArrayList<Integer>();
+            this.nextNodeTopoIds.add(nextNodeTopoId);
+        }
+
+        public void displayNextNodes() {
+            System.out.println("VS: " + this.networkAddress);
+            for (Integer value : this.nextNodeTopoIds) {
+                System.out.println("VS - NEXT NODE : " + value);
+            }
         }
     }
 }

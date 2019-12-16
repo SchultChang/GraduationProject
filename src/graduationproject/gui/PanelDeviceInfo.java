@@ -269,9 +269,13 @@ public class PanelDeviceInfo extends JPanel {
                     ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceResources().initData(deviceId);
                 }
                 if (source == buttonSummary) {
+                    try {
                     ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                             .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_SUMMARY);
                     ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceSummary().initData(deviceId);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
                 if (source == buttonAdvance) {
                     dialogChoosingTemplates.setVisible(true);

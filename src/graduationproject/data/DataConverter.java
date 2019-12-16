@@ -6,6 +6,7 @@
 package graduationproject.data;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -55,4 +56,23 @@ public class DataConverter {
         }
         return builder.toString();
     }
+    
+    public boolean[] convertDecimalToBinary(int number, int base) {
+        boolean[] result = new boolean[base];
+        for (int i = base - 1; i >= 0; i--) {
+            result[base - i - 1] = (number & (1 << i)) != 0;
+        }
+        return result;
+    }
+    
+    public int convertBinaryToDecimal(boolean[] input) {
+        int result = 0;
+        for (int i = 0; i < input.length; i++) {
+            if (input[i]) {
+                result += (int) Math.pow(2, input.length - 1 - i);
+            }
+        }
+        return result;
+    }
+
 }

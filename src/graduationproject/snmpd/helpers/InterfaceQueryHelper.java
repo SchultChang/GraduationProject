@@ -158,6 +158,10 @@ public class InterfaceQueryHelper {
         public String getIpAddress() {
             return ipAddress;
         }
+
+        public String getNetmask() {
+            return netmask;
+        }
         
         public String getMacAddress() {
             return this.macAddress;
