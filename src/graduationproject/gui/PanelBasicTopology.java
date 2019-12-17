@@ -42,11 +42,14 @@ public class PanelBasicTopology extends JPanel {
     private final int ICON_RADIUS = 20;
     private final String MESSAGE_FOR_REDRAWING_DIALOG = "Your topology is out of sync. Would you like to redraw it?";
     private final String MESSAGE_FOR_NOT_GETTING_DEVICE_INFO = "Sorry, getting that device information is not available.";
+    private final String MESSAGE_FOR_SSH_TO_VS = "This device is a virtual switch so you coulnd't access it";
 
     private JPopupMenu pmenuNode;
     private JMenuItem mitemInformation;
     private JMenuItem mitemConfiguration;
 
+    private PanelSSHClient panelSSHClient;
+    
     private MouseAdapter listenerNodeClick;
     private ActionListener listenerItem;
     private MouseMotionListener listenerNodeMotion;
@@ -60,9 +63,12 @@ public class PanelBasicTopology extends JPanel {
     }
 
     private void initComponents() {
-        this.setPreferredSize(new Dimension(1500, 940));
+        this.setPreferredSize(new Dimension(1560, 940));
         this.setBackground(Color.white);
         this.setLayout(new AbsoluteLayout());
+        
+        this.panelSSHClient = new PanelSSHClient();
+        this.switchSSHClientVisibility(false);
 
         this.initMenu();
     }
@@ -134,6 +140,15 @@ public class PanelBasicTopology extends JPanel {
                     }
                 }
                 if (source == mitemConfiguration) {
+                    switchSSHClientVisibility(true);
+                    int deviceId = chosenLabel.getDeviceId();
+                    if (deviceId != VS_DEVICE_ID) {
+                        if (deviceId >= 0) {
+                            panelSSHClient.initData(deviceId);
+                        } else {
+                            panelSSHClient.initData(chosenLabel.getDeviceAddress());
+                        }
+                    }
                 }
             }
 
@@ -188,7 +203,7 @@ public class PanelBasicTopology extends JPanel {
     }
 
     public boolean checkRedrawing() {
-        if (this.isVisible()) {
+        if (this.isVisible() && !this.panelSSHClient.isVisible()) {
             int userChoice = JOptionPane.showConfirmDialog(null, this.MESSAGE_FOR_REDRAWING_DIALOG);
             if (userChoice == JOptionPane.YES_OPTION) {
                 new Thread() {
@@ -203,6 +218,21 @@ public class PanelBasicTopology extends JPanel {
         return false;
     }
 
+    public void switchSSHClientVisibility(boolean visible) {
+        System.out.println("DISPLAY SSH CLIENT WITH " + String.valueOf(visible));
+        this.panelSSHClient.setVisible(visible);
+        this.panelSSHClient.setEnabled(visible);
+        
+        if (visible) {
+            this.add(this.panelSSHClient, new AbsoluteConstraints(1050, 440, -1, -1));
+        } else {
+            this.remove(this.panelSSHClient);
+        }
+        
+        this.revalidate();
+        this.repaint();
+    }
+    
     public class LabelNode extends JLabel {
 
         private int nodeListId;
@@ -233,6 +263,10 @@ public class PanelBasicTopology extends JPanel {
             return TopoDrawer.getInstance().getDeviceIdForNode(nodeListId);
         }
 
+        public String getDeviceAddress() {
+            return TopoDrawer.getInstance().getDeviceDefaultAddressForNode(this.nodeListId);
+        }
+        
         public void switchChosenMode(boolean chosen) {
             if (this.getDeviceId() >= 0) {
                 if (chosen) {

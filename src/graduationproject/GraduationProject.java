@@ -8,6 +8,8 @@ package graduationproject;
 import graduationproject.data.DataManager;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.SnmpManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -41,6 +43,10 @@ public class GraduationProject {
             @Override
             public void run() {
                 SnmpManager.getInstance().close();
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                }
                 DataManager.getInstance().close();
             }
         });

@@ -447,6 +447,13 @@ public class ActiveDeviceDataCollector {
             }
             return false;
         }
+        
+        public String getDefaultAddress() {
+            if (this.id == MANAGER_DEVICE_ID) {
+                return "127.0.0.1";
+            }
+            return this.interfaces.get(0).ipAddress;
+        }
 
     }
 

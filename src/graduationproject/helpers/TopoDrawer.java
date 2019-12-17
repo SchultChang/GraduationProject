@@ -342,6 +342,10 @@ public class TopoDrawer {
         return this.topoNodes.get(nodeListId).getDeviceId();
     }
 
+    public String getDeviceDefaultAddressForNode(int nodeListId) {
+        return this.topoNodes.get(nodeListId).getDeviceDefaultAddress();
+    }
+    
     public class TopoNodeData {
 
         private int topoId;
@@ -389,6 +393,14 @@ public class TopoDrawer {
             return VS_DEVICE_ID;
         }
 
+        public String getDeviceDefaultAddress() {
+            if (this.topoId <= importedSize + unknownSize) {
+                ActiveDeviceData device = (ActiveDeviceData) TopoDrawer.this.getDeviceForTopoId(topoId);
+                return device.getDefaultAddress();
+            }
+            return null;
+        }
+        
         public String getDeviceLabel() {
             if (this.topoId <= importedSize + unknownSize) {
                 ActiveDeviceData device = (ActiveDeviceData) TopoDrawer.this.getDeviceForTopoId(this.topoId);
@@ -397,10 +409,6 @@ public class TopoDrawer {
             return VS_DEVICE_LABEL;
         }
 
-        public void displayInfo() {
-            System.out.println("NODE TOPO ID: " + this.topoId + " NODE PRE LIST ID: " + this.preListId);
-            System.out.println("NODE X:" + this.x + " NODE Y:" + this.y + " NODE ANGLE: " + this.angle);
-        }
     }
 
     public class VirtualSwitch {

@@ -9,6 +9,7 @@ import graduationproject.controllers.DeviceManagementController;
 import graduationproject.controllers.DeviceResourceManagementController;
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.UserManagementController;
+import graduationproject.helpers.SSHClient;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -155,7 +156,6 @@ public class PanelMain extends JPanel {
 //        add(panelDeviceMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 200, 110));
 //        panelDeviceMenu.setVisible(false);
 //        panelDeviceMenu.setEnabled(false);
-
         panelTemplateMenu.setBackground(new java.awt.Color(39, 87, 159));
         panelTemplateMenu.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -486,7 +486,6 @@ public class PanelMain extends JPanel {
 //        }
 //        this.panelDeviceMenu.repaint();
 //    }
-
     private void processMouseMovedOnPanelAccountMenu(int x, int y) {
         JLabel[] labels = {this.labelProfile, this.labelLogout};
         int temp = this.getMouseOnLabelId(labels, x, y);
@@ -531,7 +530,6 @@ public class PanelMain extends JPanel {
 //            }
 //        }
 //    }
-
     private void processMousePressedOnPanelTemplateMenu(int x, int y) {
         JLabel[] labels = {this.labelSingularTemplates, this.labelTabularTemplates};
         int temp = this.getMouseOnLabelId(labels, x, y);
@@ -596,15 +594,13 @@ public class PanelMain extends JPanel {
         if (panelMenu == this.panelAccountMenu) {
             this.labelProfile.setOpaque(false);
             this.labelLogout.setOpaque(false);
-        } else {
-//            if (panelMenu == this.panelDeviceMenu) {
-//                this.labelImportedDevices.setOpaque(false);
-//                this.labelScannedDevices.setOpaque(false);
-//            }
-            if (panelMenu == this.panelTemplateMenu) {
-                this.labelSingularTemplates.setOpaque(false);
-                this.labelTabularTemplates.setOpaque(false);
-            }
+        } else //            if (panelMenu == this.panelDeviceMenu) {
+        //                this.labelImportedDevices.setOpaque(false);
+        //                this.labelScannedDevices.setOpaque(false);
+        //            }
+        if (panelMenu == this.panelTemplateMenu) {
+            this.labelSingularTemplates.setOpaque(false);
+            this.labelTabularTemplates.setOpaque(false);
         }
     }
 
@@ -708,10 +704,12 @@ public class PanelMain extends JPanel {
 
         if (!enabled) {
             SnmpManager.getInstance().close();
+            SSHClient.getInstance().close();
         } else {
             new DeviceManagementController().processCheckingStateOfDevices();
             new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
             new DeviceResourceManagementController().processGettingResourcesOfActiveDevices();
+
         }
     }
 
