@@ -6,9 +6,8 @@
             <generator class="native"/>
         </id>
         
-        <property name="language" column="language" type="string"/>
-        <property name="theme" column="theme" type="string"/>
         <property name="deviceCheckingPeriod" column="device_checking_period" type="int"/>
+        <property name="resourceCheckingPeriod" column="resource_checking_period" type="int"/>
         <property name="interfaceCheckingPeriod" column="interface_checking_period" type="int"/>
         <property name="monitoringQueryPeriod" column="monitoring_query_period" type="int"/>
         <property name="maxTableIndex" column="max_table_index" type="int"/>

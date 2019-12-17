@@ -10,6 +10,8 @@ import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.controllers.DeviceResourceManagementController;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -21,6 +23,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -34,8 +38,8 @@ public class PanelDeviceResources extends JPanel {
     private String[] tableCPUHeaders = {"Firmware Id", "Description", "Load(%)"};
     private String[] tableDiskHeaders = {"Name", "Total Size", "Used Size"};
 
-    private JButton buttonStart;
-    private JButton buttonStop;
+    private JButton buttonChange;
+//    private JButton buttonStop;
     private JLabel label1;
     private JLabel label10;
     private JLabel label11;
@@ -61,12 +65,14 @@ public class PanelDeviceResources extends JPanel {
     private JScrollPane scrollpane2;
     private JTable tableCPU;
     private JTable tableDisks;
-    private JTextField tfieldUpdatePeirod;
+    private JTextField tfieldUpdatePeriod;
 
+    private ActionListener listenerButton;
     private int deviceId;
 
     public PanelDeviceResources() {
         initComponents();
+        initListeners();
     }
 
     private void initComponents() {
@@ -94,9 +100,9 @@ public class PanelDeviceResources extends JPanel {
         scrollpane2 = new JScrollPane();
         tableDisks = new JTable();
         label11 = new JLabel();
-        tfieldUpdatePeirod = new JTextField();
-        buttonStart = new JButton();
-        buttonStop = new JButton();
+        tfieldUpdatePeriod = new JTextField();
+        buttonChange = new JButton();
+//        buttonStop = new JButton();
         labelUpdatedTime = new JLabel();
         label12 = new JLabel();
 
@@ -212,22 +218,27 @@ public class PanelDeviceResources extends JPanel {
         label11.setText("Update Period (s):");
         add(label11, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 880, -1, 30));
 
-        tfieldUpdatePeirod.setFont(new java.awt.Font("SansSerif", 1, 16));
-        add(tfieldUpdatePeirod, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 880, 90, 30));
+        tfieldUpdatePeriod.setFont(new java.awt.Font("SansSerif", 1, 16));
+        tfieldUpdatePeriod.setHorizontalAlignment(JTextField.CENTER);
+        tfieldUpdatePeriod.setText("0");
+        tfieldUpdatePeriod.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(0, 0, 0)));
+        tfieldUpdatePeriod.setOpaque(false);
+        add(tfieldUpdatePeriod, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 880, 90, 30));
 
-        buttonStart.setBackground(new java.awt.Color(70, 120, 227));
-        buttonStart.setFont(new java.awt.Font("SansSerif", 1, 16));
-        buttonStart.setForeground(java.awt.Color.white);
-        buttonStart.setText("Start");
-        buttonStart.setBorderPainted(false);
-        add(buttonStart, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 880, 80, -1));
+        
+        buttonChange.setBackground(new java.awt.Color(70, 120, 227));
+        buttonChange.setFont(new java.awt.Font("SansSerif", 1, 16));
+        buttonChange.setForeground(java.awt.Color.white);
+        buttonChange.setText("Change");
+        buttonChange.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        add(buttonChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 880, 100, -1));
 
-        buttonStop.setBackground(new java.awt.Color(70, 120, 227));
-        buttonStop.setFont(new java.awt.Font("SansSerif", 1, 16));
-        buttonStop.setForeground(java.awt.Color.white);
-        buttonStop.setText("Stop");
-        buttonStop.setBorderPainted(false);
-        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 880, 80, -1));
+//        buttonStop.setBackground(new java.awt.Color(70, 120, 227));
+//        buttonStop.setFont(new java.awt.Font("SansSerif", 1, 16));
+//        buttonStop.setForeground(java.awt.Color.white);
+//        buttonStop.setText("Stop");
+//        buttonStop.setBorderPainted(false);
+//        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 880, 80, -1));
 
         labelUpdatedTime.setFont(new java.awt.Font("SansSerif", 0, 16));
         labelUpdatedTime.setText(". . .");
@@ -239,6 +250,22 @@ public class PanelDeviceResources extends JPanel {
 
     }
 
+    private void initListeners() {
+        this.listenerButton = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JButton source = (JButton) e.getSource();
+                if (source == buttonChange) {
+                    DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
+                    if (!resourceController.processChangingResourceCheckingPeriod(Integer.parseInt(tfieldUpdatePeriod.getText()))) {
+                        JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
+                    }
+                }
+            }
+        };
+        this.buttonChange.addActionListener(this.listenerButton);
+    }
+    
     public synchronized void initData(int deviceId) {
         this.deviceId = deviceId;
         
@@ -251,9 +278,9 @@ public class PanelDeviceResources extends JPanel {
         this.labelUsedVirtual.setText("");
         this.labelTotalOther.setText("");
         this.labelUsedOther.setText("");
-        
         this.labelUpdatedTime.setText("");
-       
+
+        this.tfieldUpdatePeriod.setText(String.valueOf(new DeviceResourceManagementController().processGettingResourceCheckingPeriod()));
 //        DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
 //        if (!resourceController.processGettingDeviceResource(deviceId, 
 //                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates())) {

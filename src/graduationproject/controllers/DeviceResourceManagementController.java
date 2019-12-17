@@ -11,6 +11,7 @@ import graduationproject.data.models.Device;
 import graduationproject.data.models.DeviceCPUState;
 import graduationproject.data.models.DeviceMemoryState;
 import graduationproject.data.models.Setting;
+import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.helpers.ActiveDeviceDataCollector;
 import graduationproject.snmpd.SnmpManager;
@@ -42,6 +43,20 @@ public class DeviceResourceManagementController {
 //        return false;
 //    }
 
+    public int processGettingResourceCheckingPeriod() {
+        User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
+        if (user == null) {
+            return 0;
+        }
+        
+        Setting setting = user.getSetting();
+        if (setting == null) {
+            return 0;
+        }
+        
+        return setting.getResourceCheckingPeriod();
+    }
+    
     public void processGettingResourcesOfActiveDevices() {
         System.out.println("START CHECKING DEVICE RESOURCES");
 
@@ -69,8 +84,31 @@ public class DeviceResourceManagementController {
         Setting setting = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting();
         if (setting != null) {
             SnmpManager.getInstance().getQueryTimerManager().startDeviceResourceTimer(timerTask, 
-                    setting.getNormalizedTime(setting.getDeviceCheckingPeriod()), setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
+                    setting.getNormalizedTime(setting.getDeviceCheckingPeriod()), setting.getNormalizedTime(setting.getResourceCheckingPeriod()));
         }
+    }
+    
+    public boolean processChangingResourceCheckingPeriod(int newPeriod) {
+        User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
+        if (user == null) {
+            this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_GETTING;
+            return false;
+        }
+        
+        Setting setting = user.getSetting();
+        if (setting == null) {
+            this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_GETTING;
+            return false;
+        }
+        
+        setting.setResourceCheckingPeriod(newPeriod);
+        if (!DataManager.getInstance().getSettingManager().updateSetting(setting)) {
+            this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_SETTING;
+            return false;
+        }
+        
+        this.processGettingResourcesOfActiveDevices();
+        return true;
     }
 
     public void processCollectedResourceData(int deviceId, List<DeviceQueryHelper.DeviceCpuData> cpuDataList,
@@ -102,4 +140,13 @@ public class DeviceResourceManagementController {
                 .updateView(deviceId, cpuDataToView, memoryDataToView, new DataConverter().convertCalendarToString(updatedTime));
     }
 
+    public class ResultMessageGenerator {
+
+        public String GETTING_FAILED_OTHER = "Some errors happened when getting interface data. Please try again later.";
+
+        public String CHANGING_FAILED_GETTING = "Some errors happened when getting setting from database.";
+        public String CHANGING_FAILED_SETTING = "Some errors happened when saving your new configuration.";
+    }
+    
 }
+

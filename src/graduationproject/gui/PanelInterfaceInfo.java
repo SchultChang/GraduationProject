@@ -36,8 +36,8 @@ public class PanelInterfaceInfo extends JPanel {
 
     private final String DEFAULT_VALUE = ". . .";
 
-    private JButton buttonStop;
-    private JButton buttonStart;
+//    private JButton buttonStop;
+    private JButton buttonChange;
     private JLabel label1;
     private JLabel label11;
     private JLabel label12;
@@ -140,8 +140,8 @@ public class PanelInterfaceInfo extends JPanel {
         labelMacAddress = new JLabel();
         label23 = new JLabel();
         tfieldUpdatePeriod = new JTextField();
-        buttonStart = new JButton();
-        buttonStop = new JButton();
+        buttonChange = new JButton();
+//        buttonStop = new JButton();
         label20 = new JLabel();
         labelUpdatedTime = new JLabel();
 
@@ -312,28 +312,28 @@ public class PanelInterfaceInfo extends JPanel {
 
         label23.setFont(new java.awt.Font("SansSerif", 1, 15));
         label23.setText("Update Period(s):");
-        add(label23, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 840, 150, 30));
+        add(label23, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 830, 150, 30));
 
         tfieldUpdatePeriod.setFont(new java.awt.Font("SansSerif", 1, 15));
         tfieldUpdatePeriod.setHorizontalAlignment(JTextField.CENTER);
         tfieldUpdatePeriod.setText("0");
         tfieldUpdatePeriod.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(0, 0, 0)));
         tfieldUpdatePeriod.setOpaque(false);
-        add(tfieldUpdatePeriod, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 840, 90, 30));
+        add(tfieldUpdatePeriod, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 830, 90, 30));
 
-        buttonStart.setBackground(new java.awt.Color(62, 89, 207));
-        buttonStart.setFont(new java.awt.Font("SansSerif", 1, 15));
-        buttonStart.setForeground(java.awt.Color.white);
-        buttonStart.setText("Start");
-        buttonStart.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        add(buttonStart, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 840, 70, 30));
+        buttonChange.setBackground(new java.awt.Color(62, 89, 207));
+        buttonChange.setFont(new java.awt.Font("SansSerif", 1, 15));
+        buttonChange.setForeground(java.awt.Color.white);
+        buttonChange.setText("Change");
+        buttonChange.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+        add(buttonChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 830, 100, 30));
 
-        buttonStop.setBackground(new java.awt.Color(62, 89, 207));
-        buttonStop.setFont(new java.awt.Font("SansSerif", 1, 15));
-        buttonStop.setForeground(java.awt.Color.white);
-        buttonStop.setText("Stop");
-        buttonStop.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 840, 70, 30));
+//        buttonStop.setBackground(new java.awt.Color(62, 89, 207));
+//        buttonStop.setFont(new java.awt.Font("SansSerif", 1, 15));
+//        buttonStop.setForeground(java.awt.Color.white);
+//        buttonStop.setText("Stop");
+//        buttonStop.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
+//        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 840, 70, 30));
 
         label20.setFont(new java.awt.Font("SansSerif", 1, 16));
         label20.setText("Updated Time:");
@@ -350,22 +350,21 @@ public class PanelInterfaceInfo extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JButton source = (JButton) e.getSource();
-                if (source == buttonStop) {
-                    PanelInterfaceInfo.this.setStopUpdate(true);
-                }
-                if (source == buttonStart) {
-                    PanelInterfaceInfo.this.setStopUpdate(false);
-
+//                if (source == buttonStop) {
+//                    PanelInterfaceInfo.this.setStopUpdate(true);
+//                }
+                if (source == buttonChange) {
+//                    PanelInterfaceInfo.this.setStopUpdate(false);
                     InterfaceManagementController interfaceController = new InterfaceManagementController();
                     if (!interfaceController.processChangingInterfaceCheckingPeriod(
-                            Integer.parseInt(tfieldUpdatePeriod.getText()), deviceId, interfaceListId)) {
+                            Integer.parseInt(tfieldUpdatePeriod.getText()))) {
                         JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
                     }
                 }
             }
         };
-        this.buttonStart.addActionListener(this.listenerButton);
-        this.buttonStop.addActionListener(this.listenerButton);
+        this.buttonChange.addActionListener(this.listenerButton);
+//        this.buttonStop.addActionListener(this.listenerButton);
 
         this.listenerComboBox = new ItemListener() {
             @Override
@@ -435,12 +434,6 @@ public class PanelInterfaceInfo extends JPanel {
             }
 
             this.displayNextNodeInformation(this.deviceId, this.firstTime);
-
-//            ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId, (String) data.get(DataOrders.MAC_ADDRESS.getValue()));
-//            this.labelNextNodeName.setText((String) data.get(DataOrders.NEXT_NODE_NAME.getValue()));
-//            this.labelNextNodeLabel.setText((String) data.get(DataOrders.NEXT_NODE_LABEL.getValue()));
-//            this.cboxNextNodeIpAddresses.setText((String) data.get(DataOrders.NEXT_NODE_IP_ADDRESS.getValue()));
-//            this.labelNextNodeMacAddress.setText((String) data.get(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue()));
             this.revalidate();
             this.repaint();
         } catch (Exception e) {

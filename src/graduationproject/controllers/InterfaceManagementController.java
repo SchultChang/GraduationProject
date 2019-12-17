@@ -257,7 +257,7 @@ public class InterfaceManagementController {
         return this.convertDataForView(deviceInterface, dynamicData, setting);
     }
 
-    public boolean processChangingInterfaceCheckingPeriod(int newPeriod, int deviceId, int interfaceListId) {
+    public boolean processChangingInterfaceCheckingPeriod(int newPeriod) {
         Setting setting;
         try {
             setting = DataManager.getInstance().getUserManager().getUser(
