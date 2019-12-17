@@ -131,11 +131,11 @@ public class PanelImportedDevices extends JPanel {
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         setBackground(Color.white);
 
-        labelShowDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_right_blue_40.png"))); 
+        labelShowDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_right_40.png")));
         add(labelShowDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 340, 40, 190));
         labelShowDeviceList.setVisible(false);
         labelShowDeviceList.setEnabled(false);
-        
+
         panelDevices.setBackground(new java.awt.Color(20, 51, 125));
         panelDevices.setPreferredSize(new java.awt.Dimension(280, 940));
         panelDevices.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -179,7 +179,7 @@ public class PanelImportedDevices extends JPanel {
         buttonTopology.setBorderPainted(false);
         panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
 
-        labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png"))); 
+        labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png")));
         panelDevices.add(labelHideDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 330, 30, 190));
 
         add(panelDevices, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 440, -1));
@@ -245,8 +245,7 @@ public class PanelImportedDevices extends JPanel {
                     }
                 }
                 if (source == buttonTopology) {
-                    switchDeviceListVisibility();
-                    switchDisplayedPanel(PANELS.PANEL_TOPOLOGY);
+                    switchBetweenDeviceListAndTopology(false);
                     panelTopology.initTopo();
                 }
             }
@@ -265,10 +264,6 @@ public class PanelImportedDevices extends JPanel {
                         List<String> data = deviceController.processSearchingDevices(currentDataOrder, tfieldSearch.getText());
 
                         updateDeviceList(deviceController.getDeviceIds(), data);
-//                        if (data != null) {
-//                            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
-//                            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
-//                        }
                     } else {
                         super.keyReleased(e);
                     }
@@ -382,20 +377,19 @@ public class PanelImportedDevices extends JPanel {
 
         };
         this.mitemDelete.addActionListener(this.listenerItems);
-        
+
         this.listenerLabel = new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 JLabel source = (JLabel) e.getSource();
                 if (source == labelHideDeviceList) {
-                    switchDeviceListVisibility();
+                    switchBetweenDeviceListAndTopology(false);
                 }
                 if (source == labelShowDeviceList) {
-                    switchDeviceListVisibility();
+                    switchBetweenDeviceListAndTopology(true);
                 }
             }
         };
-        
         this.labelShowDeviceList.addMouseListener(this.listenerLabel);
         this.labelHideDeviceList.addMouseListener(this.listenerLabel);
     }
@@ -560,14 +554,21 @@ public class PanelImportedDevices extends JPanel {
             }
         }
     }
-    
-    public void switchDeviceListVisibility() {
-        boolean temp = this.panelDevices.isVisible();
-        this.panelDevices.setVisible(!temp);
-        this.panelDevices.setEnabled(!temp);
-        
-        this.labelShowDeviceList.setVisible(temp);
-        this.labelShowDeviceList.setEnabled(temp);
+
+    public void switchBetweenDeviceListAndTopology(boolean deviceListVisibility) {
+        this.panelDevices.setVisible(deviceListVisibility);
+        this.panelDevices.setEnabled(deviceListVisibility);
+
+        this.labelShowDeviceList.setVisible(!deviceListVisibility);
+        this.labelShowDeviceList.setEnabled(!deviceListVisibility);
+
+        if (deviceListVisibility) {
+            this.remove(this.panelTopology);
+            this.revalidate();
+            this.repaint();
+        } else {
+            this.switchDisplayedPanel(PANELS.PANEL_TOPOLOGY);
+        }
     }
 
     public void switchDisplayedPanel(PANELS panel) {
@@ -575,7 +576,8 @@ public class PanelImportedDevices extends JPanel {
 
         switch (panel) {
             case PANEL_TOPOLOGY:
-                this.displayPanel(panelTopology, 0, 0, -1, -1);
+                this.displayPanel(panelTopology, 50, 0, -1, -1);
+                this.currentDisplayedPanel = null;
                 break;
             case PANEL_DEVICE_INFO:
                 this.displayPanel(panelDeviceInfo, 440, 0, -1, -1);
@@ -598,16 +600,19 @@ public class PanelImportedDevices extends JPanel {
         this.repaint();
     }
 
-    private void hideDisplayedPanel() {
+    public void hideDisplayedPanel() {
         if (currentDisplayedPanel != null) {
             this.remove(this.currentDisplayedPanel);
             this.currentDisplayedPanel.setVisible(false);
             this.currentDisplayedPanel.setEnabled(false);
             this.currentDisplayedPanel = null;
-
-            this.revalidate();
-            this.repaint();
         }
+        if (!this.panelDeviceList.isVisible()) {
+            this.switchBetweenDeviceListAndTopology(true);
+        }
+
+        this.revalidate();
+        this.repaint();
     }
 
     private void displayPanel(JPanel panel, int x, int y, int width, int height) {
@@ -618,9 +623,6 @@ public class PanelImportedDevices extends JPanel {
         this.currentDisplayedPanel = panel;
     }
 
-//    public void refreshPanel() {
-//        this.hideDisplayedPanel();
-//    }
     public synchronized DeviceStates getDeviceState(int deviceId) {
         int tempSize = this.labelDevices.size();
         for (int i = 0; i < tempSize; i++) {
@@ -667,17 +669,6 @@ public class PanelImportedDevices extends JPanel {
         return panelTopology;
     }
 
-//    @Override
-//    public void setEnabled(boolean enabled) {
-//        super.setEnabled(enabled);
-//
-//        if (!enabled) {
-//            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
-//            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-//            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
-//        }
-//    }
-//
     public class LabelDevice extends JLabel {
 
         private int deviceId;

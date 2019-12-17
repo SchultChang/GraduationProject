@@ -6,6 +6,7 @@
 package graduationproject.snmpd.callbacks;
 
 import graduationproject.controllers.NotificationManagementController;
+import graduationproject.gui.ApplicationWindow;
 import graduationproject.snmpd.helpers.NotificationParser;
 import java.util.Calendar;
 import org.soulwing.snmp.SimpleSnmpV2cTarget;
@@ -17,24 +18,26 @@ import org.soulwing.snmp.VarbindCollection;
  *
  * @author cloud
  */
-public class NotificationHandler implements SnmpNotificationHandler{
+public class NotificationHandler implements SnmpNotificationHandler {
 
     @Override
     public Boolean handleNotification(SnmpNotificationEvent sne) {
         try {
-            System.out.println("RECEIVE A NOTIFICATION");
-            VarbindCollection varbinds = sne.getSubject().getVarbinds();
-            SimpleSnmpV2cTarget target = (SimpleSnmpV2cTarget) sne.getSubject().getPeer();
-            Calendar currentTime = Calendar.getInstance();
-            
-            NotificationParser notificationParser = new NotificationParser();
-            NotificationManagementController notificationController = new NotificationManagementController();
-            notificationController.processPushingDeviceNotifications(currentTime, notificationParser.parseNotification(target, varbinds));
+            if (ApplicationWindow.getInstance().getPanelMain().isVisible()) {
+                System.out.println("RECEIVE A NOTIFICATION");
+                VarbindCollection varbinds = sne.getSubject().getVarbinds();
+                SimpleSnmpV2cTarget target = (SimpleSnmpV2cTarget) sne.getSubject().getPeer();
+                Calendar currentTime = Calendar.getInstance();
+
+                NotificationParser notificationParser = new NotificationParser();
+                NotificationManagementController notificationController = new NotificationManagementController();
+                notificationController.processPushingDeviceNotifications(currentTime, notificationParser.parseNotification(target, varbinds));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return true;
     }
-    
+
 }

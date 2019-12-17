@@ -12,6 +12,8 @@ import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -51,6 +53,7 @@ public class PanelDeviceInfo extends JPanel {
     private JLabel label6;
     private JLabel label8;
     private JLabel label9;
+    private JLabel labelHidePanel;
     private JLabel labelLastAccess;
     private JPanel panelBasicInfo;
     private JPanel panelSNMPInfo;
@@ -65,6 +68,7 @@ public class PanelDeviceInfo extends JPanel {
     private DialogChoosingTemplates dialogChoosingTemplates;
 
     private ActionListener listenerButton;
+    private MouseAdapter listenerLabel;
 
     private int deviceId;
 
@@ -101,6 +105,7 @@ public class PanelDeviceInfo extends JPanel {
         buttonResources = new JButton();
         buttonSummary = new JButton();
         buttonAdvance = new JButton();
+        labelHidePanel = new JLabel();
 
         setPreferredSize(new java.awt.Dimension(1160, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -233,7 +238,7 @@ public class PanelDeviceInfo extends JPanel {
         buttonSummary.setBorder(new SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         buttonSummary.setOpaque(true);
         add(buttonSummary, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
-        
+
         buttonAdvance.setBackground(new java.awt.Color(207, 62, 69));
         buttonAdvance.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         buttonAdvance.setForeground(java.awt.Color.white);
@@ -241,6 +246,9 @@ public class PanelDeviceInfo extends JPanel {
         buttonAdvance.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         buttonAdvance.setOpaque(true);
         add(buttonAdvance, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 830, 100, 40));
+
+        labelHidePanel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_right_40.png")));
+        add(labelHidePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 335, -1, 180));
 
         dialogChoosingTemplates = new DialogChoosingTemplates();
         dialogChoosingTemplates.dispose();
@@ -270,9 +278,9 @@ public class PanelDeviceInfo extends JPanel {
                 }
                 if (source == buttonSummary) {
                     try {
-                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
-                            .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_SUMMARY);
-                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceSummary().initData(deviceId);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
+                                .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_SUMMARY);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceSummary().initData(deviceId);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -284,12 +292,22 @@ public class PanelDeviceInfo extends JPanel {
             }
 
         };
-
         this.buttonSave.addActionListener(this.listenerButton);
         this.buttonCancel.addActionListener(this.listenerButton);
         this.buttonResources.addActionListener(this.listenerButton);
         this.buttonSummary.addActionListener((this.listenerButton));
         this.buttonAdvance.addActionListener(this.listenerButton);
+        
+        this.listenerLabel = new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                JLabel source = (JLabel) e.getSource();
+                if (source == labelHidePanel) {
+                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().hideDisplayedPanel();
+                }
+            }
+        };
+        this.labelHidePanel.addMouseListener(this.listenerLabel);
     }
 
     public void initData(int deviceId) {

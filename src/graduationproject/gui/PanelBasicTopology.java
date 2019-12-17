@@ -8,6 +8,7 @@ package graduationproject.gui;
 import graduationproject.helpers.TopoDrawer;
 import graduationproject.helpers.TopoDrawer.NodeTypes;
 import graduationproject.helpers.TopoDrawer.TopoNodeData;
+import static graduationproject.helpers.TopoDrawer.VS_DEVICE_ID;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,6 +16,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -22,8 +25,11 @@ import java.awt.geom.Line2D;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
 
@@ -35,8 +41,14 @@ public class PanelBasicTopology extends JPanel {
 
     private final int ICON_RADIUS = 20;
     private final String MESSAGE_FOR_REDRAWING_DIALOG = "Your topology is out of sync. Would you like to redraw it?";
+    private final String MESSAGE_FOR_NOT_GETTING_DEVICE_INFO = "Sorry, getting that device information is not available.";
+
+    private JPopupMenu pmenuNode;
+    private JMenuItem mitemInformation;
+    private JMenuItem mitemConfiguration;
 
     private MouseAdapter listenerNodeClick;
+    private ActionListener listenerItem;
     private MouseMotionListener listenerNodeMotion;
 
     private Point previousPosition;
@@ -48,9 +60,21 @@ public class PanelBasicTopology extends JPanel {
     }
 
     private void initComponents() {
-        this.setPreferredSize(new Dimension(1600, 940));
+        this.setPreferredSize(new Dimension(1500, 940));
         this.setBackground(Color.white);
         this.setLayout(new AbsoluteLayout());
+
+        this.initMenu();
+    }
+
+    private void initMenu() {
+        this.pmenuNode = new JPopupMenu();
+
+        this.mitemInformation = new JMenuItem("Info");
+        this.pmenuNode.add(this.mitemInformation);
+
+        this.mitemConfiguration = new JMenuItem("Configure");
+        this.pmenuNode.add(this.mitemConfiguration);
     }
 
     private void initListeners() {
@@ -71,24 +95,51 @@ public class PanelBasicTopology extends JPanel {
             }
 
         };
-//        this.addMouseMotionListener(listenerPanel);
 
         this.listenerNodeClick = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (chosenLabel != null) {
+                    chosenLabel.switchChosenMode(false);
+                }
                 chosenLabel = (LabelNode) e.getSource();
+                chosenLabel.switchChosenMode(true);
                 previousPosition = e.getLocationOnScreen();
-//                System.out.println("CHOOSE AN NODE");
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-//                System.out.println("RELEASE AN NODE");
-                chosenLabel = null;
-                PanelBasicTopology.this.repaint();
+                if (SwingUtilities.isRightMouseButton(e) && chosenLabel.getDeviceId() != VS_DEVICE_ID) {
+                    pmenuNode.show(chosenLabel, e.getX(), e.getY());
+                } else {
+                    chosenLabel.switchChosenMode(false);
+                    chosenLabel = null;
+                    PanelBasicTopology.this.repaint();
+                }
             }
         };
 
+        this.listenerItem = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JMenuItem source = (JMenuItem) e.getSource();
+                if (source == mitemInformation) {
+                    int deviceId = chosenLabel.getDeviceId();
+                    if (deviceId >= 0) {
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().switchBetweenDeviceListAndTopology(true);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_INFO);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo().initData(deviceId);
+                    } else {
+                        JOptionPane.showMessageDialog(null, MESSAGE_FOR_NOT_GETTING_DEVICE_INFO);
+                    }
+                }
+                if (source == mitemConfiguration) {
+                }
+            }
+
+        };
+        this.mitemConfiguration.addActionListener(this.listenerItem);
+        this.mitemInformation.addActionListener(this.listenerItem);
     }
 
     public void initTopo() {
@@ -165,8 +216,10 @@ public class PanelBasicTopology extends JPanel {
                 this.setIcon(new ImageIcon(getClass().getResource("/resources/icon_manager_node_40.png")));
             } else if (type == NodeTypes.UNKNOWN) {
                 this.setIcon(new ImageIcon(getClass().getResource("/resources/icon_unknown_node_40.png")));
-            } else {
+            } else if (type == NodeTypes.IMPORTED) {
                 this.setIcon(new ImageIcon(getClass().getResource("/resources/icon_imported_node_40.png")));
+            } else {
+                this.setIcon(new ImageIcon(getClass().getResource("/resources/icon_vs_40.png")));
             }
         }
 
@@ -174,6 +227,22 @@ public class PanelBasicTopology extends JPanel {
         public void setLocation(int x, int y) {
             super.setLocation(x, y);
             TopoDrawer.getInstance().getTopoNodes().get(this.nodeListId).setPosition(x + ICON_RADIUS, y + ICON_RADIUS);
+        }
+
+        public int getDeviceId() {
+            return TopoDrawer.getInstance().getDeviceIdForNode(nodeListId);
+        }
+
+        public void switchChosenMode(boolean chosen) {
+            if (this.getDeviceId() >= 0) {
+                if (chosen) {
+                    this.setIcon(new ImageIcon(getClass().getResource("/resources/icon_chosen_node_40.png")));
+                    this.repaint();
+                } else {
+                    this.setIcon(new ImageIcon(getClass().getResource("/resources/icon_imported_node_40.png")));
+                    this.repaint();
+                }
+            }
         }
     }
 }

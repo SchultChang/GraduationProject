@@ -23,7 +23,8 @@ public class TopoDrawer {
     public enum NodeTypes {
         MANAGER,
         IMPORTED,
-        UNKNOWN
+        UNKNOWN,
+        VS
     }
 
     public int redrawTimerCounter;
@@ -336,6 +337,10 @@ public class TopoDrawer {
     public List<int[]> getConnectionList() {
         return connectionList;
     }
+    
+    public int getDeviceIdForNode(int nodeListId) {
+        return this.topoNodes.get(nodeListId).getDeviceId();
+    }
 
     public class TopoNodeData {
 
@@ -367,10 +372,13 @@ public class TopoDrawer {
             if (this.topoId == 0) {
                 return NodeTypes.MANAGER;
             }
-            if (1 <= this.topoId && this.topoId <= importedSize) {
+            if (0 < this.topoId && this.topoId <= importedSize) {
                 return NodeTypes.IMPORTED;
             }
-            return NodeTypes.UNKNOWN;
+            if (importedSize < this.topoId && this.topoId <= importedSize + unknownSize) {
+                return NodeTypes.UNKNOWN;
+            }
+            return NodeTypes.VS;
         }
 
         public int getDeviceId() {

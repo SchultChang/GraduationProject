@@ -96,15 +96,15 @@ public class DeviceManager {
         Session session = null;
         Transaction tx = null;
         List<Object> result = null;
-        
+
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
-            
+
             Criteria cri = session.createCriteria(Device.class);
             cri.setProjection(Projections.property("id"));
             result = cri.list();
-            
+
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,7 +116,7 @@ public class DeviceManager {
         }
         return result;
     }
-    
+
     public Device getDevice(int deviceId) {
         Session session = null;
         Transaction transaction = null;
@@ -124,17 +124,19 @@ public class DeviceManager {
 
         try {
             session = this.sessionFactory.openSession();
-            transaction = session.beginTransaction();
+            if (session.isOpen()) {
+                transaction = session.beginTransaction();
 
-            Criteria criteria = session.createCriteria(Device.class);
-            criteria.add(Restrictions.eq("id", deviceId));
+                Criteria criteria = session.createCriteria(Device.class);
+                criteria.add(Restrictions.eq("id", deviceId));
 
-            List<Device> resultList = criteria.list();
-            if (!resultList.isEmpty()) {
-                result = (Device) criteria.list().get(0);
+                List<Device> resultList = criteria.list();
+                if (!resultList.isEmpty()) {
+                    result = (Device) criteria.list().get(0);
+                }
+
+                transaction.commit();
             }
-
-            transaction.commit();
         } catch (Exception ex) {
             ex.printStackTrace();
             transaction.rollback();
@@ -292,11 +294,11 @@ public class DeviceManager {
             try {
                 session = this.sessionFactory.openSession();
                 tx = session.beginTransaction();
-                
+
                 String hql = "SELECT d FROM " + Device.class.getSimpleName() + " d JOIN d.networkInterfaces  i WHERE i.macAddress=:macAddress";
                 Query query = session.createQuery(hql);
                 query.setParameter("macAddress", macAddress);
-                
+
                 resultList = query.list();
                 if (!resultList.isEmpty()) {
                     result = resultList.get(0);
