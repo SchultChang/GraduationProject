@@ -234,7 +234,9 @@ public class DeviceManagementController {
         return result;
     }
 
-    public void processCheckingStateOfDevices(int[] deviceIds) {
+    public void processCheckingStateOfDevices() {
+        List<Object> deviceIds = DataManager.getInstance().getDeviceManager().getDeviceIds();
+        
         System.out.println("START CHECKING DEVICE STATES");
         TimerTask checkingTask = new TimerTask() {
             @Override
@@ -250,11 +252,13 @@ public class DeviceManagementController {
         SnmpManager.getInstance().getQueryTimerManager().startDeviceActiveTimer(checkingTask, 0, setting.getNormalizedTime(setting.getDeviceCheckingPeriod()));
     }
 
-    public void startCheckingStateOfDevices(int deviceIds[]) {
+    public void startCheckingStateOfDevices(List<Object> deviceIds) {
         try {
             Date checkingTime = new Date();
-            for (int deviceId : deviceIds) {
-                Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+            int temp;
+            for (Object deviceId : deviceIds) {
+                temp = (int) deviceId;
+                Device device = DataManager.getInstance().getDeviceManager().getDevice(temp);
                 device.setLastAccess(checkingTime);
                 DataManager.getInstance().getDeviceManager().updateDevice(device);
 

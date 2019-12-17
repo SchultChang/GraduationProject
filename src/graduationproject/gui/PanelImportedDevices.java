@@ -238,8 +238,8 @@ public class PanelImportedDevices extends JPanel {
                         if (!deviceController.processImportingDevicesFromFile(file)) {
                             JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
                         } else {
-                            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
-                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+//                            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
+//                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
                             initData();
                         }
                     }
@@ -265,10 +265,10 @@ public class PanelImportedDevices extends JPanel {
                         List<String> data = deviceController.processSearchingDevices(currentDataOrder, tfieldSearch.getText());
 
                         updateDeviceList(deviceController.getDeviceIds(), data);
-                        if (data != null) {
-                            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
-                            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
-                        }
+//                        if (data != null) {
+//                            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+//                            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
+//                        }
                     } else {
                         super.keyReleased(e);
                     }
@@ -425,10 +425,10 @@ public class PanelImportedDevices extends JPanel {
         }
 
         this.updateDeviceList(deviceController.getDeviceIds(), data);
-        if (data != null) {
-            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
-            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
-        }
+//        if (data != null) {
+//            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
+//            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
+//        }
     }
 
     public synchronized void updateDeviceList(int[] deviceIds, List<String> data) {
@@ -667,17 +667,17 @@ public class PanelImportedDevices extends JPanel {
         return panelTopology;
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-
-        if (!enabled) {
-            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
-            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
-        }
-    }
-
+//    @Override
+//    public void setEnabled(boolean enabled) {
+//        super.setEnabled(enabled);
+//
+//        if (!enabled) {
+//            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
+//            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
+//            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
+//        }
+//    }
+//
     public class LabelDevice extends JLabel {
 
         private int deviceId;

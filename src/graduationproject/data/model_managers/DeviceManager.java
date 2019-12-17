@@ -92,6 +92,31 @@ public class DeviceManager {
         return result;
     }
 
+    public List<Object> getDeviceIds() {
+        Session session = null;
+        Transaction tx = null;
+        List<Object> result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            Criteria cri = session.createCriteria(Device.class);
+            cri.setProjection(Projections.property("id"));
+            result = cri.list();
+            
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return result;
+    }
+    
     public Device getDevice(int deviceId) {
         Session session = null;
         Transaction transaction = null;

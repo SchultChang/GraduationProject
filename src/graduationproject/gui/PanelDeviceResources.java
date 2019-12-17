@@ -241,11 +241,24 @@ public class PanelDeviceResources extends JPanel {
 
     public synchronized void initData(int deviceId) {
         this.deviceId = deviceId;
-        DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
-        if (!resourceController.processGettingDeviceResource(deviceId, 
-                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates())) {
-            JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
-        }
+        
+        this.clearTable((DefaultTableModel) this.tableCPU.getModel());
+        this.clearTable((DefaultTableModel) this.tableDisks.getModel());
+        
+        this.labelTotalRam.setText("");
+        this.labelUsedRam.setText("");
+        this.labelTotalVirtual.setText("");
+        this.labelUsedVirtual.setText("");
+        this.labelTotalOther.setText("");
+        this.labelUsedOther.setText("");
+        
+        this.labelUpdatedTime.setText("");
+       
+//        DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
+//        if (!resourceController.processGettingDeviceResource(deviceId, 
+//                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates())) {
+//            JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
+//        }
     }
 
     public synchronized void updateView(int deviceId, List<Object> cpuData, List<Object> memoryData, String updatedTime) {
@@ -288,12 +301,12 @@ public class PanelDeviceResources extends JPanel {
         }
     }
     
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-
-        if (!enabled) {
-            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
-        }
-    }
+//    @Override
+//    public void setEnabled(boolean enabled) {
+//        super.setEnabled(enabled);
+//
+//        if (!enabled) {
+//            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
+//        }
+//    }
 }

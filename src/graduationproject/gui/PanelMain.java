@@ -5,6 +5,9 @@
  */
 package graduationproject.gui;
 
+import graduationproject.controllers.DeviceManagementController;
+import graduationproject.controllers.DeviceResourceManagementController;
+import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.UserManagementController;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
@@ -705,6 +708,10 @@ public class PanelMain extends JPanel {
 
         if (!enabled) {
             SnmpManager.getInstance().close();
+        } else {
+            new DeviceManagementController().processCheckingStateOfDevices();
+            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
+            new DeviceResourceManagementController().processGettingResourcesOfActiveDevices();
         }
     }
 
