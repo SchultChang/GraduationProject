@@ -39,7 +39,7 @@ public class PanelDeviceInfo extends JPanel {
     private JButton buttonCancel;
     private JButton buttonResources;
     private JButton buttonAdvance;
-    private JButton buttonSummary;
+    private JButton buttonStatistics;
     private JButton buttonSave;
 
     private JComboBox<String> cboxSNMPVersion;
@@ -103,7 +103,7 @@ public class PanelDeviceInfo extends JPanel {
         buttonCancel = new JButton();
         buttonSave = new JButton();
         buttonResources = new JButton();
-        buttonSummary = new JButton();
+        buttonStatistics = new JButton();
         buttonAdvance = new JButton();
         labelHidePanel = new JLabel();
 
@@ -231,13 +231,13 @@ public class PanelDeviceInfo extends JPanel {
         buttonResources.setOpaque(true);
         add(buttonResources, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 830, 100, 40));
 
-        buttonSummary.setBackground(new java.awt.Color(207, 62, 69));
-        buttonSummary.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        buttonSummary.setForeground(java.awt.Color.white);
-        buttonSummary.setText("Summary");
-        buttonSummary.setBorder(new SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        buttonSummary.setOpaque(true);
-        add(buttonSummary, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
+        buttonStatistics.setBackground(new java.awt.Color(207, 62, 69));
+        buttonStatistics.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonStatistics.setForeground(java.awt.Color.white);
+        buttonStatistics.setText("Statistics");
+        buttonStatistics.setBorder(new SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        buttonStatistics.setOpaque(true);
+        add(buttonStatistics, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 830, 100, 40));
 
         buttonAdvance.setBackground(new java.awt.Color(207, 62, 69));
         buttonAdvance.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
@@ -276,7 +276,7 @@ public class PanelDeviceInfo extends JPanel {
                             .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_RESOURCES);
                     ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceResources().initData(deviceId);
                 }
-                if (source == buttonSummary) {
+                if (source == buttonStatistics) {
                     try {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                                 .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_SUMMARY);
@@ -295,7 +295,7 @@ public class PanelDeviceInfo extends JPanel {
         this.buttonSave.addActionListener(this.listenerButton);
         this.buttonCancel.addActionListener(this.listenerButton);
         this.buttonResources.addActionListener(this.listenerButton);
-        this.buttonSummary.addActionListener((this.listenerButton));
+        this.buttonStatistics.addActionListener((this.listenerButton));
         this.buttonAdvance.addActionListener(this.listenerButton);
         
         this.listenerLabel = new MouseAdapter() {

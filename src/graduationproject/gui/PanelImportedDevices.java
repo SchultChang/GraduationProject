@@ -68,7 +68,7 @@ public class PanelImportedDevices extends JPanel {
     private PanelInterfaceInfo panelInterfaceInfo;
     private PanelMonitoringDevice panelMonitoringDevice;
     private PanelDeviceResources panelDeviceResources;
-    private PanelDeviceSummary panelDeviceSummary;
+    private PanelDeviceStatistics panelDeviceStatistics;
 
     private List<LabelDevice> labelDevices;
     private List<LabelInterface> labelInterfaces;
@@ -205,9 +205,9 @@ public class PanelImportedDevices extends JPanel {
         this.panelDeviceResources.setVisible(false);
         this.panelDeviceResources.setEnabled(false);
 
-        this.panelDeviceSummary = new PanelDeviceSummary();
-        this.panelDeviceSummary.setVisible(false);
-        this.panelDeviceSummary.setEnabled(false);
+        this.panelDeviceStatistics = new PanelDeviceStatistics();
+        this.panelDeviceStatistics.setVisible(false);
+        this.panelDeviceStatistics.setEnabled(false);
 
         this.panelTopology = new PanelBasicTopology();
         this.panelTopology.setVisible(false);
@@ -592,7 +592,7 @@ public class PanelImportedDevices extends JPanel {
                 this.displayPanel(panelDeviceResources, 440, 0, -1, -1);
                 break;
             case PANEL_DEVICE_SUMMARY:
-                this.displayPanel(panelDeviceSummary, 440, 0, -1, -1);
+                this.displayPanel(panelDeviceStatistics, 440, 0, -1, -1);
                 break;
         }
 
@@ -661,8 +661,8 @@ public class PanelImportedDevices extends JPanel {
         return panelDeviceResources;
     }
 
-    public PanelDeviceSummary getPanelDeviceSummary() {
-        return panelDeviceSummary;
+    public PanelDeviceStatistics getPanelDeviceSummary() {
+        return panelDeviceStatistics;
     }
 
     public PanelBasicTopology getPanelTopology() {

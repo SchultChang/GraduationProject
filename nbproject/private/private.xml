@@ -14,7 +14,6 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelBasicTopology.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/TemplateManagementController.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/controllers/NotificationManagementController.java</file>
-            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelDeviceSummary.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/configs/hibernate.cfg.xml</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/helpers/DeviceQueryHelper.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/DeviceResourceCheckingCallbackStage3.java</file>
@@ -41,6 +40,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/configs/Template_TemplateItem_TemplateItemValue.cfg.xml</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/helpers/TopoDrawer.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Setting.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/helpers/SSHClient.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/DeviceResourceCheckingCallbackStage1.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/configs/Device_ContactInterface_%20NetworkInterface.cfg.xml</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/SnmpManager.java</file>
@@ -59,6 +59,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Notification.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/Template.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/DialogChoosingTemplates.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelDeviceStatistics.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/DeviceActiveCheckingCallback.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/DeviceManager.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/DeviceCPUState.java</file>
@@ -72,6 +73,7 @@
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/models/DeviceInterfaceDynamicData.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/DataConverter.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/data/model_managers/TemplateItemManager.java</file>
+            <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelSSHClient.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelImportedDevices.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/gui/PanelNotificationInfo.java</file>
             <file>file:/home/cloud/Documents/Java/Graduation/GraduationProject/src/graduationproject/snmpd/callbacks/DeviceResourceCheckingCallbackStage2.java</file>

@@ -15,14 +15,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.internal.chartpart.Chart;
@@ -32,7 +38,7 @@ import org.netbeans.lib.awtextra.AbsoluteConstraints;
  *
  * @author cloud
  */
-public class PanelDeviceSummary extends JPanel {
+public class PanelDeviceStatistics extends JPanel {
 
     private final AbsoluteConstraints PANEL_CPU_POSITION = new AbsoluteConstraints(80, 120, 990, 190);
     private final AbsoluteConstraints PANEL_MEMORY_POSITION = new AbsoluteConstraints(80, 380, 990, 190);
@@ -55,10 +61,12 @@ public class PanelDeviceSummary extends JPanel {
     private JLabel label5;
     private JLabel label6;
 
+    private ChartViewer chartViewer;
     private XChartPanel currentCPUPanel;
     private XChartPanel currentMemoryPanel;
     private XChartPanel currentBandwidthPanel;
 
+    private MouseAdapter listenerPanel;
     private ActionListener listenerRadioButton;
     private ItemListener listenerComboBox;
 
@@ -66,7 +74,7 @@ public class PanelDeviceSummary extends JPanel {
     private int currentInterfaceChoiceId;
     private int deviceId;
 
-    public PanelDeviceSummary() {
+    public PanelDeviceStatistics() {
         initComponents();
         initListeners();
     }
@@ -90,6 +98,10 @@ public class PanelDeviceSummary extends JPanel {
         setPreferredSize(new java.awt.Dimension(1160, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         setBackground(Color.white);
+
+        chartViewer = new ChartViewer();
+        add(chartViewer, new AbsoluteConstraints(70, 60, 1000, 800));
+        switchChartViewerVisibility(false, null);
 
         label1.setFont(new java.awt.Font("SansSerif", 1, 16));
         label1.setText("CPU Load:");
@@ -171,7 +183,6 @@ public class PanelDeviceSummary extends JPanel {
                 displayAllCharts(deviceId, source.getActionCommand());
             }
         };
-
         this.buttonToday.addActionListener(listenerRadioButton);
         this.buttonYesterday.addActionListener(listenerRadioButton);
         this.button3days.addActionListener(listenerRadioButton);
@@ -197,8 +208,8 @@ public class PanelDeviceSummary extends JPanel {
                             }
 
                             currentMemoryPanel = displayChart(currentMemoryPanel, chart, PANEL_MEMORY_POSITION);
-                            PanelDeviceSummary.this.revalidate();
-                            PanelDeviceSummary.this.repaint();
+                            PanelDeviceStatistics.this.revalidate();
+                            PanelDeviceStatistics.this.repaint();
                         }
                     }
                     if (source == cboxInterfaces) {
@@ -216,17 +227,42 @@ public class PanelDeviceSummary extends JPanel {
                             }
 
                             currentBandwidthPanel = displayChart(currentBandwidthPanel, chart, PANEL_BANDWIDTH_POSITION);
-                            PanelDeviceSummary.this.revalidate();
-                            PanelDeviceSummary.this.repaint();
+                            PanelDeviceStatistics.this.revalidate();
+                            PanelDeviceStatistics.this.repaint();
                         }
                     }
                 }
             }
 
         };
-
         this.cboxInterfaces.addItemListener(listenerComboBox);
         this.cboxMemory.addItemListener(listenerComboBox);
+
+        this.listenerPanel = new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                XChartPanel source = (XChartPanel) e.getSource();
+                if (source == currentCPUPanel
+                        || source == currentBandwidthPanel
+                        || source == currentMemoryPanel) {
+                    switchChartViewerVisibility(true, source.getChart());
+                } else {
+                    switchChartViewerVisibility(false, null);
+                }
+            }
+        };
+        this.chartViewer.addMouseListener(this.listenerPanel);
+    }
+
+    private void switchChartViewerVisibility(boolean visible, Chart chart) {
+        if (visible) {
+            this.chartViewer.displayChart(chart);
+        }
+        this.chartViewer.setVisible(visible);
+        this.chartViewer.setEnabled(visible);
+
+        this.revalidate();
+        this.repaint();
     }
 
     public void initData(int deviceId) {
@@ -292,6 +328,7 @@ public class PanelDeviceSummary extends JPanel {
         }
 
         XChartPanel<Chart> newPanel = new XChartPanel<Chart>(newChart);
+        newPanel.addMouseListener(this.listenerPanel);
         this.add(newPanel, position);
         return newPanel;
     }
@@ -310,4 +347,22 @@ public class PanelDeviceSummary extends JPanel {
         return new String[]{this.cboxInterfaces.getSelectedItem().toString()};
     }
 
+    public class ChartViewer extends JPanel {
+
+        public ChartViewer() {
+            super();
+            setBackground(java.awt.Color.white);
+            setMaximumSize(new java.awt.Dimension(1000, 800));
+            setMinimumSize(new java.awt.Dimension(1000, 800));
+            setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        }
+
+        public void displayChart(Chart chart) {
+            this.removeAll();
+//                System.out.println("CHART IS NULL");
+            XChartPanel<Chart> chartPanel = new XChartPanel<Chart>(chart);
+            add(chartPanel, new AbsoluteConstraints(0, 0, 1000, 800));
+            chartPanel.addMouseListener(listenerPanel);
+        }
+    }
 }
