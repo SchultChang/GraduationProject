@@ -6,7 +6,7 @@
 package graduationproject.controllers;
 
 import com.opencsv.CSVReader;
-import graduationproject.data.DataConverter;
+import graduationproject.helpers.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
 import graduationproject.data.models.Device;

@@ -3,11 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package graduationproject.helpers;
+package graduationproject.data;
 
-import graduationproject.data.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
+import graduationproject.helpers.AddressParser;
+import graduationproject.helpers.DataConverter;
+import graduationproject.helpers.TopoDrawer;
 import static graduationproject.helpers.TopoDrawer.VS_DEVICE_ID;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;

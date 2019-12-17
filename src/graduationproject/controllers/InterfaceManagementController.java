@@ -5,7 +5,7 @@
  */
 package graduationproject.controllers;
 
-import graduationproject.data.DataConverter;
+import graduationproject.helpers.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
 import graduationproject.data.models.DeviceInterfaceDynamicData;
@@ -14,7 +14,7 @@ import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.gui.PanelInterfaceInfo;
-import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.data.ActiveDeviceDataCollector;
 import graduationproject.helpers.AddressParser;
 import graduationproject.helpers.TopoDrawer;
 import graduationproject.snmpd.SnmpManager;

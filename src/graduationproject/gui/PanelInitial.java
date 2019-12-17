@@ -6,7 +6,7 @@
 package graduationproject.gui;
 
 import graduationproject.controllers.UserManagementController;
-import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.data.ActiveDeviceDataCollector;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;

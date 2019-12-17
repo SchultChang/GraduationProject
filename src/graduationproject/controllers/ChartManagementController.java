@@ -5,7 +5,7 @@
  */
 package graduationproject.controllers;
 
-import graduationproject.data.DataConverter;
+import graduationproject.helpers.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
 import graduationproject.data.models.DeviceInterfaceDynamicData;

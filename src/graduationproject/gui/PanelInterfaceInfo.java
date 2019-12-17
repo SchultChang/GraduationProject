@@ -7,8 +7,8 @@ package graduationproject.gui;
 
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
-import graduationproject.helpers.ActiveDeviceDataCollector;
-import graduationproject.helpers.ActiveDeviceDataCollector.NextNodeDataOrders;
+import graduationproject.data.ActiveDeviceDataCollector;
+import graduationproject.data.ActiveDeviceDataCollector.NextNodeDataOrders;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

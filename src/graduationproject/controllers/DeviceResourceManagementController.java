@@ -5,7 +5,7 @@
  */
 package graduationproject.controllers;
 
-import graduationproject.data.DataConverter;
+import graduationproject.helpers.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
 import graduationproject.data.models.DeviceCPUState;
@@ -13,7 +13,7 @@ import graduationproject.data.models.DeviceMemoryState;
 import graduationproject.data.models.Setting;
 import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
-import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.data.ActiveDeviceDataCollector;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.MemoryType;

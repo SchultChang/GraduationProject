@@ -7,7 +7,7 @@ package graduationproject.snmpd.callbacks;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.gui.ApplicationWindow;
-import graduationproject.helpers.ActiveDeviceDataCollector;
+import graduationproject.data.ActiveDeviceDataCollector;
 import org.soulwing.snmp.SimpleSnmpV2cTarget;
 import org.soulwing.snmp.SnmpCallback;
 import org.soulwing.snmp.SnmpEvent;

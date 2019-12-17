@@ -5,9 +5,10 @@
  */
 package graduationproject.helpers;
 
+import graduationproject.data.ActiveDeviceDataCollector;
 import graduationproject.gui.ApplicationWindow;
-import graduationproject.helpers.ActiveDeviceDataCollector.ActiveDeviceData;
-import graduationproject.helpers.ActiveDeviceDataCollector.NextNodeData;
+import graduationproject.data.ActiveDeviceDataCollector.ActiveDeviceData;
+import graduationproject.data.ActiveDeviceDataCollector.NextNodeData;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
