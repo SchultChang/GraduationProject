@@ -334,7 +334,6 @@ public class PanelInterfaceInfo extends JPanel {
 //        buttonStop.setText("Stop");
 //        buttonStop.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
 //        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 840, 70, 30));
-
         label20.setFont(new java.awt.Font("SansSerif", 1, 16));
         label20.setText("Updated Time:");
         add(label20, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 830, -1, 30));
@@ -468,6 +467,8 @@ public class PanelInterfaceInfo extends JPanel {
             this.labelNextNodeLabel.setText((String) data.get(NextNodeDataOrders.LABEL.getValue()));
             this.labelNextNodeMacAddress.setText((String) data.get(NextNodeDataOrders.MAC_ADDRESS.getValue()));
         } else {
+            DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxNextNodeIpAddresses.getModel();
+            boxModel.removeAllElements();
             this.labelNextNodeName.setText(DEFAULT_VALUE);
             this.labelNextNodeLabel.setText(DEFAULT_VALUE);
             this.labelNextNodeMacAddress.setText(DEFAULT_VALUE);
