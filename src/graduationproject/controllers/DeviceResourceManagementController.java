@@ -42,21 +42,20 @@ public class DeviceResourceManagementController {
 //
 //        return false;
 //    }
-
     public int processGettingResourceCheckingPeriod() {
         User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         if (user == null) {
             return 0;
         }
-        
+
         Setting setting = user.getSetting();
         if (setting == null) {
             return 0;
         }
-        
+
         return setting.getResourceCheckingPeriod();
     }
-    
+
     public void processGettingResourcesOfActiveDevices() {
         System.out.println("START CHECKING DEVICE RESOURCES");
 
@@ -64,13 +63,14 @@ public class DeviceResourceManagementController {
             @Override
             public void run() {
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
+                DeviceQueryHelper deviceQueryHelper = new DeviceQueryHelper();
+
                 for (int deviceId : deviceIds) {
                     Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
                     if (device == null) {
                         return;
                     }
 
-                    DeviceQueryHelper deviceQueryHelper = new DeviceQueryHelper();
                     deviceQueryHelper.startQueryDeviceResource(
                             deviceId,
                             SnmpManager.getInstance().createContext(
@@ -83,30 +83,30 @@ public class DeviceResourceManagementController {
 
         Setting setting = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting();
         if (setting != null) {
-            SnmpManager.getInstance().getQueryTimerManager().startDeviceResourceTimer(timerTask, 
+            SnmpManager.getInstance().getQueryTimerManager().startDeviceResourceTimer(timerTask,
                     setting.getNormalizedTime(setting.getDeviceCheckingPeriod()), setting.getNormalizedTime(setting.getResourceCheckingPeriod()));
         }
     }
-    
+
     public boolean processChangingResourceCheckingPeriod(int newPeriod) {
         User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         if (user == null) {
             this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_GETTING;
             return false;
         }
-        
+
         Setting setting = user.getSetting();
         if (setting == null) {
             this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_GETTING;
             return false;
         }
-        
+
         setting.setResourceCheckingPeriod(newPeriod);
         if (!DataManager.getInstance().getSettingManager().updateSetting(setting)) {
             this.resultMessage = new ResultMessageGenerator().CHANGING_FAILED_SETTING;
             return false;
         }
-        
+
         this.processGettingResourcesOfActiveDevices();
         return true;
     }
@@ -147,6 +147,5 @@ public class DeviceResourceManagementController {
         public String CHANGING_FAILED_GETTING = "Some errors happened when getting setting from database.";
         public String CHANGING_FAILED_SETTING = "Some errors happened when saving your new configuration.";
     }
-    
-}
 
+}

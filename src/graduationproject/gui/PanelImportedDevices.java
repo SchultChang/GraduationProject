@@ -105,7 +105,7 @@ public class PanelImportedDevices extends JPanel {
         PANEL_INTERFACE_INFO,
         PANEL_MONITORING_DEVICE,
         PANEL_DEVICE_RESOURCES,
-        PANEL_DEVICE_SUMMARY
+        PANEL_DEVICE_STATISTICS
     }
 
 //    private List<DeviceStates> deviceStates;
@@ -591,7 +591,7 @@ public class PanelImportedDevices extends JPanel {
             case PANEL_DEVICE_RESOURCES:
                 this.displayPanel(panelDeviceResources, 440, 0, -1, -1);
                 break;
-            case PANEL_DEVICE_SUMMARY:
+            case PANEL_DEVICE_STATISTICS:
                 this.displayPanel(panelDeviceStatistics, 440, 0, -1, -1);
                 break;
         }
@@ -661,7 +661,7 @@ public class PanelImportedDevices extends JPanel {
         return panelDeviceResources;
     }
 
-    public PanelDeviceStatistics getPanelDeviceSummary() {
+    public PanelDeviceStatistics getPanelDeviceStatistics() {
         return panelDeviceStatistics;
     }
 

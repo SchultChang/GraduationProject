@@ -279,8 +279,8 @@ public class PanelDeviceInfo extends JPanel {
                 if (source == buttonStatistics) {
                     try {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
-                                .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_SUMMARY);
-                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceSummary().initViewData(deviceId);
+                                .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_STATISTICS);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceStatistics().initViewData(deviceId);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

@@ -18,7 +18,7 @@ import org.soulwing.snmp.VarbindCollection;
  *
  * @author cloud
  */
-public class NotificationHandler implements SnmpNotificationHandler {
+public class NotificationProcessor implements SnmpNotificationHandler {
 
     @Override
     public Boolean handleNotification(SnmpNotificationEvent sne) {

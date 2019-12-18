@@ -5,6 +5,8 @@
  */
 package graduationproject.snmpd.callbacks;
 
+import graduationproject.controllers.DeviceManagementController;
+import graduationproject.controllers.DeviceResourceManagementController;
 import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import org.soulwing.snmp.SnmpAsyncWalker;
 import org.soulwing.snmp.SnmpCallback;
@@ -16,11 +18,11 @@ import org.soulwing.snmp.VarbindCollection;
  *
  * @author cloud
  */
-public class DeviceResourceCheckingCallbackStage2 implements SnmpCallback<SnmpAsyncWalker<VarbindCollection>> {
+public class DeviceResourceQueryCallbackStage3 implements SnmpCallback<SnmpAsyncWalker<VarbindCollection>> {
 
     private DeviceQueryHelper.DeviceResourceDataCollector dataCollector;
 
-    public DeviceResourceCheckingCallbackStage2(DeviceQueryHelper.DeviceResourceDataCollector dataCollector) {
+    public DeviceResourceQueryCallbackStage3(DeviceQueryHelper.DeviceResourceDataCollector dataCollector) {
         this.dataCollector = dataCollector;
     }
 
@@ -32,7 +34,7 @@ public class DeviceResourceCheckingCallbackStage2 implements SnmpCallback<SnmpAs
 
             VarbindCollection entry = walker.next().get();
             while (entry != null) {
-                this.dataCollector.processDeviceData(entry);
+                this.dataCollector.processMemoryData(entry);
                 try {
                     entry = walker.next().get();
                 } catch (Exception e) {
@@ -41,10 +43,13 @@ public class DeviceResourceCheckingCallbackStage2 implements SnmpCallback<SnmpAs
                 }
             }
 
-            DeviceResourceCheckingCallbackStage3 stage3Callback = new DeviceResourceCheckingCallbackStage3(this.dataCollector);
-            se.getContext().asyncWalk(stage3Callback, 1, DeviceQueryHelper.memoryTable);
+            DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
+            resourceController.processCollectedResourceData(this.dataCollector.getDeviceId(), 
+                    this.dataCollector.getDeviceCpuData(), this.dataCollector.getDeviceMemoryData());
         } catch (Exception e) {
 //            e.printStackTrace();
+            se.getContext().close();
+        } finally {
             se.getContext().close();
         }
 

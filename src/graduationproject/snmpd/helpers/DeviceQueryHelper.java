@@ -7,7 +7,7 @@ package graduationproject.snmpd.helpers;
 
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.snmpd.SnmpManager;
-import graduationproject.snmpd.callbacks.DeviceResourceCheckingCallbackStage1;
+import graduationproject.snmpd.callbacks.DeviceResourceQueryCallbackStage1;
 import graduationproject.snmpd.callbacks.PushDeviceInfoCallbackStage1;
 import graduationproject.snmpd.callbacks.QueryGetNextCallback;
 import graduationproject.snmpd.callbacks.QueryWalkCallback;
@@ -104,7 +104,7 @@ public class DeviceQueryHelper {
 
     public void startQueryDeviceResource(int deviceId, SnmpContext context) {
         DeviceResourceDataCollector dataCollector = new DeviceResourceDataCollector(deviceId);
-        DeviceResourceCheckingCallbackStage1 stage1Callback = new DeviceResourceCheckingCallbackStage1(dataCollector);
+        DeviceResourceQueryCallbackStage1 stage1Callback = new DeviceResourceQueryCallbackStage1(dataCollector);
         context.asyncWalk(stage1Callback, 1, processorLoadTable);
     }
 

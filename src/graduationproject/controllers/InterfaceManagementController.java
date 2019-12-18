@@ -93,6 +93,7 @@ public class InterfaceManagementController {
                 TopoDrawer.getInstance().checkRedrawingTopo();
                 System.out.println("START CHECKING INTERFACE STATES");
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
+                InterfaceQueryHelper helper = new InterfaceQueryHelper();
                 for (int deviceId : deviceIds) {
                     Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
                     if (device == null) {
@@ -101,7 +102,6 @@ public class InterfaceManagementController {
                     SnmpContext snmpContext = SnmpManager.getInstance().createContext(
                             device.getSnmpVersion(), device.getContactInterface().getIpAddress(),
                             device.getContactInterface().getCommunity());
-                    InterfaceQueryHelper helper = new InterfaceQueryHelper();
                     helper.startQueryAllInterfaces(deviceId, snmpContext);
                 }
             }
@@ -178,32 +178,30 @@ public class InterfaceManagementController {
         Calendar updatedTime = Calendar.getInstance();
         AddressParser addressParser = new AddressParser();
         try {
-        for (int i = 0; i < tempSize; i++) {
-            InterfaceRawData temp = rawDataList.get(i);
-            List<Object> rawData = temp.getDynamicData();
-            
-            ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
-                    temp.getName(),
-                    temp.getIpAddress(),
-                    addressParser.getNetworkIp(temp.getIpAddress(), temp.getNetmask()),
-                    temp.getMacAddress(),
-                    ActiveDeviceDataCollector.getInstance().findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
-                    temp.getNextNodeIPs(),
-                    temp.getNextNodeMacs());
-        
-            DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                    rawData, updatedTime, device.getNetworkInterfaces().get(i));
-            DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
+            for (int i = 0; i < tempSize; i++) {
+                InterfaceRawData temp = rawDataList.get(i);
+                List<Object> rawData = temp.getDynamicData();
 
-            if (i == displayedInterfaceId) {
-                needToViewDynamicData = dynamicData;
+                ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
+                        temp.getName(),
+                        temp.getIpAddress(),
+                        addressParser.getNetworkIp(temp.getIpAddress(), temp.getNetmask()),
+                        temp.getMacAddress(),
+                        ActiveDeviceDataCollector.getInstance().findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                        temp.getNextNodeIPs(),
+                        temp.getNextNodeMacs());
+
+                DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
+                        rawData, updatedTime, device.getNetworkInterfaces().get(i));
+                DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
+
+                if (i == displayedInterfaceId) {
+                    needToViewDynamicData = dynamicData;
+                }
             }
-        }
         } catch (Exception e) {
             e.printStackTrace();
         }
-            
-        ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);
 
         //for display
         String[] names = new String[tempSize];
@@ -228,6 +226,8 @@ public class InterfaceManagementController {
                         needToViewDynamicData));
             }
         }
+
+        ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);
 
     }
 

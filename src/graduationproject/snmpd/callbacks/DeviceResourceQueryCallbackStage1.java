@@ -20,11 +20,11 @@ import org.soulwing.snmp.VarbindCollection;
  *
  * @author cloud
  */
-public class DeviceResourceCheckingCallbackStage1 implements SnmpCallback<SnmpAsyncWalker<VarbindCollection>> {
+public class DeviceResourceQueryCallbackStage1 implements SnmpCallback<SnmpAsyncWalker<VarbindCollection>> {
 
     private DeviceResourceDataCollector dataCollector;
 
-    public DeviceResourceCheckingCallbackStage1(DeviceResourceDataCollector dataCollector) {
+    public DeviceResourceQueryCallbackStage1(DeviceResourceDataCollector dataCollector) {
         this.dataCollector = dataCollector;
     }
 
@@ -45,7 +45,7 @@ public class DeviceResourceCheckingCallbackStage1 implements SnmpCallback<SnmpAs
                 }
             }
 
-            DeviceResourceCheckingCallbackStage2 stage2Callback = new DeviceResourceCheckingCallbackStage2(this.dataCollector);
+            DeviceResourceQueryCallbackStage2 stage2Callback = new DeviceResourceQueryCallbackStage2(this.dataCollector);
             se.getContext().asyncWalk(stage2Callback, 1, DeviceQueryHelper.deviceTable);
         } catch (Exception e) {
 //            e.printStackTrace();

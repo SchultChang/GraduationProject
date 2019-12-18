@@ -235,15 +235,15 @@ public class DeviceManagementController {
     }
 
     public void processCheckingStateOfDevices() {
-        List<Object> deviceIds = DataManager.getInstance().getDeviceManager().getDeviceIds();
-        
         System.out.println("START CHECKING DEVICE STATES");
         TimerTask checkingTask = new TimerTask() {
             @Override
             public void run() {
+                List<Object> deviceIds = DataManager.getInstance().getDeviceManager().getDeviceIds();
                 System.gc();
-                DeviceManagementController deviceController = new DeviceManagementController();
-                deviceController.startCheckingStateOfDevices(deviceIds);
+//                DeviceManagementController deviceController = new DeviceManagementController();
+//                deviceController.startCheckingStateOfDevices(deviceIds);
+                DeviceManagementController.this.startCheckingStateOfDevices(deviceIds);
             }
         };
 
