@@ -240,7 +240,7 @@ public class PanelImportedDevices extends JPanel {
                         } else {
 //                            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceActiveTimer();
 //                            SnmpManager.getInstance().getQueryTimerManager().cancelInterfaceTimer();
-                            initData();
+                            initViewData();
                         }
                     }
                 }
@@ -287,7 +287,7 @@ public class PanelImportedDevices extends JPanel {
                     if (!panelDeviceInfo.isVisible()) {
                         switchDisplayedPanel(PANELS.PANEL_DEVICE_INFO);
                     }
-                    panelDeviceInfo.initData(source.getDeviceId());
+                    panelDeviceInfo.initViewData(source.getDeviceId());
 
                     if (currentChosenLabelDevice != source) {
                         if (currentChosenLabelDevice != null) {
@@ -338,7 +338,7 @@ public class PanelImportedDevices extends JPanel {
                 if (!panelInterfaceInfo.isVisible()) {
                     PanelImportedDevices.this.switchDisplayedPanel(PANELS.PANEL_INTERFACE_INFO);
                 }
-                panelInterfaceInfo.initData(source.getDeviceId(), source.getInterfaceId());
+                panelInterfaceInfo.initViewData(source.getDeviceId(), source.getInterfaceId());
 
                 if (currentChosenLabelInterface != source) {
                     if (currentChosenLabelInterface != null) {
@@ -370,7 +370,7 @@ public class PanelImportedDevices extends JPanel {
                         return;
                     }
 
-                    initData();
+                    initViewData();
                     System.gc();
                 }
             }
@@ -399,7 +399,7 @@ public class PanelImportedDevices extends JPanel {
         this.labelInterfaces = new ArrayList<LabelInterface>();
     }
 
-    public void initData() {
+    public void initViewData() {
         this.hideDisplayedPanel();
         this.clearLabelInterfaces();
         this.initDeviceList();

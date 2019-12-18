@@ -195,7 +195,7 @@ public class PanelNotificationInfo extends JPanel {
         this.labelClose.addMouseListener(this.listenerLabel);
     }
     
-    public void initData(int notificationId) {
+    public void initViewData(int notificationId) {
         NotificationManagementController notificationController = new NotificationManagementController();
         List<Object> data = notificationController.processGettingNotificationInfo(notificationId);
         if (data == null) {

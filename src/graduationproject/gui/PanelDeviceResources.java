@@ -266,7 +266,7 @@ public class PanelDeviceResources extends JPanel {
         this.buttonChange.addActionListener(this.listenerButton);
     }
     
-    public synchronized void initData(int deviceId) {
+    public synchronized void initViewData(int deviceId) {
         this.deviceId = deviceId;
         
         this.clearTable((DefaultTableModel) this.tableCPU.getModel());

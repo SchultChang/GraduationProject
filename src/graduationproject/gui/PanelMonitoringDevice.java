@@ -156,7 +156,7 @@ public class PanelMonitoringDevice extends JPanel {
         this.buttonStop.addActionListener(listenerButton);
     }
 
-    public void initData(int deviceId, int templateId) {
+    public void initViewData(int deviceId, int templateId) {
         this.deviceId = deviceId;
         this.templateId = templateId;
 

@@ -138,7 +138,7 @@ public class PanelInitial extends JPanel {
     public PanelInitial() {
         initComponents();
         initListeners();
-        initData();
+        initViewData();
     }
 
     private void initComponents() {
@@ -778,11 +778,11 @@ public class PanelInitial extends JPanel {
         this.listAccounts.addMouseMotionListener(this.listenerListHover);
     }
 
-    private void initData() {
-        initDataPanelLogin();
+    private void initViewData() {
+        initViewDataPanelLogin();
     }
 
-    private void initDataPanelLogin() {
+    private void initViewDataPanelLogin() {
         UserManagementController userController = new UserManagementController();
         List<String> accounts = userController.processGettingRememberedAccounts();
 
@@ -810,7 +810,7 @@ public class PanelInitial extends JPanel {
         switch (newPanel) {
             case PANEL_LOGIN:
                 this.displayPanel(panelLogin, 620, 250, 420, 560);
-                this.initDataPanelLogin();
+                this.initViewDataPanelLogin();
                 if (shouldRefresh) {
                     this.refreshPanelLogin();
                     this.refreshPanelAddQuestions();
@@ -877,7 +877,7 @@ public class PanelInitial extends JPanel {
     }
 
     private void refreshPanelLogin() {
-        this.initData();
+        this.initViewData();
         this.tfieldAccount.setText("");
         this.pfieldPassword.setText("");
         this.checkboxRememberPassword.setSelected(false);

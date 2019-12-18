@@ -389,7 +389,7 @@ public class PanelInterfaceInfo extends JPanel {
         this.currentIpChoiceId = -1;
     }
 
-    public void initData(int deviceId, int interfaceListId) {
+    public void initViewData(int deviceId, int interfaceListId) {
         this.interfaceListId = interfaceListId;
         this.deviceId = deviceId;
         this.firstTime = true;

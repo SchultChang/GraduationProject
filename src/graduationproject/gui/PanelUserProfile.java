@@ -247,7 +247,7 @@ public class PanelUserProfile extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 JButton source = (JButton) e.getSource();
                 if (source == buttonCancel) {
-                    initData();
+                    initViewData();
                 }
                 if (source == buttonSave) {
                     UserManagementController userController = new UserManagementController();
@@ -299,7 +299,7 @@ public class PanelUserProfile extends JPanel {
         this.repaint();
     }
     
-    public void initData() {
+    public void initViewData() {
         UserManagementController userController = new UserManagementController();
         List<String> userData = userController.processGettingUserProfile(DataManager.getInstance().getActiveAccountId());
 

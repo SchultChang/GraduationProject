@@ -555,8 +555,8 @@ public class PanelMain extends JPanel {
                 this.switchDisplayedPanel(PANELS.PANEL_USER_PROFILE);
             }
             if (labels[temp] == this.labelLogout) {
-                ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_INITIAL);
                 new UserManagementController().processLogout();
+                ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_INITIAL);
             }
         }
     }
@@ -641,23 +641,23 @@ public class PanelMain extends JPanel {
         switch (panel) {
             case PANEL_USER_PROFILE:
                 this.displayPanel(this.panelUserProfile, 0, 60, -1, -1);
-                this.panelUserProfile.initData();
+                this.panelUserProfile.initViewData();
                 break;
 
             case PANEL_IMPORTED_DEVICES:
                 this.displayPanel(this.panelImportedDevices, 0, 60, -1, -1);
 //                this.panelImportedDevices.refreshPanel();
-                this.panelImportedDevices.initData();
+                this.panelImportedDevices.initViewData();
                 break;
 
             case PANEL_IMPORTED_TEMPLATES:
                 this.displayPanel(this.panelImportedTemplates, 0, 60, -1, -1);
-                this.panelImportedTemplates.initData();
+                this.panelImportedTemplates.initViewData();
                 break;
 
             case PANEL_NOTIFICATION_LIST:
                 this.displayPanel(this.panelNotificationList, 0, 60, -1, -1);
-                this.panelNotificationList.initData();
+                this.panelNotificationList.initViewData();
                 break;
         }
 
@@ -764,7 +764,7 @@ public class PanelMain extends JPanel {
             this.panelNotificationInfo.setEnabled(true);
         }
 
-        this.panelNotificationInfo.initData(notificationId);
+        this.panelNotificationInfo.initViewData(notificationId);
 
         this.revalidate();
         this.repaint();

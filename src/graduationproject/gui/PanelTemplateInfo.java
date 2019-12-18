@@ -174,7 +174,7 @@ public class PanelTemplateInfo extends JPanel {
                     }
                 }
                 if (source == buttonCancel) {
-                    initData(templateId);
+                    initViewData(templateId);
                 }
             }
             
@@ -190,7 +190,7 @@ public class PanelTemplateInfo extends JPanel {
                 if (source == tableItems) {
                     if (clickedRow ==  source.getSelectedRow() &&  clickedRow > -1) {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().showPanelItemInfo();
-                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().getPanelItemInfo().initData(templateId, clickedRow);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedTemplates().getPanelItemInfo().initViewData(templateId, clickedRow);
                         clickedRow = -1;
                     } else {
                         clickedRow = source.getSelectedRow();
@@ -205,7 +205,7 @@ public class PanelTemplateInfo extends JPanel {
         this.clickedRow = -1;
     }
     
-    public void initData(int templateId) {
+    public void initViewData(int templateId) {
         this.templateId = templateId;
         
         TemplateManagementController templateController = new TemplateManagementController();

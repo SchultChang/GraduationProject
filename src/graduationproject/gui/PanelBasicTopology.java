@@ -134,7 +134,7 @@ public class PanelBasicTopology extends JPanel {
                     if (deviceId >= 0) {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().switchBetweenDeviceListAndTopology(true);
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_INFO);
-                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo().initData(deviceId);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo().initViewData(deviceId);
                     } else {
                         JOptionPane.showMessageDialog(null, MESSAGE_FOR_NOT_GETTING_DEVICE_INFO);
                     }
@@ -144,9 +144,9 @@ public class PanelBasicTopology extends JPanel {
                     int deviceId = chosenLabel.getDeviceId();
                     if (deviceId != VS_DEVICE_ID) {
                         if (deviceId >= 0) {
-                            panelSSHClient.initData(deviceId);
+                            panelSSHClient.initViewData(deviceId);
                         } else {
-                            panelSSHClient.initData(chosenLabel.getDeviceAddress());
+                            panelSSHClient.initViewData(chosenLabel.getDeviceAddress());
                         }
                     }
                 }

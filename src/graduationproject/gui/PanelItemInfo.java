@@ -180,7 +180,7 @@ public class PanelItemInfo extends JPanel{
                         JOptionPane.showMessageDialog(null, itemController.getResultMessage());
                 }
                 if (source == buttonCancel) {
-                    initData(templateId, itemListId);
+                    initViewData(templateId, itemListId);
                 }
             }
             
@@ -200,7 +200,7 @@ public class PanelItemInfo extends JPanel{
         this.labelIconBack.addMouseListener(this.listenerLabel);
     }
     
-    public void initData(int templateId, int itemListId) {
+    public void initViewData(int templateId, int itemListId) {
         this.templateId = templateId;
         this.itemListId = itemListId;
         

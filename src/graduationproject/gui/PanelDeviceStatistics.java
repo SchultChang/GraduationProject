@@ -8,7 +8,6 @@ package graduationproject.gui;
 import graduationproject.controllers.ChartManagementController;
 import graduationproject.controllers.ChartManagementController.QueryPeriod;
 import graduationproject.controllers.InterfaceManagementController;
-import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.MemoryType;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -18,19 +17,14 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XChartPanel;
-import org.knowm.xchart.XYChart;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 
@@ -265,7 +259,7 @@ public class PanelDeviceStatistics extends JPanel {
         this.repaint();
     }
 
-    public void initData(int deviceId) {
+    public void initViewData(int deviceId) {
         this.deviceId = deviceId;
         this.currentMemoryChoiceId = 0;
         this.currentInterfaceChoiceId = 0;

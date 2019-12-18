@@ -160,7 +160,7 @@ public class PanelNotificationList extends JPanel {
         add(panel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1600, 130));
     }
 
-    public void initData() {
+    public void initViewData() {
         NotificationManagementController notificationController = new NotificationManagementController();
         List<Object> data = notificationController.getNotificationsOfDay(DataManager.getInstance().getStartTime());
 

@@ -131,7 +131,7 @@ public class DialogChoosingTemplates extends JDialog {
                             == DeviceStates.ACTIVE) {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                                 .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_MONITORING_DEVICE);
-                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelMonitoringDevice().initData(
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelMonitoringDevice().initViewData(
                                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceId(),
                                 DialogChoosingTemplates.this.templateIds[listTemplates.getSelectedIndex()]);
                     } else {
@@ -196,7 +196,7 @@ public class DialogChoosingTemplates extends JDialog {
         this.tfieldSearch.addKeyListener(listenerField);
     }
 
-    public void initData() {
+    public void initViewData() {
         this.isSingular = true;
         buttonSingular.setBorder(CLICK_BORDER);
         buttonSingular.setBackground(CLICK_COLOR);
@@ -229,7 +229,7 @@ public class DialogChoosingTemplates extends JDialog {
     @Override
     public void setVisible(boolean visible) {
         if (visible) {
-            this.initData();
+            this.initViewData();
         }
         super.setVisible(visible);
     }

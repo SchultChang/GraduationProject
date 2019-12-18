@@ -162,7 +162,7 @@ public class PanelImportedTemplates extends JPanel {
                         if (!templateController.processImportingTemplateFromFile(!isSingular, fileChooser.getSelectedFile())) {
                             JOptionPane.showMessageDialog(null, templateController.getResultMessage());
                         } else {
-                            initData();
+                            initViewData();
                         }
                     }
 
@@ -203,7 +203,7 @@ public class PanelImportedTemplates extends JPanel {
 
                 hidePanelItemInfo();
                 showPanelTemplateInfo();
-                panelTemplateInfo.initData(source.getTemplateId());
+                panelTemplateInfo.initViewData(source.getTemplateId());
 
                 if (source != chosenLabelTemplate) {
                     if (chosenLabelTemplate != null) {
@@ -229,7 +229,7 @@ public class PanelImportedTemplates extends JPanel {
         this.labelTemplates = new ArrayList<LabelTemplate>();
     }
 
-    public void initData() {
+    public void initViewData() {
         hidePanelTemplateInfo();
         hidePanelItemInfo();
         initTemplateList();

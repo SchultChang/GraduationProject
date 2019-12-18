@@ -228,17 +228,17 @@ public class PanelSSHClient extends JPanel {
     }
 
        
-    public void initData(int deviceId) {
+    public void initViewData(int deviceId) {
         DeviceManagementController deviceController = new DeviceManagementController();
         List<String> data = deviceController.processGettingDeviceInfo(deviceId);
         if (data != null) {
-            this.initData(data.get(DeviceManagementController.DataOrders.CI_IP_ADDRESS.getValue()));
+            this.initViewData(data.get(DeviceManagementController.DataOrders.CI_IP_ADDRESS.getValue()));
         } else {
-            this.initData("");
+            this.initViewData("");
         }
     }
 
-    public void initData(String address) {
+    public void initViewData(String address) {
         if (!this.panelInformation.isVisible()) {
             System.out.println("DISPLAY PANEL INFO");
             this.switchDisplayedPanel(true);

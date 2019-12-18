@@ -269,18 +269,18 @@ public class PanelDeviceInfo extends JPanel {
                     }
                 }
                 if (source == buttonCancel) {
-                    initData(deviceId);
+                    initViewData(deviceId);
                 }
                 if (source == buttonResources) {
                     ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                             .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_RESOURCES);
-                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceResources().initData(deviceId);
+                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceResources().initViewData(deviceId);
                 }
                 if (source == buttonStatistics) {
                     try {
                         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                                 .switchDisplayedPanel(PanelImportedDevices.PANELS.PANEL_DEVICE_SUMMARY);
-                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceSummary().initData(deviceId);
+                        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceSummary().initViewData(deviceId);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -310,7 +310,7 @@ public class PanelDeviceInfo extends JPanel {
         this.labelHidePanel.addMouseListener(this.listenerLabel);
     }
 
-    public void initData(int deviceId) {
+    public void initViewData(int deviceId) {
         this.deviceId = deviceId;
 
         DeviceManagementController deviceController = new DeviceManagementController();
