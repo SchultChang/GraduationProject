@@ -123,16 +123,16 @@ public class ActiveDeviceDataCollector {
     }
 
     public synchronized void addUnknownDevice(String ip, String networkIp, String mac,
-            int nextNodeId, String nextNodeIp, String nextNodeMac) {
+            int connectedNodeId, String connectedNodeIp, String connectedNodeMac) {
         synchronized (this.unknownDevices) {
             boolean isExisted = false;
             for (ActiveDeviceData deviceData : this.unknownDevices) {
                 if (deviceData.containInterface(ip, mac)) {
 //                    deviceData.unknownLinkCount++;
                     deviceData.updateInterface(null, ip, networkIp, mac,
-                            new int[]{nextNodeId},
-                            Arrays.asList(nextNodeIp),
-                            Arrays.asList(nextNodeMac));
+                            new int[]{connectedNodeId},
+                            Arrays.asList(connectedNodeIp),
+                            Arrays.asList(connectedNodeMac));
                     isExisted = true;
 //                    System.out.println("ADDING UNKNOWN NODE");
                     break;
@@ -143,9 +143,9 @@ public class ActiveDeviceDataCollector {
                 this.newDataForTopo = true;
                 ActiveDeviceData unknownDevice = new ActiveDeviceData(UNKNOWN_DEVICE_ID, null, ip, networkIp, mac);
                 unknownDevice.updateInterface(null, ip, networkIp, mac,
-                        new int[]{nextNodeId},
-                        Arrays.asList(nextNodeIp),
-                        Arrays.asList(nextNodeMac));
+                        new int[]{connectedNodeId},
+                        Arrays.asList(connectedNodeIp),
+                        Arrays.asList(connectedNodeMac));
                 this.unknownDevices.add(unknownDevice);
             }
         }
@@ -182,13 +182,13 @@ public class ActiveDeviceDataCollector {
     }
 
     public void removeUnknownDevice(String ipAddress, String macAddress,
-            int nextNodeId, String nextNodeIp, String nextNodeMac) {
+            int connectedNodeId, String connectedNodeIp, String connectedNodeMac) {
         synchronized (this.unknownDevices) {
 //            System.out.println("REMOVING UNKNOWN NODE 2");
             for (ActiveDeviceData device : this.unknownDevices) {
                 if (device.containInterface(ipAddress, macAddress)) {
-                    device.removeConnectedNode(nextNodeId, nextNodeMac);
-                    if (device.interfaces.get(0).nextNodes.isEmpty()) {
+                    device.removeConnectedNode(connectedNodeId, connectedNodeMac);
+                    if (device.interfaces.get(0).connectedNodes.isEmpty()) {
                         this.unknownDevices.remove(device);
                         this.newDataForTopo = true;
                         System.out.println("REMOVE UNKNOWN DEVICE");
@@ -199,16 +199,33 @@ public class ActiveDeviceDataCollector {
         }
     }
 
-    public synchronized void updateInterfaceData(int deviceId, String interfaceName, String interfaceIp, String networkIp, String interfaceMac,
-            int[] nextNodeIds, List<String> nextNodeIps, List<String> nextNodeMacs) {
+//    public synchronized void updateInterfaceData(int deviceId, String interfaceName, String interfaceIp, String networkIp, String interfaceMac,
+//            int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
+//        synchronized (this.importedDevices) {
+//            for (ActiveDeviceData deviceData : this.importedDevices) {
+//                if (deviceData.id == deviceId) {
+//                    deviceData.updateInterface(interfaceName, interfaceIp, networkIp, interfaceMac, 
+//                            connectedNodeIds, connectedNodeIps, connectedNodeMacs);
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//                String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards) {
+
+    public synchronized InterfaceData updateInterfaceData(int deviceId, String interfaceName, String interfaceIp, String networkIp, String interfaceMac,
+            String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards,
+            int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
         synchronized (this.importedDevices) {
             for (ActiveDeviceData deviceData : this.importedDevices) {
                 if (deviceData.id == deviceId) {
-                    deviceData.updateInterface(interfaceName, interfaceIp, networkIp, interfaceMac, nextNodeIds, nextNodeIps, nextNodeMacs);
-                    break;
+                    return deviceData.updateInterface(interfaceName, interfaceIp, networkIp, interfaceMac, 
+                            netmask, mtu, inboundPackets, outboundPackets, inboundDiscards, outboundDiscards,
+                            connectedNodeIds, connectedNodeIps, connectedNodeMacs);
                 }
             }
         }
+        return null;
     }
 
     public synchronized void mergeNewInterfaceData(int deviceId) {
@@ -233,16 +250,25 @@ public class ActiveDeviceDataCollector {
         }
     }
 
-    public synchronized List<Object> getConnectedNodesForView(int deviceId, String mac, String nextNodeIp) {
-        List<Object> result = new ArrayList<Object>();
+    public synchronized List<Object> getInterfaceDynamicDataForView(int deviceId, String mac) {
         for (ActiveDeviceData deviceData : this.importedDevices) {
             if (deviceData.id == deviceId) {
-                return deviceData.getConnectedNodesForView(mac, nextNodeIp);
+                return deviceData.getInterfaceDynamicDataForView(mac);
             }
         }
         return null;
     }
-
+    
+    public synchronized List<Object> getConnectedNodesForView(int deviceId, String mac, String connectedNodeIp) {
+        List<Object> result = new ArrayList<Object>();
+        for (ActiveDeviceData deviceData : this.importedDevices) {
+            if (deviceData.id == deviceId) {
+                return deviceData.getConnectedNodesForView(mac, connectedNodeIp);
+            }
+        }
+        return null;
+    }
+    
     public class ActiveDeviceData {
 
         private int id;
@@ -287,8 +313,10 @@ public class ActiveDeviceDataCollector {
             Device device = DataManager.getInstance().getDeviceManager().getDevice(this.id);
             return device.getLabel();
         }
+//                String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards) {
 
-        public void updateInterface(String name, String ip, String networkIp, String mac, int[] nextNodeIds, List<String> nextNodeIps, List<String> nextNodeMacs) {
+        public void updateInterface(String name, String ip, String networkIp, String mac,
+                int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
             boolean isExisted = false;
             for (InterfaceData interfaceData : this.newInterfaces) {
                 if (interfaceData.macAddress.equalsIgnoreCase(mac)) {
@@ -297,16 +325,42 @@ public class ActiveDeviceDataCollector {
                     }
                     interfaceData.ipAddress = ip;
                     interfaceData.macAddress = mac;
-                    interfaceData.updateConnectedNodes(nextNodeIds, nextNodeIps, nextNodeMacs);
+                    interfaceData.updateConnectedNodes(connectedNodeIds, connectedNodeIps, connectedNodeMacs);
                     isExisted = true;
                     break;
                 }
             }
             if (!isExisted) {
                 InterfaceData newInterface = new InterfaceData(this.id, name, ip, networkIp, mac);
-                newInterface.updateConnectedNodes(nextNodeIds, nextNodeIps, nextNodeMacs);
+                newInterface.updateConnectedNodes(connectedNodeIds, connectedNodeIps, connectedNodeMacs);
                 this.newInterfaces.add(newInterface);
             }
+        }
+        
+        public InterfaceData updateInterface(String name, String ip, String networkIp, String mac,
+                String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards,
+                int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
+            boolean isExisted = false;
+//            for (InterfaceData interfaceData : this.newInterfaces) {
+//                if (interfaceData.macAddress.equalsIgnoreCase(mac)) {
+//                    if (name != null) {
+//                        interfaceData.name = name;
+//                    }
+//                    interfaceData.ipAddress = ip;
+//                    interfaceData.macAddress = mac;
+//                    interfaceData.updateConnectedNodes(connectedNodeIds, connectedNodeIps, connectedNodeMacs);
+//                    isExisted = true;
+//                    break;
+//                }
+//            }
+            if (!isExisted) {
+                InterfaceData newInterface = new InterfaceData(this.id, name, ip, networkIp, mac,
+                        netmask, mtu, inboundPackets, outboundPackets, inboundDiscards, outboundDiscards);
+                newInterface.updateConnectedNodes(connectedNodeIds, connectedNodeIps, connectedNodeMacs);
+                this.newInterfaces.add(newInterface);
+                return newInterface;
+            }
+            return null;
         }
 
         public void mergeNewInterfaces() {
@@ -317,7 +371,7 @@ public class ActiveDeviceDataCollector {
                     boolean isExisted = false;
 
                     for (InterfaceData oldInterface : this.interfaces) {
-                        for (ConnectedNodeData currentConnectedNode : oldInterface.nextNodes) {
+                        for (ConnectedNodeData currentConnectedNode : oldInterface.connectedNodes) {
                             isExisted = false;
                             for (InterfaceData newInterface : this.newInterfaces) {
                                 ConnectedNodeData temp = newInterface.getConnectedNode(currentConnectedNode.getId(), currentConnectedNode.getMacAddress());
@@ -358,13 +412,22 @@ public class ActiveDeviceDataCollector {
             return false;
         }
 
-        public List<Object> getConnectedNodesForView(String mac, String nextNodeIp) {
+        public List<Object> getInterfaceDynamicDataForView(String mac) {
             for (InterfaceData interfaceData : this.interfaces) {
                 if (interfaceData.macAddress.equalsIgnoreCase(mac)) {
-                    if (nextNodeIp == null) {
+                    return interfaceData.getInterfaceDynamicDataForView();
+                }
+            }
+            return null;
+        }
+
+        public List<Object> getConnectedNodesForView(String mac, String connectedNodeIp) {
+            for (InterfaceData interfaceData : this.interfaces) {
+                if (interfaceData.macAddress.equalsIgnoreCase(mac)) {
+                    if (connectedNodeIp == null) {
                         return interfaceData.getConnectedNodesForView();
                     } else {
-                        return interfaceData.getConnectedNodeForView(nextNodeIp);
+                        return interfaceData.getConnectedNodeForView(connectedNodeIp);
                     }
                 }
             }
@@ -376,34 +439,34 @@ public class ActiveDeviceDataCollector {
                 return;
             }
             for (InterfaceData interfaceData : this.interfaces) {
-                for (ConnectedNodeData nextNode : interfaceData.nextNodes) {
-                    if (nextNode.id == MANAGER_DEVICE_ID) {
+                for (ConnectedNodeData connectedNode : interfaceData.connectedNodes) {
+                    if (connectedNode.id == MANAGER_DEVICE_ID) {
                         System.out.println("REMOVE MANAGER's NEXT NODE " + this.id);
                         managerDevice.removeConnectedNode(this.id, interfaceData.macAddress);
                     }
-                    if (nextNode.id == UNKNOWN_DEVICE_ID) {
-                        ActiveDeviceDataCollector.getInstance().removeUnknownDevice(nextNode.ipAddress, nextNode.macAddress,
+                    if (connectedNode.id == UNKNOWN_DEVICE_ID) {
+                        ActiveDeviceDataCollector.getInstance().removeUnknownDevice(connectedNode.ipAddress, connectedNode.macAddress,
                                 this.id, interfaceData.ipAddress, interfaceData.macAddress);
                     }
                 }
             }
         }
 
-        public void removeConnectedNode(int nextNodeId, String mac) {
+        public void removeConnectedNode(int connectedNodeId, String mac) {
             for (InterfaceData interfaceData : this.interfaces) {
 //                interfaceData.displayAllConnectedNodes();
-                ConnectedNodeData nextNode = interfaceData.getConnectedNode(nextNodeId, mac);
-                if (nextNode != null) {
-                    if (nextNode.id == MANAGER_DEVICE_ID) {                     //this next node will have to be ensured to not to connect to other interface
+                ConnectedNodeData connectedNode = interfaceData.getConnectedNode(connectedNodeId, mac);
+                if (connectedNode != null) {
+                    if (connectedNode.id == MANAGER_DEVICE_ID) {                     //this next node will have to be ensured to not to connect to other interface
                         managerDevice.removeConnectedNode(id, interfaceData.macAddress);
                     }
-                    if (nextNode.id == UNKNOWN_DEVICE_ID) {
-                        ActiveDeviceDataCollector.getInstance().removeUnknownDevice(nextNode.ipAddress, nextNode.macAddress,
+                    if (connectedNode.id == UNKNOWN_DEVICE_ID) {
+                        ActiveDeviceDataCollector.getInstance().removeUnknownDevice(connectedNode.ipAddress, connectedNode.macAddress,
                                 this.id, interfaceData.ipAddress, interfaceData.macAddress);
                     }
 //                    System.out.println("DEVICE IS REMOVING NEXT NODE: " + this.id);
-//                    System.out.println("REMOVED NEXT NODE: " + nextNode.id);
-                    interfaceData.nextNodes.remove(nextNode);
+//                    System.out.println("REMOVED NEXT NODE: " + connectedNode.id);
+                    interfaceData.connectedNodes.remove(connectedNode);
                     newDataForTopo = true;
                     break;
                 }
@@ -413,15 +476,15 @@ public class ActiveDeviceDataCollector {
         public synchronized List<ConnectedNodeData> getAllConnectedNodes() {
             List<ConnectedNodeData> result = new ArrayList<ConnectedNodeData>();
             for (InterfaceData interfaceData : this.interfaces) {
-                if (interfaceData.nextNodes.size() == 1) {
+                if (interfaceData.connectedNodes.size() == 1) {
                     if (this.id == MANAGER_DEVICE_ID || this.id == UNKNOWN_DEVICE_ID) {
                         if (TopoDrawer.getInstance().isConnectedToVs(interfaceData.networkIp)) {
                             result.add(new ConnectedNodeData(VS_DEVICE_ID, new String(), interfaceData.networkIp, new String()));
                             continue;
                         }
                     }
-                    result.add(interfaceData.nextNodes.get(0));
-                } else if (interfaceData.nextNodes.size() > 1) {
+                    result.add(interfaceData.connectedNodes.get(0));
+                } else if (interfaceData.connectedNodes.size() > 1) {
                     result.add(new ConnectedNodeData(VS_DEVICE_ID, new String(), interfaceData.networkIp, new String()));
                 }
             }
@@ -432,7 +495,7 @@ public class ActiveDeviceDataCollector {
             List<String> result = new ArrayList<String>();
 
             for (InterfaceData interfaceData : this.interfaces) {
-                if (interfaceData.nextNodes.size() > 1) {
+                if (interfaceData.connectedNodes.size() > 1) {
 //                    System.out.println("DEVICE + " + this.id + " NETWORK IP : " + interfaceData.networkIp);
                     result.add(interfaceData.networkIp);
                 }
@@ -449,7 +512,7 @@ public class ActiveDeviceDataCollector {
             }
             return false;
         }
-        
+
         public String getDefaultAddress() {
             if (this.id == MANAGER_DEVICE_ID) {
                 return "127.0.0.1";
@@ -460,31 +523,21 @@ public class ActiveDeviceDataCollector {
     }
 
     public class InterfaceData {
-//        <property name="ipAddress" column="ip_address" type="string"/>
-//        <property name="netmask" column="netmask" type="string"/>
-//        <property name="mtu" column="mtu" type="long"/>
-//        <property name="bandwidth" column="bandwidth" type="long"/>
-//        <property name="inboundPacketNumber" column="inbound_packet_number" type="long"/>
-//        <property name="outboundPacketNumber" column="outbound_packet_number" type="long"/>
-//        <property name="inboundBytes" column="inbound_bytes" type="long"/>
-//        <property name="outboundBytes" column="outbound_bytes" type="long"/>
-//        <property name="inboundDiscardPacketNumber" column="inbound_discard_packet_number" type="long"/>
-//        <property name="outboundDiscardPacketNumber" column="outbound_discard_packet_number" type="long"/>
 
         private int deviceId;
 //        private String ipAddress;
+        private String name;
+        private String macAddress;
+        private String networkIp;
+        private String ipAddress;
         private String netmask;
         private long mtu;
         private long inboundPackets;
         private long outboundPackets;
         private long inboundDiscards;
         private long outboundDiscards;
-        private String name;
-        private String networkIp;
-        private String ipAddress;
-        private String macAddress;
 
-        private List<ConnectedNodeData> nextNodes;
+        private List<ConnectedNodeData> connectedNodes;
 
         public InterfaceData(int deviceId, String name, String ipAddress, String networkIp, String macAddress) {
             this.deviceId = deviceId;
@@ -492,59 +545,104 @@ public class ActiveDeviceDataCollector {
             this.ipAddress = ipAddress;
             this.networkIp = networkIp;
             this.macAddress = macAddress;
-            this.nextNodes = new ArrayList<ConnectedNodeData>();
+            this.netmask = netmask;
+
+            this.mtu = 0;
+            this.inboundPackets = 0;
+            this.outboundPackets = 0;
+            this.inboundDiscards = 0;
+            this.outboundDiscards = 0;
+
+            this.connectedNodes = new ArrayList<ConnectedNodeData>();
         }
 
-        public void updateConnectedNodes(int[] nextNodeIds, List<String> nextNodeIps, List<String> nextNodeMacs) {
-            int tempSize = nextNodeIds.length;
+        public InterfaceData(int deviceId, String name, String ipAddress, String networkIp, String macAddress,
+                String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards) {
+            this.deviceId = deviceId;
+            this.name = name;
+            this.ipAddress = ipAddress;
+            this.networkIp = networkIp;
+            this.macAddress = macAddress;
+            this.netmask = netmask;
+
+            this.mtu = mtu;
+            this.inboundPackets = inboundPackets;
+            this.outboundPackets = outboundPackets;
+            this.inboundDiscards = inboundDiscards;
+            this.outboundDiscards = outboundDiscards;
+
+            this.connectedNodes = new ArrayList<ConnectedNodeData>();
+        }
+
+        public void updateConnectedNodes(int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
+            int tempSize = connectedNodeIds.length;
             ConnectedNodeData temp;
             for (int i = 0; i < tempSize; i++) {
-                temp = this.getConnectedNode(nextNodeIds[i], nextNodeMacs.get(i));
+                temp = this.getConnectedNode(connectedNodeIds[i], connectedNodeMacs.get(i));
 
-                if (nextNodeIds[i] == MANAGER_DEVICE_ID) {
-//                    updateConnectedNodeToManager(nextNodeIps.get(i), nextNodeMacs.get(i), this.deviceId, this.ipAddress, this.macAddress);
-                    System.out.println("ADDING NEXT NODE TO MANAGER " + this.deviceId);
+                if (connectedNodeIds[i] == MANAGER_DEVICE_ID) {
+//                    updateConnectedNodeToManager(connectedNodeIps.get(i), connectedNodeMacs.get(i), this.deviceId, this.ipAddress, this.macAddress);
+//                    System.out.println("ADDING NEXT NODE TO MANAGER " + this.deviceId);
                     synchronized (managerDevice) {
                         managerDevice.updateInterface(
-                                null, nextNodeIps.get(i), this.networkIp, nextNodeMacs.get(i),
+                                null, connectedNodeIps.get(i), this.networkIp, connectedNodeMacs.get(i),
                                 new int[]{this.deviceId},
                                 Arrays.asList(this.ipAddress),
                                 Arrays.asList(this.macAddress));
                     }
 
-                } else if (nextNodeIds[i] == UNKNOWN_DEVICE_ID) {
-                    ActiveDeviceDataCollector.this.addUnknownDevice(nextNodeIps.get(i), this.networkIp, nextNodeMacs.get(i),
+                } else if (connectedNodeIds[i] == UNKNOWN_DEVICE_ID) {
+                    ActiveDeviceDataCollector.this.addUnknownDevice(connectedNodeIps.get(i), this.networkIp, connectedNodeMacs.get(i),
                             this.deviceId, this.ipAddress, this.macAddress);
                 }
 
                 if (temp == null) {
-                    this.nextNodes.add(new ConnectedNodeData(nextNodeIds[i], nextNodeIps.get(i), this.networkIp, nextNodeMacs.get(i)));
+                    this.connectedNodes.add(new ConnectedNodeData(connectedNodeIds[i], connectedNodeIps.get(i), this.networkIp, connectedNodeMacs.get(i)));
                 } else {
-                    temp.id = nextNodeIds[i];
-                    temp.ipAddress = nextNodeIps.get(i);
-                    temp.macAddress = nextNodeMacs.get(i);
+                    temp.id = connectedNodeIds[i];
+                    temp.ipAddress = connectedNodeIps.get(i);
+                    temp.macAddress = connectedNodeMacs.get(i);
                 }
             }
         }
 
-        private ConnectedNodeData getConnectedNode(int nextNodeId, String mac) {
-            for (ConnectedNodeData nextNode : nextNodes) {
-                if (nextNode.id == nextNodeId && nextNode.macAddress.equalsIgnoreCase(mac)) {
-                    return nextNode;
+        private ConnectedNodeData getConnectedNode(int connectedNodeId, String mac) {
+            for (ConnectedNodeData connectedNode : connectedNodes) {
+                if (connectedNode.id == connectedNodeId && connectedNode.macAddress.equalsIgnoreCase(mac)) {
+                    return connectedNode;
                 }
             }
             return null;
         }
 
+        public List<Object> getInterfaceDynamicDataForView() {
+//        IP_ADDRESS(0),
+//        NETMASK(1),
+//        MTU(2),
+//        INPACKETS(3),
+//        OUTPACKETS(4),
+//        INDISCARDS(5),
+//        OUTDISCARDS(6);
+            List<Object> result = new ArrayList<>();
+            result.add(InterfaceDynamicDataOrders.IP_ADDRESS.getValue(), this.ipAddress);
+            result.add(InterfaceDynamicDataOrders.NETMASK.getValue(), this.netmask);
+            result.add(InterfaceDynamicDataOrders.MTU.getValue(), this.mtu);
+            result.add(InterfaceDynamicDataOrders.INPACKETS.getValue(), this.inboundPackets);
+            result.add(InterfaceDynamicDataOrders.OUTPACKETS.getValue(), this.outboundPackets);
+            result.add(InterfaceDynamicDataOrders.INDISCARDS.getValue(), this.inboundDiscards);
+            result.add(InterfaceDynamicDataOrders.OUTDISCARDS.getValue(), this.outboundDiscards);
+            return result;
+        }
+
         public List<Object> getConnectedNodesForView() {
-            int tempSize = this.nextNodes.size();
+            int tempSize = this.connectedNodes.size();
             if (tempSize > 0) {
                 String[] ipAddresses = new String[tempSize];
                 for (int i = 0; i < tempSize; i++) {
-                    ipAddresses[i] = this.nextNodes.get(i).ipAddress;
+                    ipAddresses[i] = this.connectedNodes.get(i).ipAddress;
                 }
 
-                ConnectedNodeData firstNode = this.nextNodes.get(0);
+                ConnectedNodeData firstNode = this.connectedNodes.get(0);
                 if (firstNode.id == UNKNOWN_DEVICE_ID) {
                     return this.convertDataToView(ipAddresses, UNKNOWN_DEVICE_VALUE, UNKNOWN_DEVICE_VALUE, firstNode.macAddress);
                 } else if (firstNode.id == MANAGER_DEVICE_ID) {
@@ -558,16 +656,16 @@ public class ActiveDeviceDataCollector {
             return this.convertDataToView(new String[]{}, new String(), new String(), new String());
         }
 
-        public List<Object> getConnectedNodeForView(String nextNodeIp) {
-            for (ConnectedNodeData nextNode : this.nextNodes) {
-                if (nextNode.ipAddress.equals(nextNodeIp)) {
-                    if (nextNode.id == UNKNOWN_DEVICE_ID) {
-                        return this.convertDataToView(new String[]{}, UNKNOWN_DEVICE_VALUE, UNKNOWN_DEVICE_VALUE, nextNode.macAddress);
-                    } else if (nextNode.id == MANAGER_DEVICE_ID) {
-                        return this.convertDataToView(new String[]{}, SNMP_MANAGER_VALUE, SNMP_MANAGER_VALUE, nextNode.macAddress);
+        public List<Object> getConnectedNodeForView(String connectedNodeIp) {
+            for (ConnectedNodeData connectedNode : this.connectedNodes) {
+                if (connectedNode.ipAddress.equals(connectedNodeIp)) {
+                    if (connectedNode.id == UNKNOWN_DEVICE_ID) {
+                        return this.convertDataToView(new String[]{}, UNKNOWN_DEVICE_VALUE, UNKNOWN_DEVICE_VALUE, connectedNode.macAddress);
+                    } else if (connectedNode.id == MANAGER_DEVICE_ID) {
+                        return this.convertDataToView(new String[]{}, SNMP_MANAGER_VALUE, SNMP_MANAGER_VALUE, connectedNode.macAddress);
                     } else {
-                        Device device = DataManager.getInstance().getDeviceManager().getDevice(nextNode.id);
-                        return this.convertDataToView(new String[]{}, device.getName(), device.getLabel(), nextNode.macAddress);
+                        Device device = DataManager.getInstance().getDeviceManager().getDevice(connectedNode.id);
+                        return this.convertDataToView(new String[]{}, device.getName(), device.getLabel(), connectedNode.macAddress);
                     }
                 }
             }
@@ -582,10 +680,10 @@ public class ActiveDeviceDataCollector {
             result.add(ConnectedNodeDataOrders.MAC_ADDRESS.getValue(), macAddress);
             return result;
         }
-        
+
         public void displayAllConnectedNodes() {
-            for (ConnectedNodeData nextNode : this.nextNodes) {
-                System.out.println("ID " + nextNode.id + " IP " + nextNode.ipAddress + " MAC " + nextNode.macAddress);
+            for (ConnectedNodeData connectedNode : this.connectedNodes) {
+                System.out.println("ID " + connectedNode.id + " IP " + connectedNode.ipAddress + " MAC " + connectedNode.macAddress);
             }
         }
 
@@ -621,6 +719,26 @@ public class ActiveDeviceDataCollector {
             return networkIp;
         }
 
+    }
+
+    public enum InterfaceDynamicDataOrders {
+        IP_ADDRESS(0),
+        NETMASK(1),
+        MTU(2),
+        INPACKETS(3),
+        OUTPACKETS(4),
+        INDISCARDS(5),
+        OUTDISCARDS(6);
+
+        private int value;
+
+        private InterfaceDynamicDataOrders(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
     }
 
     public enum ConnectedNodeDataOrders {

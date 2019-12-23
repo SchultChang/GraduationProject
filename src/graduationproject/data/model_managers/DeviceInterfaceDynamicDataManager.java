@@ -33,7 +33,7 @@ public class DeviceInterfaceDynamicDataManager {
         this.sessionFactory = sessionFactory;
     }
     
-    public int insertDynamicData(DeviceInterfaceDynamicData dynamicData) {
+    public int saveDynamicData(DeviceInterfaceDynamicData dynamicData) {
         Session session = null;
         Transaction tx = null;
         int result = -1;

@@ -334,7 +334,7 @@ public class PanelInterfaceInfo extends JPanel {
         buttonStop.setForeground(java.awt.Color.white);
         buttonStop.setText("Stop");
         buttonStop.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 840, 70, 30));
+        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 830, 70, 30));
 
         label20.setFont(new java.awt.Font("SansSerif", 1, 16));
         label20.setText("Updated Time:");
@@ -375,8 +375,10 @@ public class PanelInterfaceInfo extends JPanel {
                 if (source == cboxConnectedNodeIpAddresses) {
                     if (source.getSelectedIndex() != currentIpChoiceId) {
                         currentIpChoiceId = source.getSelectedIndex();
+//                        if (cboxConnectedNodeIpAddresses.getSelectedItem() != null) {
                         firstTime = false;
-                        PanelInterfaceInfo.this.displayConnectedNodeInformation(deviceId, firstTime);
+//                        }
+                        PanelInterfaceInfo.this.displayConnectedNodeInformation(deviceId, firstTime, null);
 //                        firstTime = false;
                     }
                 }
@@ -414,39 +416,46 @@ public class PanelInterfaceInfo extends JPanel {
         }
 
         try {
-            this.labelName.setText((String) data.get(DataOrders.NAME.getValue()));
-            this.labelMacAddress.setText((String) data.get(DataOrders.MAC_ADDRESS.getValue()));
-            this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
-            this.labelIPAddress.setText((String) data.get(DataOrders.IP_ADDRESS.getValue()));
-            this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
+            if (!data.isEmpty()) {
+                this.labelName.setText((String) data.get(DataOrders.NAME.getValue()));
 
-            this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
-            this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
-            this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
-            this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
-            this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
-            this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
-            this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
-            this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
+                this.labelMacAddress.setText((String) data.get(DataOrders.MAC_ADDRESS.getValue()));
+                this.labelType.setText((String) data.get(DataOrders.TYPE.getValue()));
+                this.labelIPAddress.setText((String) data.get(DataOrders.IP_ADDRESS.getValue()));
+                this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
 
-            this.labelUpdatedTime.setText((String) data.get(DataOrders.UPDATED_TIME.getValue()));
+                this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
+                this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
+                this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
+                this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
+                this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
+                this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
+                this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
+                this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
 
-            if (data.size() >= DataOrders.UPDATE_PERIOD.getValue() + 1) {
-                this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
+                this.labelUpdatedTime.setText((String) data.get(DataOrders.UPDATED_TIME.getValue()));
+
+                if (data.size() >= DataOrders.UPDATE_PERIOD.getValue() + 1) {
+                    this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
+                }
+
+                if (firstTime) {
+                    this.displayConnectedNodeInformation(this.deviceId, this.firstTime,
+                            (List<Object>) data.get(DataOrders.CONNECTED_NODE.getValue()));
+                }
+
+                this.revalidate();
+                this.repaint();
             }
-
-            this.displayConnectedNodeInformation(this.deviceId, this.firstTime);
-            this.revalidate();
-            this.repaint();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private synchronized void displayConnectedNodeInformation(int deviceId, boolean firstTime) {
-        List<Object> data = null;
+    private synchronized void displayConnectedNodeInformation(int deviceId, boolean firstTime, List<Object> data) {
+//        List<Object> data = null;
         if (firstTime) { //the first time of updating next node info 
-            data = ActiveDeviceDataCollector.getInstance().getConnectedNodesForView(deviceId, this.labelMacAddress.getText(), null);
+//            data = ActiveDeviceDataCollector.getInstance().getConnectedNodesForView(deviceId, this.labelMacAddress.getText(), null);
 
             if (data != null) {
                 DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxConnectedNodeIpAddresses.getModel();

@@ -15,6 +15,9 @@ import graduationproject.data.models.User;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.gui.PanelInterfaceInfo;
 import graduationproject.data.ActiveDeviceDataCollector;
+import graduationproject.data.ActiveDeviceDataCollector.ConnectedNodeDataOrders;
+import graduationproject.data.ActiveDeviceDataCollector.InterfaceData;
+import graduationproject.data.ActiveDeviceDataCollector.InterfaceDynamicDataOrders;
 import graduationproject.helpers.AddressParser;
 import graduationproject.helpers.TopoDrawer;
 import graduationproject.snmpd.SnmpManager;
@@ -46,15 +49,12 @@ public class InterfaceManagementController {
         OUT_BYTES(7),
         IN_DISCARD_PACK_NUMBER(8),
         OUT_DISCARD_PACK_NUMBER(9),
-        //        NEXT_NODE_NAME(10),
-        //        NEXT_NODE_LABEL(11),
-        //        NEXT_NODE_IP_ADDRESS(12),
-        //        NEXT_NODE_MAC_ADDRESS(13),
         UPDATED_TIME(10),
         NAME(11),
         MAC_ADDRESS(12),
         TYPE(13),
-        UPDATE_PERIOD(14);
+        UPDATE_PERIOD(15),
+        CONNECTED_NODE(14);
 
         private int value;
 
@@ -174,6 +174,7 @@ public class InterfaceManagementController {
         int displayedInterfaceId = ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                 .getPanelInterfaceInfo().getInterfaceListId();
         DeviceInterfaceDynamicData needToViewDynamicData = null;
+//        InterfaceData interfaceActiveData = null, tempActiveData = null;
 
         Calendar updatedTime = Calendar.getInstance();
         AddressParser addressParser = new AddressParser();
@@ -187,16 +188,31 @@ public class InterfaceManagementController {
                         temp.getIpAddress(),
                         addressParser.getNetworkIp(temp.getIpAddress(), temp.getNetmask()),
                         temp.getMacAddress(),
-                        ActiveDeviceDataCollector.getInstance().findConnectedNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                        temp.getNetmask(),
+                        temp.getMtu(),
+                        temp.getInPackets(),
+                        temp.getOutPackets(),
+                        temp.getInDiscards(),
+                        temp.getOutDiscards(),
+                        ActiveDeviceDataCollector.getInstance()
+                        .findConnectedNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
                         temp.getNextNodeIPs(),
                         temp.getNextNodeMacs());
 
+//                DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
+//                        rawData, updatedTime, device.getNetworkInterfaces().get(i));
                 DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
-                        rawData, updatedTime, device.getNetworkInterfaces().get(i));
-                DataManager.getInstance().getInterfaceDynamicDataManager().insertDynamicData(dynamicData);
+                        temp.getBandwidth(),
+                        temp.getInBytes(),
+                        temp.getOutBytes(),
+                        updatedTime,
+                        device.getNetworkInterfaces().get(i)
+                );
+                DataManager.getInstance().getInterfaceDynamicDataManager().saveDynamicData(dynamicData);
 
                 if (i == displayedInterfaceId) {
                     needToViewDynamicData = dynamicData;
+//                    interfaceActiveData = tempActiveData;
                 }
             }
         } catch (Exception e) {
@@ -223,7 +239,10 @@ public class InterfaceManagementController {
             if (infoPanel.getDeviceId() == deviceId && displayedInterfaceId < tempSize) {
                 infoPanel.updateView(deviceId, this.convertDataForView(
                         device.getNetworkInterfaces().get(displayedInterfaceId),
-                        needToViewDynamicData));
+                        needToViewDynamicData,
+                        ActiveDeviceDataCollector.getInstance().getInterfaceDynamicDataForView(
+                                deviceId, device.getNetworkInterfaces().get(displayedInterfaceId).getMacAddress()),
+                        null));
             }
         }
 
@@ -251,10 +270,10 @@ public class InterfaceManagementController {
             return null;
         }
 
-//        List<Object> result = this.convertDataForView(deviceInterface, dynamicData);
-        Setting setting = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting();
-
-        return this.convertDataForView(deviceInterface, dynamicData, setting);
+        return this.convertDataForView(deviceInterface, dynamicData,
+                DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting(),
+                ActiveDeviceDataCollector.getInstance().getInterfaceDynamicDataForView(deviceId, deviceInterface.getMacAddress()),
+                ActiveDeviceDataCollector.getInstance().getConnectedNodesForView(deviceId, deviceInterface.getMacAddress(), null));
     }
 
     public boolean processChangingInterfaceCheckingPeriod(int newPeriod) {
@@ -282,37 +301,46 @@ public class InterfaceManagementController {
         return true;
     }
 
-    private List<Object> convertDataForView(DeviceNetworkInterface networkInterface, DeviceInterfaceDynamicData data, Setting setting) {
-        List<Object> temp = this.convertDataForView(networkInterface, data);
-        if (temp != null) {
+    private List<Object> convertDataForView(DeviceNetworkInterface networkInterface, DeviceInterfaceDynamicData data,
+            Setting setting, List<Object> interfaceActiveData, List<Object> connectedNodeData) {
+        List<Object> temp = this.convertDataForView(networkInterface, data, interfaceActiveData, connectedNodeData);
+        if (!temp.isEmpty()) {
             temp.add(DataOrders.UPDATE_PERIOD.getValue(), setting.getInterfaceCheckingPeriod());
         }
         return temp;
     }
 
-    private List<Object> convertDataForView(DeviceNetworkInterface networkInterface, DeviceInterfaceDynamicData data) {
+    private List<Object> convertDataForView(DeviceNetworkInterface networkInterface, DeviceInterfaceDynamicData data,
+            List<Object> interfaceActiveData, List<Object> connectedNodeData) {
         List<Object> result = new ArrayList<Object>();
 
-        result.add(DataOrders.IP_ADDRESS.getValue(), data.getIpAddress());
-        result.add(DataOrders.NETMASK.getValue(), data.getNetmask());
-        result.add(DataOrders.MTU.getValue(), data.getMtu());
-        result.add(DataOrders.BANDWIDTH.getValue(), data.getBandwidth());
-        result.add(DataOrders.IN_PACK_NUMBER.getValue(), data.getInboundPacketNumber());
-        result.add(DataOrders.OUT_PACK_NUMBER.getValue(), data.getOutboundPacketNumber());
-        result.add(DataOrders.IN_BYTES.getValue(), data.getInboundBytes());
-        result.add(DataOrders.OUT_BYTES.getValue(), data.getOutboundBytes());
-        result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), data.getInboundDiscardPacketNumber());
-        result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), data.getOutboundDiscardPacketNumber());
-//        result.add(DataOrders.NEXT_NODE_NAME.getValue(), data.getNextNodeName());
-//        result.add(DataOrders.NEXT_NODE_LABEL.getValue(), data.getNextNodeLabel());
-//        result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), data.getNextNodeIPAddress());
-//        result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), data.getNextNodeMacAddress());
-        result.add(DataOrders.UPDATED_TIME.getValue(),
-                new DataConverter().convertCalendarToString(data.getUpdatedTime()));
+        if (interfaceActiveData != null) {
+            result.add(DataOrders.IP_ADDRESS.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.IP_ADDRESS.getValue()));
+            result.add(DataOrders.NETMASK.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.NETMASK.getValue()));
+            result.add(DataOrders.MTU.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.MTU.getValue()));
+            result.add(DataOrders.BANDWIDTH.getValue(), data.getBandwidth());
+            result.add(DataOrders.IN_PACK_NUMBER.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.INPACKETS.getValue()));
+            result.add(DataOrders.OUT_PACK_NUMBER.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.OUTPACKETS.getValue()));
+            result.add(DataOrders.IN_BYTES.getValue(), data.getInboundBytes());
+            result.add(DataOrders.OUT_BYTES.getValue(), data.getOutboundBytes());
+            result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.INDISCARDS.getValue()));
+            result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), interfaceActiveData.get(
+                    InterfaceDynamicDataOrders.OUTDISCARDS.getValue()));
+            result.add(DataOrders.UPDATED_TIME.getValue(),
+                    new DataConverter().convertCalendarToString(data.getUpdatedTime()));
 
-        result.add(DataOrders.NAME.getValue(), networkInterface.getName());
-        result.add(DataOrders.MAC_ADDRESS.getValue(), networkInterface.getMacAddress());
-        result.add(DataOrders.TYPE.getValue(), networkInterface.getType());
+            result.add(DataOrders.NAME.getValue(), networkInterface.getName());
+            result.add(DataOrders.MAC_ADDRESS.getValue(), networkInterface.getMacAddress());
+            result.add(DataOrders.TYPE.getValue(), networkInterface.getType());
+            result.add(DataOrders.CONNECTED_NODE.getValue(), connectedNodeData);
+        }
+
         return result;
     }
 

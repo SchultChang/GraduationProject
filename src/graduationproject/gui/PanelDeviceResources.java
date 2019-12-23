@@ -237,7 +237,7 @@ public class PanelDeviceResources extends JPanel {
         buttonStop.setFont(new java.awt.Font("SansSerif", 1, 16));
         buttonStop.setForeground(java.awt.Color.white);
         buttonStop.setText("Stop");
-        buttonStop.setBorderPainted(false);
+        buttonStop.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 880, 80, -1));
 
         labelUpdatedTime.setFont(new java.awt.Font("SansSerif", 0, 16));

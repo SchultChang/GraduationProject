@@ -162,6 +162,38 @@ public class InterfaceQueryHelper {
         public String getNetmask() {
             return netmask;
         }
+
+        public long getMtu() {
+            return mtu;
+        }
+
+        public long getInDiscards() {
+            return inDiscard;
+        }
+
+        public long getOutDiscards() {
+            return outDiscard;
+        }
+
+        public long getInPackets() {
+            return this.inNUCast + this.inUCast;
+        }
+        
+        public long getOutPackets() {
+            return this.outNUCast + this.outUCast;
+        }
+        
+        public long getBandwidth() {
+            return this.speed;
+        }
+        
+        public long getInBytes() {
+            return this.inBytes;
+        }
+        
+        public long getOutBytes() {
+            return this.outBytes;
+        }
         
         public String getMacAddress() {
             return this.macAddress;
@@ -174,7 +206,7 @@ public class InterfaceQueryHelper {
         public List<String> getNextNodeIPs() {
             return nextNodeIPs;
         }
-
+        
         public List<Object> getDynamicData() {
             List<Object> result = new ArrayList<Object>();
             result.add(DataOrders.IP_ADDRESS.getValue(), this.ipAddress);
@@ -187,10 +219,6 @@ public class InterfaceQueryHelper {
             result.add(DataOrders.OUT_BYTES.getValue(), this.outBytes);
             result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), this.inDiscard);
             result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), this.outDiscard);
-//            result.add(DataOrders.NEXT_NODE_NAME.getValue(), new String());
-//            result.add(DataOrders.NEXT_NODE_LABEL.getValue(), new String());
-//            result.add(DataOrders.NEXT_NODE_IP_ADDRESS.getValue(), this.nextNodeIPs);
-//            result.add(DataOrders.NEXT_NODE_MAC_ADDRESS.getValue(), this.nextNodeMacs);
             return result;
         }
     }

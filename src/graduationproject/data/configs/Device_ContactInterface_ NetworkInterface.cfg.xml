@@ -52,20 +52,10 @@
             <generator class="native"/>
         </id>
         
-        <property name="ipAddress" column="ip_address" type="string"/>
-        <property name="netmask" column="netmask" type="string"/>
-        <property name="mtu" column="mtu" type="long"/>
         <property name="bandwidth" column="bandwidth" type="long"/>
-        <property name="inboundPacketNumber" column="inbound_packet_number" type="long"/>
-        <property name="outboundPacketNumber" column="outbound_packet_number" type="long"/>
         <property name="inboundBytes" column="inbound_bytes" type="long"/>
         <property name="outboundBytes" column="outbound_bytes" type="long"/>
-        <property name="inboundDiscardPacketNumber" column="inbound_discard_packet_number" type="long"/>
-        <property name="outboundDiscardPacketNumber" column="outbound_discard_packet_number" type="long"/>
-        <!--<property name="nextNodeName" column="next_node_name" type="string"/>
-        <property name="nextNodeLabel" column="next_node_label" type="string"/>
-        <property name="nextNodeIPAddress" column="next_node_ip_address" type="string"/>
-        <property name="nextNodeMacAddress" column="next_node_mac_address" type="string"/>-->
+
         <property name="updatedTime" column="updated_time" type="calendar"/>
         
         <many-to-one name="networkInterface" column="network_interface_id" cascade="save-update"
