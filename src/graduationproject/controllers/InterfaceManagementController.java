@@ -187,7 +187,7 @@ public class InterfaceManagementController {
                         temp.getIpAddress(),
                         addressParser.getNetworkIp(temp.getIpAddress(), temp.getNetmask()),
                         temp.getMacAddress(),
-                        ActiveDeviceDataCollector.getInstance().findNextNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                        ActiveDeviceDataCollector.getInstance().findConnectedNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
                         temp.getNextNodeIPs(),
                         temp.getNextNodeMacs());
 

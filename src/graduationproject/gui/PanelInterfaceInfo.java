@@ -8,7 +8,7 @@ package graduationproject.gui;
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
 import graduationproject.data.ActiveDeviceDataCollector;
-import graduationproject.data.ActiveDeviceDataCollector.NextNodeDataOrders;
+import graduationproject.data.ActiveDeviceDataCollector.ConnectedNodeDataOrders;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -67,10 +67,10 @@ public class PanelInterfaceInfo extends JPanel {
     private JLabel labelMacAddress;
     private JLabel labelName;
     private JLabel labelNetmask;
-    private JComboBox cboxNextNodeIpAddresses;
-    private JLabel labelNextNodeLabel;
-    private JLabel labelNextNodeMacAddress;
-    private JLabel labelNextNodeName;
+    private JComboBox cboxConnectedNodeIpAddresses;
+    private JLabel labelConnectedNodeLabel;
+    private JLabel labelConnectedNodeMacAddress;
+    private JLabel labelConnectedNodeName;
     private JLabel labelOutDiscardCount;
     private JLabel labelOutPackAmount;
     private JLabel labelOutboundBytes;
@@ -130,13 +130,13 @@ public class PanelInterfaceInfo extends JPanel {
         labelType = new JLabel();
         panelConnectedNode = new JPanel();
         label5 = new JLabel();
-        cboxNextNodeIpAddresses = new JComboBox();
+        cboxConnectedNodeIpAddresses = new JComboBox();
         label6 = new JLabel();
-        labelNextNodeMacAddress = new JLabel();
+        labelConnectedNodeMacAddress = new JLabel();
         label8 = new JLabel();
-        labelNextNodeLabel = new JLabel();
+        labelConnectedNodeLabel = new JLabel();
         label9 = new JLabel();
-        labelNextNodeName = new JLabel();
+        labelConnectedNodeName = new JLabel();
         label7 = new JLabel();
         labelMacAddress = new JLabel();
         label23 = new JLabel();
@@ -270,34 +270,34 @@ public class PanelInterfaceInfo extends JPanel {
         label5.setText("IP Address:");
         panelConnectedNode.add(label5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, -1, 30));
 
-        cboxNextNodeIpAddresses.setFont(new java.awt.Font("SansSerif", 0, 16));
-        cboxNextNodeIpAddresses.setModel(new DefaultComboBoxModel());
-//        cboxNextNodeIpAddresses.setText(DEFAULT_VALUE);
-        panelConnectedNode.add(cboxNextNodeIpAddresses, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, 240, 30));
+        cboxConnectedNodeIpAddresses.setFont(new java.awt.Font("SansSerif", 0, 16));
+        cboxConnectedNodeIpAddresses.setModel(new DefaultComboBoxModel());
+//        cboxConnectedNodeIpAddresses.setText(DEFAULT_VALUE);
+        panelConnectedNode.add(cboxConnectedNodeIpAddresses, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, 240, 30));
 
         label6.setFont(new java.awt.Font("SansSerif", 1, 16));
         label6.setText("MAC Address:");
         panelConnectedNode.add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, -1, 30));
 
-        labelNextNodeMacAddress.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeMacAddress.setText(DEFAULT_VALUE);
-        panelConnectedNode.add(labelNextNodeMacAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 230, 240, 30));
+        labelConnectedNodeMacAddress.setFont(new java.awt.Font("SansSerif", 0, 16));
+        labelConnectedNodeMacAddress.setText(DEFAULT_VALUE);
+        panelConnectedNode.add(labelConnectedNodeMacAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 230, 240, 30));
 
         label8.setFont(new java.awt.Font("SansSerif", 1, 16));
         label8.setText("Label:");
         panelConnectedNode.add(label8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, 30));
 
-        labelNextNodeLabel.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeLabel.setText(DEFAULT_VALUE);
-        panelConnectedNode.add(labelNextNodeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 110, 240, 30));
+        labelConnectedNodeLabel.setFont(new java.awt.Font("SansSerif", 0, 16));
+        labelConnectedNodeLabel.setText(DEFAULT_VALUE);
+        panelConnectedNode.add(labelConnectedNodeLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 110, 240, 30));
 
         label9.setFont(new java.awt.Font("SansSerif", 1, 16));
         label9.setText("Name:");
         panelConnectedNode.add(label9, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, 30));
 
-        labelNextNodeName.setFont(new java.awt.Font("SansSerif", 0, 16));
-        labelNextNodeName.setText(DEFAULT_VALUE);
-        panelConnectedNode.add(labelNextNodeName, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 50, 240, 30));
+        labelConnectedNodeName.setFont(new java.awt.Font("SansSerif", 0, 16));
+        labelConnectedNodeName.setText(DEFAULT_VALUE);
+        panelConnectedNode.add(labelConnectedNodeName, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 50, 240, 30));
 
         panelBasicInformation.add(panelConnectedNode, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 460, 350));
 
@@ -372,17 +372,17 @@ public class PanelInterfaceInfo extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 JComboBox source = (JComboBox) e.getSource();
-                if (source == cboxNextNodeIpAddresses) {
+                if (source == cboxConnectedNodeIpAddresses) {
                     if (source.getSelectedIndex() != currentIpChoiceId) {
                         currentIpChoiceId = source.getSelectedIndex();
                         firstTime = false;
-                        PanelInterfaceInfo.this.displayNextNodeInformation(deviceId, firstTime);
+                        PanelInterfaceInfo.this.displayConnectedNodeInformation(deviceId, firstTime);
 //                        firstTime = false;
                     }
                 }
             }
         };
-        this.cboxNextNodeIpAddresses.addItemListener(listenerComboBox);
+        this.cboxConnectedNodeIpAddresses.addItemListener(listenerComboBox);
     }
 
     private void initOtherComponents() {
@@ -435,7 +435,7 @@ public class PanelInterfaceInfo extends JPanel {
                 this.tfieldUpdatePeriod.setText(String.valueOf(data.get(DataOrders.UPDATE_PERIOD.getValue())));
             }
 
-            this.displayNextNodeInformation(this.deviceId, this.firstTime);
+            this.displayConnectedNodeInformation(this.deviceId, this.firstTime);
             this.revalidate();
             this.repaint();
         } catch (Exception e) {
@@ -443,38 +443,38 @@ public class PanelInterfaceInfo extends JPanel {
         }
     }
 
-    private synchronized void displayNextNodeInformation(int deviceId, boolean firstTime) {
+    private synchronized void displayConnectedNodeInformation(int deviceId, boolean firstTime) {
         List<Object> data = null;
         if (firstTime) { //the first time of updating next node info 
-            data = ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId, this.labelMacAddress.getText(), null);
+            data = ActiveDeviceDataCollector.getInstance().getConnectedNodesForView(deviceId, this.labelMacAddress.getText(), null);
 
             if (data != null) {
-                DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxNextNodeIpAddresses.getModel();
+                DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxConnectedNodeIpAddresses.getModel();
                 boxModel.removeAllElements();
 
-                String[] ips = (String[]) data.get(NextNodeDataOrders.IP_ADDRESSES.getValue());
+                String[] ips = (String[]) data.get(ConnectedNodeDataOrders.IP_ADDRESSES.getValue());
                 for (String ip : ips) {
                     boxModel.addElement(ip);
                 }
                 if (ips != null && ips.length > 0) {
-                    this.cboxNextNodeIpAddresses.setSelectedIndex(0);
+                    this.cboxConnectedNodeIpAddresses.setSelectedIndex(0);
                 }
             }
         } else {
-            data = ActiveDeviceDataCollector.getInstance().getNextNodesForView(deviceId,
-                    this.labelMacAddress.getText(), (String) this.cboxNextNodeIpAddresses.getSelectedItem());
+            data = ActiveDeviceDataCollector.getInstance().getConnectedNodesForView(deviceId,
+                    this.labelMacAddress.getText(), (String) this.cboxConnectedNodeIpAddresses.getSelectedItem());
         }
 
         if (data != null) {
-            this.labelNextNodeName.setText((String) data.get(NextNodeDataOrders.NAME.getValue()));
-            this.labelNextNodeLabel.setText((String) data.get(NextNodeDataOrders.LABEL.getValue()));
-            this.labelNextNodeMacAddress.setText((String) data.get(NextNodeDataOrders.MAC_ADDRESS.getValue()));
+            this.labelConnectedNodeName.setText((String) data.get(ConnectedNodeDataOrders.NAME.getValue()));
+            this.labelConnectedNodeLabel.setText((String) data.get(ConnectedNodeDataOrders.LABEL.getValue()));
+            this.labelConnectedNodeMacAddress.setText((String) data.get(ConnectedNodeDataOrders.MAC_ADDRESS.getValue()));
         } else {
-            DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxNextNodeIpAddresses.getModel();
+            DefaultComboBoxModel boxModel = (DefaultComboBoxModel) this.cboxConnectedNodeIpAddresses.getModel();
             boxModel.removeAllElements();
-            this.labelNextNodeName.setText(DEFAULT_VALUE);
-            this.labelNextNodeLabel.setText(DEFAULT_VALUE);
-            this.labelNextNodeMacAddress.setText(DEFAULT_VALUE);
+            this.labelConnectedNodeName.setText(DEFAULT_VALUE);
+            this.labelConnectedNodeLabel.setText(DEFAULT_VALUE);
+            this.labelConnectedNodeMacAddress.setText(DEFAULT_VALUE);
         }
     }
 

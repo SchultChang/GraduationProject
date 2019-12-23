@@ -8,7 +8,7 @@ package graduationproject.helpers;
 import graduationproject.data.ActiveDeviceDataCollector;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.data.ActiveDeviceDataCollector.ActiveDeviceData;
-import graduationproject.data.ActiveDeviceDataCollector.NextNodeData;
+import graduationproject.data.ActiveDeviceDataCollector.ConnectedNodeData;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,9 +91,9 @@ public class TopoDrawer {
         this.unknownSize = this.unknownDevices.size();
 
         this.vsDevices.clear();
-        this.createVirtualSwitchForDevice(0, this.managerDevice.getNetworkWithManyNextNodes());
+        this.createVirtualSwitchForDevice(0, this.managerDevice.getNetworkWithManyConnectedNodes());
         for (int i = 0; i < this.importedSize; i++) {
-            this.createVirtualSwitchForDevice(1 + i, this.importedDevices.get(i).getNetworkWithManyNextNodes());
+            this.createVirtualSwitchForDevice(1 + i, this.importedDevices.get(i).getNetworkWithManyConnectedNodes());
         }
         this.vsSize = this.vsDevices.size();
 
@@ -107,7 +107,7 @@ public class TopoDrawer {
         }
 
         for (VirtualSwitch vs : this.vsDevices) {
-            vs.displayNextNodes();
+            vs.displayConnectedNodes();
         }
     }
 
@@ -151,15 +151,15 @@ public class TopoDrawer {
         this.topoNodes.add(new TopoNodeData(0, -1));
         int left = 0, right = 0, current = 0;
 
-        List<NextNodeData> nextNodes;
+        List<ConnectedNodeData> nextNodes;
         List<Integer> topoIds;
         while (left <= right) {
             Object device = this.getDeviceForTopoId(this.topoNodes.get(left).topoId);
             if (this.topoNodes.get(left).topoId <= this.importedSize + this.unknownSize) {
-                nextNodes = ((ActiveDeviceData) device).getAllNextNodes();
+                nextNodes = ((ActiveDeviceData) device).getAllConnectedNodes();
                 topoIds = new ArrayList<Integer>();
                 if (nextNodes != null) {
-                    for (NextNodeData nextNode : nextNodes) {
+                    for (ConnectedNodeData nextNode : nextNodes) {
                         topoIds.add(this.getTopoIdForData(nextNode));
                     }
                 }
@@ -209,7 +209,7 @@ public class TopoDrawer {
         return null;
     }
 
-    private int getTopoIdForData(NextNodeData nextNode) {
+    private int getTopoIdForData(ConnectedNodeData nextNode) {
         if (nextNode.getId() == ActiveDeviceDataCollector.MANAGER_DEVICE_ID) {
             return 0;
         }
@@ -423,7 +423,7 @@ public class TopoDrawer {
             this.nextNodeTopoIds.add(nextNodeTopoId);
         }
 
-        public void displayNextNodes() {
+        public void displayConnectedNodes() {
             System.out.println("VS: " + this.networkAddress);
             for (Integer value : this.nextNodeTopoIds) {
                 System.out.println("VS - NEXT NODE : " + value);
