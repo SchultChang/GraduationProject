@@ -42,6 +42,7 @@ public class DeviceResourceManagementController {
 //
 //        return false;
 //    }
+
     public int processGettingResourceCheckingPeriod() {
         User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         if (user == null) {

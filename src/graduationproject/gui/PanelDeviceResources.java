@@ -39,7 +39,7 @@ public class PanelDeviceResources extends JPanel {
     private String[] tableDiskHeaders = {"Name", "Total Size", "Used Size"};
 
     private JButton buttonChange;
-//    private JButton buttonStop;
+    private JButton buttonStop;
     private JLabel label1;
     private JLabel label10;
     private JLabel label11;
@@ -102,7 +102,7 @@ public class PanelDeviceResources extends JPanel {
         label11 = new JLabel();
         tfieldUpdatePeriod = new JTextField();
         buttonChange = new JButton();
-//        buttonStop = new JButton();
+        buttonStop = new JButton();
         labelUpdatedTime = new JLabel();
         label12 = new JLabel();
 
@@ -231,14 +231,14 @@ public class PanelDeviceResources extends JPanel {
         buttonChange.setForeground(java.awt.Color.white);
         buttonChange.setText("Change");
         buttonChange.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
-        add(buttonChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 880, 100, -1));
+        add(buttonChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 880, 80, -1));
 
-//        buttonStop.setBackground(new java.awt.Color(70, 120, 227));
-//        buttonStop.setFont(new java.awt.Font("SansSerif", 1, 16));
-//        buttonStop.setForeground(java.awt.Color.white);
-//        buttonStop.setText("Stop");
-//        buttonStop.setBorderPainted(false);
-//        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 880, 80, -1));
+        buttonStop.setBackground(new java.awt.Color(70, 120, 227));
+        buttonStop.setFont(new java.awt.Font("SansSerif", 1, 16));
+        buttonStop.setForeground(java.awt.Color.white);
+        buttonStop.setText("Stop");
+        buttonStop.setBorderPainted(false);
+        add(buttonStop, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 880, 80, -1));
 
         labelUpdatedTime.setFont(new java.awt.Font("SansSerif", 0, 16));
         labelUpdatedTime.setText(". . .");
@@ -260,10 +260,14 @@ public class PanelDeviceResources extends JPanel {
                     if (!resourceController.processChangingResourceCheckingPeriod(Integer.parseInt(tfieldUpdatePeriod.getText()))) {
                         JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
                     }
+                    if (source == buttonStop) {
+                        SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
+                    }
                 }
             }
         };
         this.buttonChange.addActionListener(this.listenerButton);
+        this.buttonStop.addActionListener(this.listenerButton);
     }
     
     public synchronized void initViewData(int deviceId) {

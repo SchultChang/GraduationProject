@@ -43,6 +43,7 @@ public class QueryWalkCallback implements SnmpCallback<SnmpAsyncWalker<VarbindCo
                     entry = walker.next().get();
                 } catch (Exception e) {
                     walker.invoke();
+                    System.out.println("INVOKE AGAINT");
                     entry = walker.next().get();
                 }
             }            

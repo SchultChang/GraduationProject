@@ -53,7 +53,7 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 public class PanelImportedDevices extends JPanel {
 
     private JButton buttonImport;
-    private JButton buttonTopology;
+//    private JButton buttonTopology;
     private JLabel labelHideDeviceList;
     private JLabel labelShowDeviceList;
     private JLabel labelSearch;
@@ -125,7 +125,7 @@ public class PanelImportedDevices extends JPanel {
         labelShowDeviceList = new JLabel();
         labelSearch = new JLabel();
         buttonImport = new JButton();
-        buttonTopology = new JButton();
+//        buttonTopology = new JButton();
 
         setPreferredSize(new java.awt.Dimension(1600, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -170,14 +170,14 @@ public class PanelImportedDevices extends JPanel {
         buttonImport.setBorderPainted(false);
         panelDevices.add(buttonImport, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 830, 120, 40));
 
-        buttonTopology.setBackground(new java.awt.Color(38, 56, 163));
-        buttonTopology.setFont(new java.awt.Font("SansSerif", 1, 15));
-        buttonTopology.setForeground(java.awt.Color.white);
-        buttonTopology.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_network2_40.png")));
-        buttonTopology.setText("Topology");
-        buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        buttonTopology.setBorderPainted(false);
-        panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
+//        buttonTopology.setBackground(new java.awt.Color(38, 56, 163));
+//        buttonTopology.setFont(new java.awt.Font("SansSerif", 1, 15));
+//        buttonTopology.setForeground(java.awt.Color.white);
+//        buttonTopology.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_network2_40.png")));
+//        buttonTopology.setText("Topology");
+//        buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+//        buttonTopology.setBorderPainted(false);
+//        panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
 
         labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png")));
         panelDevices.add(labelHideDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 330, 30, 190));
@@ -244,15 +244,15 @@ public class PanelImportedDevices extends JPanel {
                         }
                     }
                 }
-                if (source == buttonTopology) {
-                    switchBetweenDeviceListAndTopology(false);
-                    panelTopology.initTopo();
-                }
+//                if (source == buttonTopology) {
+//                    switchBetweenDeviceListAndTopology(false);
+//                    panelTopology.initTopo();
+//                }
             }
 
         };
         this.buttonImport.addActionListener(this.listenerButton);
-        this.buttonTopology.addActionListener(this.listenerButton);
+//        this.buttonTopology.addActionListener(this.listenerButton);
 
         this.listenerField = new KeyAdapter() {
             @Override
