@@ -48,7 +48,7 @@ public class DeviceResourceQueryCallbackStage1 implements SnmpCallback<SnmpAsync
             DeviceResourceQueryCallbackStage2 stage2Callback = new DeviceResourceQueryCallbackStage2(this.dataCollector);
             se.getContext().asyncWalk(stage2Callback, 1, DeviceQueryHelper.deviceTable);
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             se.getContext().close();
         }
 

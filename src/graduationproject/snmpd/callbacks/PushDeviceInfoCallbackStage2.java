@@ -17,6 +17,11 @@ public class PushDeviceInfoCallbackStage2 implements SnmpCallback<VarbindCollect
     
     @Override
     public void onSnmpResponse(SnmpEvent<VarbindCollection> se) {
+        try {
+            se.getResponse().get().get("sysName");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         se.getContext().close();
         System.out.println("PUSHING DATA INTO DEVICE ENDED");
     }

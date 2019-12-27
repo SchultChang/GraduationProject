@@ -145,7 +145,7 @@ public class PanelDeviceInfo extends JPanel {
         panelBasicInfo.add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 280, -1, 30));
 
         scrollpane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollpane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+//        scrollpane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
         tareaDescription.setBackground(java.awt.Color.white);
         tareaDescription.setColumns(20);
