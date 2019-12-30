@@ -63,13 +63,13 @@ public class PanelSSHClient extends JPanel {
     private MouseAdapter listenerLabel;
     private KeyAdapter listenerField;
 
-    private AreaDisplayTextController textController;
+    private AreaDisplayTextController areaTextDisplayer;
     
     public PanelSSHClient() {
         initComponents();
         initListeners();
         
-        this.textController = new AreaDisplayTextController();
+        this.areaTextDisplayer = new AreaDisplayTextController();
     }
 
     private void initComponents() {
@@ -209,11 +209,11 @@ public class PanelSSHClient extends JPanel {
             public void keyReleased(KeyEvent e) {
                 if (e.getSource() == tfieldCommand) {
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        textController.addText(tfieldUserName.getText() + "@" + labelHostInfo.getText() + ":" + tfieldCommand.getText());
+                        areaTextDisplayer.addText(tfieldUserName.getText() + "@" + labelHostInfo.getText() + ":" + tfieldCommand.getText());
                         String commandResult = SSHClient.getInstance().sendCommand(tfieldCommand.getText());
                         if (commandResult != null) {
-                            textController.addText(commandResult);
-                            tareaResult.setText(textController.getString());
+                            areaTextDisplayer.addText(commandResult);
+                            tareaResult.setText(areaTextDisplayer.getString());
                             tareaResult.repaint();
                             System.gc();
                         }
@@ -254,7 +254,7 @@ public class PanelSSHClient extends JPanel {
         }
         
         this.tareaResult.setText("");
-        this.textController.lines.clear();
+        this.areaTextDisplayer.lines.clear();
         System.gc();
     }
 
