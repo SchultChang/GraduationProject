@@ -34,7 +34,7 @@ import org.soulwing.snmp.SnmpContext;
  *
  * @author cloud
  */
-public class InterfaceManagementController {
+public class InterfaceManagementController extends ManagementController {
 
     private String resultMessage;
 

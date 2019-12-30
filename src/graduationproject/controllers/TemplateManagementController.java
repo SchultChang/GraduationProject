@@ -24,9 +24,8 @@ import java.util.List;
  *
  * @author cloud
  */
-public class TemplateManagementController {
+public class TemplateManagementController extends ManagementController {
 
-    private String resultMessage;
     private int[] templateIds;
 
     public enum TemplateType {
@@ -59,10 +58,6 @@ public class TemplateManagementController {
         public int getValue() {
             return this.value;
         }
-    }
-
-    public String getResultMessage() {
-        return resultMessage;
     }
 
     public int[] getTemplateIds() {

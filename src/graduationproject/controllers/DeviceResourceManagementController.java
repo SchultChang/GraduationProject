@@ -26,22 +26,7 @@ import java.util.TimerTask;
  *
  * @author cloud
  */
-public class DeviceResourceManagementController {
-
-    private String resultMessage;
-
-    public String getResultMessage() {
-        return resultMessage;
-    }
-
-//    public boolean processGettingDeviceResource(int deviceId, DeviceManagementController.DeviceStates deviceState) {
-//        if (deviceState == DeviceManagementController.DeviceStates.ACTIVE) {
-////            this.getLiveDeviceResource(deviceId);
-//            return true;
-//        }
-//
-//        return false;
-//    }
+public class DeviceResourceManagementController extends ManagementController {
 
     public int processGettingResourceCheckingPeriod() {
         User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());

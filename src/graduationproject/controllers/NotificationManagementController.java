@@ -21,12 +21,11 @@ import java.util.List;
  *
  * @author cloud
  */
-public class NotificationManagementController {
+public class NotificationManagementController extends ManagementController {
 
     private final String UNKNOW_DEVICE_VALUE = "UNKNOWN";
     private final String NOTIFICATION_DISPLAY_HEADER_FORMAT = "%s (%s) at %s";
     private final String NOTIFICATION_DEVICE_FORMAT = "%s (%s)";
-    private String resultMessage;
 
     private int[] notificationIds;
 
@@ -60,10 +59,6 @@ public class NotificationManagementController {
         public int getValue() {
             return this.value;
         }
-    }
-
-    public String getResultMessage() {
-        return resultMessage;
     }
 
     public int[] getNotificationIds() {

@@ -16,9 +16,8 @@ import java.util.List;
  *
  * @author cloud
  */
-public class UserManagementController {
+public class UserManagementController extends ManagementController {
 
-    private String resultMessage;
     private int[] accountIds;
     private final int DEFAULT_USER_AGE = 0;
     private final String DEFAULT_USER_STRING_DATA = "";
@@ -30,10 +29,6 @@ public class UserManagementController {
 
     public int[] getAccountIds() {
         return this.accountIds;
-    }
-
-    public String getResultMessage() {
-        return this.resultMessage;
     }
 
     public boolean isAccountRemembered() {

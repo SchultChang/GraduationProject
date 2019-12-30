@@ -24,9 +24,7 @@ import java.util.List;
  *
  * @author cloud
  */
-public class TemplateItemManagementController {
-
-    private String resultMessage;
+public class TemplateItemManagementController extends ManagementController {
 
     public static final String[] VALUE_TYPES = {"String", "Number"};
     public static final String[] ACCESS_TYPES = {"Read-Only", "Read-Write", "Not-Accessible"};
@@ -52,10 +50,6 @@ public class TemplateItemManagementController {
 
     }
 
-    public String getResultMessage() {
-        return resultMessage;
-    }
-    
     public String normalizeValueType(String input) {
         for (int i = 0; i < VALUE_TYPES.length; i++) {
             if (VALUE_TYPES[i].equalsIgnoreCase(input)) {

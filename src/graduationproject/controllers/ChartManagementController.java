@@ -29,13 +29,11 @@ import org.netbeans.lib.awtextra.AbsoluteConstraints;
  *
  * @author cloud
  */
-public class ChartManagementController {
+public class ChartManagementController extends ManagementController {
 
     private final int CHART_WIDTH = 990;
     private final int CHART_HEIGHT = 190;
 //    private final String DEFAULT_CHOICE_VALUE = "All";
-
-    private String resultMessage;
 
     public enum DataType {
         CPU_LOAD,
@@ -58,10 +56,6 @@ public class ChartManagementController {
         public String getValue() {
             return this.value;
         }
-    }
-
-    public String getResultMessage() {
-        return resultMessage;
     }
 
     public Chart processGettingChart(int deviceId, DataType dataType, String period, String[] choices) {

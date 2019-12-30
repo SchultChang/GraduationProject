@@ -43,9 +43,8 @@ import org.soulwing.snmp.TimeoutException;
  *
  * @author cloud
  */
-public class DeviceManagementController {
+public class DeviceManagementController extends ManagementController {
 
-    private String resultMessage;
     private String extraStringData;
     private int[] deviceIds;
     private Device checkingDevice;
@@ -86,10 +85,6 @@ public class DeviceManagementController {
         public int getValue() {
             return this.value;
         }
-    }
-
-    public String getResultMessage() {
-        return resultMessage;
     }
 
     public int[] getDeviceIds() {

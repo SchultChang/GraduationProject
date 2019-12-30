@@ -34,13 +34,11 @@ public class PushDeviceInfoCallbackStage1 implements SnmpCallback<VarbindCollect
         try {
             VarbindCollection varbinds = se.getResponse().get();
 
-//            String descrMibName = "sysDescr"; 
             String sysDescription = varbinds.get("sysDescr").asString();
             DeviceManagementController deviceController = new DeviceManagementController();
             deviceController.processUpdatingDeviceDescription(deviceId, sysDescription);
 
             varbinds.get("sysName").set(this.name);
-//            varbinds.get("sysName").set("hello world");
             varbinds.get("sysLocation").set(this.location);
             varbinds.get("sysContact").set(this.contact);
 

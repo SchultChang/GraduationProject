@@ -35,9 +35,6 @@ public class DeviceActiveCheckingCallback implements SnmpCallback<VarbindCollect
 
             if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()
                     .getDeviceState(deviceId) == DeviceManagementController.DeviceStates.DEACTIVE) {
-//                System.out.println("DEVICE STARTED : " + this.deviceId);
-//                DeviceManagementController deviceController = new DeviceManagementController();
-//                deviceController.processPushingDeviceInfo(deviceId, null, se.getContext());
 
                 ActiveDeviceDataCollector.getInstance().addImportedDevice(deviceId);
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices()

@@ -557,6 +557,7 @@ public class PanelMain extends JPanel {
             if (labels[temp] == this.labelLogout) {
                 new UserManagementController().processLogout();
                 ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_INITIAL);
+                System.exit(0);
             }
         }
     }
@@ -598,9 +599,11 @@ public class PanelMain extends JPanel {
         //                this.labelImportedDevices.setOpaque(false);
         //                this.labelScannedDevices.setOpaque(false);
         //            }
-        if (panelMenu == this.panelTemplateMenu) {
-            this.labelSingularTemplates.setOpaque(false);
-            this.labelTabularTemplates.setOpaque(false);
+        {
+            if (panelMenu == this.panelTemplateMenu) {
+                this.labelSingularTemplates.setOpaque(false);
+                this.labelTabularTemplates.setOpaque(false);
+            }
         }
     }
 
