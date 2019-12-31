@@ -29,7 +29,7 @@ public class SnmpManager {
     
     private Mib mib;
     private SnmpListener notificationListener;
-    private NotificationProcessor notificationHandler;
+    private NotificationProcessor notificationProcessor;
     
     private QueryTimerManager queryTimerManager;
 
@@ -55,8 +55,8 @@ public class SnmpManager {
     
     private void initOtherComponents() {
         this.notificationListener = SnmpFactory.getInstance().newListener(10162, mib);
-        this.notificationHandler = new NotificationProcessor();
-        this.notificationListener.addHandler(this.notificationHandler);
+        this.notificationProcessor = new NotificationProcessor();
+        this.notificationListener.addHandler(this.notificationProcessor);
         
         this.queryTimerManager = new QueryTimerManager();
     }
