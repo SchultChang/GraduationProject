@@ -265,6 +265,7 @@ public class PanelDeviceStatistics extends JPanel {
         this.currentInterfaceChoiceId = 0;
 
         this.buttonToday.setSelected(true);
+        this.switchChartViewerVisibility(false, null);
 
         List<String> interfaceNames = new InterfaceManagementController().processGettingInterfaceNames(this.deviceId);
         if (interfaceNames != null && !interfaceNames.isEmpty()) {
