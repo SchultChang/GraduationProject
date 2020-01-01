@@ -232,7 +232,6 @@ public class InterfaceManagementController extends ManagementController {
         }
 
         ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);
-
     }
 
     public List<Object> processGettingInterfaceFromDatabase(int deviceId, int interfaceListId) {

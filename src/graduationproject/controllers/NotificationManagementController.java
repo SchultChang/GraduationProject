@@ -141,7 +141,7 @@ public class NotificationManagementController extends ManagementController {
         return result;
     }
 
-    public List<Object> getNotificationsOfDay(Calendar day) {
+    public List<Object> processGettingSavedNotifications(Calendar day) {
         List<Notification> notifications = DataManager.getInstance().getNotificationManager().getNotifications(day);
         if (notifications == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
@@ -151,7 +151,7 @@ public class NotificationManagementController extends ManagementController {
         return this.convertDataToView(notifications);
     }
 
-    public List<Object> getNotificationsOfDay(Calendar day, String deviceInfo, List<Object> notificationTypes) {
+    public List<Object> processGettingSavedNotifications(Calendar day, String deviceInfo, List<Object> notificationTypes) {
         if (notificationTypes.isEmpty()) {
             return new ArrayList<Object>();
         }
@@ -213,7 +213,6 @@ public class NotificationManagementController extends ManagementController {
     }
 
     public class ResultMessageGenerator {
-
         public String SAVING_FAILED_OTHER = "Some errors happened when saving notification data into system.";
 
         public String GETTING_FAILED_OTHER = "Some errors happened when getting notification data. Try again later.";

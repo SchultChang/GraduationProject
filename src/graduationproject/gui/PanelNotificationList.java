@@ -162,7 +162,7 @@ public class PanelNotificationList extends JPanel {
 
     public void initViewData() {
         NotificationManagementController notificationController = new NotificationManagementController();
-        List<Object> data = notificationController.getNotificationsOfDay(DataManager.getInstance().getStartTime());
+        List<Object> data = notificationController.processGettingSavedNotifications(DataManager.getInstance().getStartTime());
 
         if (data == null) {
             JOptionPane.showMessageDialog(null, notificationController.getResultMessage());
@@ -204,7 +204,7 @@ public class PanelNotificationList extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NotificationManagementController notificationController = new NotificationManagementController();
-                List<Object> data = notificationController.getNotificationsOfDay(
+                List<Object> data = notificationController.processGettingSavedNotifications(
                         DataManager.getInstance().getStartTime(),
                         tfieldSearchDevice.getText(), getSelectedNotificationTypes());
                 if (data != null) {
@@ -228,7 +228,7 @@ public class PanelNotificationList extends JPanel {
                 if (source == tfieldSearchDevice) {
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                         NotificationManagementController notificationController = new NotificationManagementController();
-                        List<Object> data = notificationController.getNotificationsOfDay(
+                        List<Object> data = notificationController.processGettingSavedNotifications(
                                 DataManager.getInstance().getStartTime(),
                                 tfieldSearchDevice.getText(), getSelectedNotificationTypes());
                         if (data != null) {
