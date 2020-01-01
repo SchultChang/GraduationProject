@@ -69,8 +69,9 @@ public class PanelImportedDevices extends JPanel {
     private List<LabelInterface> labelInterfaces;
 
     private JPopupMenu pmenuDevices;
+    private JMenuItem mitemConnect;
     private JMenuItem mitemDelete;
-
+    
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
     private MouseAdapter listenerListDevices;
