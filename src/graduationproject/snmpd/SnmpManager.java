@@ -21,16 +21,16 @@ import org.soulwing.snmp.SnmpTarget;
  *
  * @author cloud
  */
-public class SnmpManager {       
+public class SnmpManager {
 
     private final String[] MIB_MODULES = {"RFC1213-MIB", "SNMPv2-MIB", "IP-MIB", "IF-MIB", "HOST-RESOURCES-MIB"};
     private final SnmpVersion[] SNMP_VERSIONS = {
         SnmpVersion.VERSION_1, SnmpVersion.VERSION_2, SnmpVersion.VERSION_2_COMMUNITY, SnmpVersion.VERSION_3};
-    
+
     private Mib mib;
     private SnmpListener notificationListener;
     private NotificationProcessor notificationProcessor;
-    
+
     private QueryTimerManager queryTimerManager;
 
     private static SnmpManager instance;
@@ -52,12 +52,12 @@ public class SnmpManager {
             }
         }
     }
-    
+
     private void initOtherComponents() {
         this.notificationListener = SnmpFactory.getInstance().newListener(10162, mib);
         this.notificationProcessor = new NotificationProcessor();
         this.notificationListener.addHandler(this.notificationProcessor);
-        
+
         this.queryTimerManager = new QueryTimerManager();
     }
 
@@ -68,7 +68,7 @@ public class SnmpManager {
         return instance;
     }
 
-    public SnmpTarget createTarget(SnmpVersion version, String ipAddress, String community) {
+    public SnmpTarget createTarget(SnmpVersion version, String ipAddress, int port, String community) {
 //        if (version == SnmpVersion.VERSION_1) {
 //            return null;
 //        }
@@ -76,23 +76,26 @@ public class SnmpManager {
 //            return null;
 //        }
 //        if (version == SnmpVersion.VERSION_2_COMMUNITY) {
-            SimpleSnmpV2cTarget target = new SimpleSnmpV2cTarget();
-            target.setAddress(ipAddress);
-            target.setCommunity(community);
-            return target;
+        SimpleSnmpV2cTarget target = new SimpleSnmpV2cTarget();
+        target.setAddress(ipAddress);
+        if (port > 0) {
+            target.setPort(port);
+        }
+        target.setCommunity(community);
+        return target;
 //        }
 //        if (version == SnmpVersion.VERSION_3) {
 //            return null;
 //        }
 //        return null;
     }
-    
-    public SnmpContext createContext(String version, String ipAddress, String community) {
+
+    public SnmpContext createContext(String version, String ipAddress, int port, String community) {
         SnmpVersion normalizedVersion = this.parseVersionString(version);
-        SnmpTarget target = this.createTarget(normalizedVersion, ipAddress, community);
+        SnmpTarget target = this.createTarget(normalizedVersion, ipAddress, port, community);
         return SnmpFactory.getInstance().newContext(target, mib);
     }
-    
+
     public SnmpContext createContext(SnmpTarget target) {
         return SnmpFactory.getInstance().newContext(target, mib);
     }
@@ -105,7 +108,7 @@ public class SnmpManager {
         }
         return null;
     }
-    
+
     public String[] getVersionStrings() {
         String[] result = new String[SNMP_VERSIONS.length];
         for (int i = 0; i < SNMP_VERSIONS.length; i++) {
@@ -123,7 +126,7 @@ public class SnmpManager {
     public QueryTimerManager getQueryTimerManager() {
         return queryTimerManager;
     }
-    
+
     public enum SnmpVersion {
         VERSION_1("v1"),
         VERSION_2("v2"),

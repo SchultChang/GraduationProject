@@ -14,14 +14,16 @@ import java.util.Date;
 public class ContactNetworkInterface {
     private int id;
     private String ipAddress;
+    private int port;
     private String community;
     private Date updatedTime;
 
     public ContactNetworkInterface() {
     }
 
-    public ContactNetworkInterface(String ipAddress, String community, Date updatedTime) {
+    public ContactNetworkInterface(String ipAddress, int port, String community, Date updatedTime) {
         this.ipAddress = ipAddress;
+        this.port = port;
         this.community = community;
         this.updatedTime = updatedTime;
     }
@@ -42,6 +44,14 @@ public class ContactNetworkInterface {
         this.ipAddress = ipAddress;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+    
     public String getCommunity() {
         return community;
     }

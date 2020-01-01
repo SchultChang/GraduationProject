@@ -85,7 +85,9 @@ public class InterfaceManagementController extends ManagementController {
                         return;
                     }
                     SnmpContext snmpContext = SnmpManager.getInstance().createContext(
-                            device.getSnmpVersion(), device.getContactInterface().getIpAddress(),
+                            device.getSnmpVersion(), 
+                            device.getContactInterface().getIpAddress(),
+                            device.getContactInterface().getPort(),
                             device.getContactInterface().getCommunity());
                     helper.startQueryAllInterfaces(deviceId, snmpContext);
                 }

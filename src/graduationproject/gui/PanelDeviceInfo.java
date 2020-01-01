@@ -344,6 +344,7 @@ public class PanelDeviceInfo extends JPanel {
         this.labelLastAccess.setText(data.get(DataOrders.LAST_ACCESS.getValue()));
         this.cboxSNMPVersion.setSelectedItem(data.get(DataOrders.SNMP_VERSION.getValue()));
         this.tfieldIpAddress.setText(data.get(DataOrders.CI_IP_ADDRESS.getValue()));
+        this.tfieldPort.setText(data.get(DataOrders.CI_IP_PORT.getValue()));
         this.tfieldCommunity.setText(data.get(DataOrders.CI_COMMUNITY.getValue()));
     }
 
@@ -358,6 +359,7 @@ public class PanelDeviceInfo extends JPanel {
         result.add(DataOrders.LAST_ACCESS.getValue(), this.labelLastAccess.getText());
         result.add(DataOrders.IMPORTED_TIME.getValue(), new String());
         result.add(DataOrders.CI_IP_ADDRESS.getValue(), this.tfieldIpAddress.getText());
+        result.add(DataOrders.CI_IP_PORT.getValue(), this.tfieldPort.getText());
         result.add(DataOrders.CI_COMMUNITY.getValue(), this.tfieldCommunity.getText());
         return result;
     }

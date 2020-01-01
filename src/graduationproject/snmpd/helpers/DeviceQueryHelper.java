@@ -42,14 +42,14 @@ public class DeviceQueryHelper {
     private void startTemplateGetNextQuery(TemplateQuery query) {
         QueryGetNextCallback queryCallback = new QueryGetNextCallback(query);
         SnmpContext context = SnmpManager.getInstance().createContext(
-                SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), query.ipAddress, query.community);
+                SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), query.ipAddress, query.port, query.community);
         context.asyncGetNext(queryCallback, query.itemList);
     }
 
     private void startTemplateWalkQuery(TemplateQuery query) {
         QueryWalkCallback queryCallback = new QueryWalkCallback(query);
         SnmpContext context = SnmpManager.getInstance().createContext(
-                SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), query.ipAddress, query.community);
+                SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), query.ipAddress, query.port, query.community);
 
         List<String> nonRepeater = new ArrayList<String>();
         nonRepeater.add("sysUpTime");
@@ -79,9 +79,9 @@ public class DeviceQueryHelper {
     }
 
     //push other device info and get device description
-    public void pushInfoIntoDevice(String ipAddress, String community, int deviceId, String name, String label, String location, String userInfo) {
+    public void pushInfoIntoDevice(String ipAddress, int port, String community, int deviceId, String name, String label, String location, String userInfo) {
         SnmpContext snmpContext = SnmpManager.getInstance()
-                .createContext(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), ipAddress, community);
+                .createContext(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(), ipAddress, port, community);
         this.pushInfoIntoDevice(snmpContext, deviceId, name, label, location, userInfo);
     }
 
@@ -99,7 +99,7 @@ public class DeviceQueryHelper {
 
     public String[] getDeviceIdentification(SnmpTarget target, String community) throws TimeoutException {
         return this.getDeviceIdentification(SnmpManager.getInstance()
-                .createTarget(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY, target.getAddress(), community));
+                .createTarget(SnmpManager.SnmpVersion.VERSION_2_COMMUNITY, target.getAddress(), target.getPort(), community));
     }
 
     public void startQueryDeviceResource(int deviceId, SnmpContext context) {
@@ -358,6 +358,7 @@ public class DeviceQueryHelper {
 
         private int deviceId;
         private String ipAddress;
+        private int port;
         private String community;
         private int templateId;
         private List<String> itemList;
@@ -366,9 +367,11 @@ public class DeviceQueryHelper {
         private Calendar receivedTime;
         private List<Object> result;
 
-        public TemplateQuery(int deviceId, String ipAddress, String community, int templateId, List<String> itemList, boolean isTable) {
+        public TemplateQuery(int deviceId, String ipAddress, int port, String community, 
+                int templateId, List<String> itemList, boolean isTable) {
             this.deviceId = deviceId;
             this.ipAddress = ipAddress;
+            this.port = port;
             this.community = community;
             this.templateId = templateId;
             this.itemList = itemList;
@@ -377,7 +380,7 @@ public class DeviceQueryHelper {
             this.receivedTime = null;
             this.result = new ArrayList<Object>();
         }
-
+        
         public int getDeviceId() {
             return deviceId;
         }
@@ -410,8 +413,16 @@ public class DeviceQueryHelper {
             return receivedTime;
         }
 
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+        
         public void setReceivedTime(Calendar receivedTime) {
             this.receivedTime = receivedTime;
-        }
+        }        
     }
 }

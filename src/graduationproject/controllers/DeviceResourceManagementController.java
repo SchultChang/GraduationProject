@@ -62,6 +62,7 @@ public class DeviceResourceManagementController extends ManagementController {
                             SnmpManager.getInstance().createContext(
                                     SnmpManager.SnmpVersion.VERSION_2_COMMUNITY.getValue(),
                                     device.getContactInterface().getIpAddress(),
+                                    device.getContactInterface().getPort(),
                                     device.getContactInterface().getCommunity()));
                 }
             }

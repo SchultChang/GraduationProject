@@ -67,7 +67,8 @@ public class DeviceManagementController extends ManagementController {
         LAST_ACCESS(6),
         IMPORTED_TIME(7),
         CI_IP_ADDRESS(8),
-        CI_COMMUNITY(9),
+        CI_IP_PORT(9),
+        CI_COMMUNITY(10),
         //based on positions in memory data list of a resource data collector
         MEMORY_RAM(0),
         MEMORY_VIRTUAL(1),
@@ -113,20 +114,22 @@ public class DeviceManagementController extends ManagementController {
 
             int countLine = 0, countSaving = 0;
             Date importedTime = new Date();
-
+            int name=0, label=1, type=2, location=3, snmpVersion=4, ip = 5, port = 6, community = 7;
+            
             while ((line = reader.readNext()) != null) {
                 ContactNetworkInterface networkInterface = new ContactNetworkInterface(
-                        line[DataOrders.SNMP_VERSION.getValue() + 1],
-                        line[DataOrders.SNMP_VERSION.getValue() + 2],
+                        line[ip],
+                        Integer.parseInt(line[port]),
+                        line[community],
                         importedTime);
 
                 Device device = new Device(
-                        line[DataOrders.NAME.getValue()],
-                        line[DataOrders.LABEL.getValue()],
-                        this.normalizeDeviceType(line[DataOrders.TYPE.getValue()]),
-                        line[DataOrders.DESCRIPTION.getValue()],
-                        line[DataOrders.LOCATION.getValue()],
-                        SnmpManager.getInstance().parseVersionString(line[DataOrders.SNMP_VERSION.getValue()]).getValue(),
+                        line[name],
+                        line[label],
+                        this.normalizeDeviceType(line[type]),
+                        new String(),
+                        line[location],
+                        SnmpManager.getInstance().parseVersionString(line[snmpVersion]).getValue(),
                         importedTime,
                         networkInterface);
 
@@ -188,7 +191,9 @@ public class DeviceManagementController extends ManagementController {
         List<Object> pushingResult = null;
         if (snmpContext == null) {
             queryHelper.pushInfoIntoDevice(
-                    device.getContactInterface().getIpAddress(), device.getContactInterface().getCommunity(),
+                    device.getContactInterface().getIpAddress(), 
+                    device.getContactInterface().getPort(),
+                    device.getContactInterface().getCommunity(),
                     deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
         } else {
             queryHelper.pushInfoIntoDevice(snmpContext, deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
@@ -271,6 +276,7 @@ public class DeviceManagementController extends ManagementController {
         SnmpContext snmpContext = SnmpManager.getInstance().createContext(
                 device.getSnmpVersion(),
                 device.getContactInterface().getIpAddress(),
+                device.getContactInterface().getPort(),
                 device.getContactInterface().getCommunity());
 
         try {
@@ -320,6 +326,7 @@ public class DeviceManagementController extends ManagementController {
         result.add(DataOrders.IMPORTED_TIME.getValue(), dataConverter.convertDateToString(device.getImportedTime()));
 
         result.add(DataOrders.CI_IP_ADDRESS.getValue(), device.getContactInterface().getIpAddress());
+        result.add(DataOrders.CI_IP_PORT.getValue(), String.valueOf(device.getContactInterface().getPort()));
         result.add(DataOrders.CI_COMMUNITY.getValue(), device.getContactInterface().getCommunity());
 
         return result;
@@ -344,6 +351,7 @@ public class DeviceManagementController extends ManagementController {
         device.setLocation(data.get(DataOrders.LOCATION.getValue()));
         device.setSnmpVersion(data.get(DataOrders.SNMP_VERSION.getValue()));
         device.getContactInterface().setCommunity(data.get(DataOrders.CI_COMMUNITY.getValue()));
+        device.getContactInterface().setPort(Integer.parseInt(data.get(DataOrders.CI_IP_PORT.getValue())));
         device.getContactInterface().setIpAddress(data.get(DataOrders.CI_IP_ADDRESS.getValue()));
         device.getContactInterface().setUpdatedTime(new Date());
 
@@ -515,7 +523,10 @@ public class DeviceManagementController extends ManagementController {
             }
 
             TemplateQuery templateQuery = new TemplateQuery(
-                    deviceId, device.getContactInterface().getIpAddress(), device.getContactInterface().getCommunity(),
+                    deviceId, 
+                    device.getContactInterface().getIpAddress(), 
+                    device.getContactInterface().getPort(),
+                    device.getContactInterface().getCommunity(),
                     templateId, queryItems, template.isIsTable());
 
             DeviceQueryHelper queryHelper = new DeviceQueryHelper();

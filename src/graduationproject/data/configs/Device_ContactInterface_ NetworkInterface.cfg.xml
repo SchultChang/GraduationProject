@@ -32,6 +32,7 @@
         
         <property name="ipAddress" column="ip_address" type="string"/>
         <property name="community" column="community" type="string"/>
+        <property name="port" column="port" type="int"/>
         <property name="updatedTime" column="updated_time" type="date"/>
 
     </class>
