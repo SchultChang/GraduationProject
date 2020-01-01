@@ -316,7 +316,6 @@ public class DeviceManager {
         }
 
         return result;
-
     }
 
 }

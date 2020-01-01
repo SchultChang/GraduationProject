@@ -36,8 +36,6 @@ import org.soulwing.snmp.SnmpContext;
  */
 public class InterfaceManagementController extends ManagementController {
 
-    private String resultMessage;
-
     public enum DataOrders {
         IP_ADDRESS(0),
         NETMASK(1),
@@ -72,21 +70,8 @@ public class InterfaceManagementController extends ManagementController {
         DOWN
     }
 
-    public String getResultMessage() {
-        return resultMessage;
-    }
-
-//    public boolean processGettingSavedInterfacesOfDevice(int deviceId, boolean isActive) {
-//        if (!isActive) {
-//            this.getLiveInterfaces(deviceId);
-//            return true;
-//        } else {
-//            return this.getSavedInterfaces(deviceId);
-//        }
-//        return false;
-//    }
     public void processGettingInterfacesOfActiveDevices() {
-        System.out.println("START CHECKING INTERFACE STATES");
+//        System.out.println("START CHECKING INTERFACE STATES");
         TimerTask queryTask = new TimerTask() {
             @Override
             public void run() {
@@ -195,7 +180,7 @@ public class InterfaceManagementController extends ManagementController {
                         temp.getInDiscards(),
                         temp.getOutDiscards(),
                         ActiveDeviceDataCollector.getInstance()
-                        .findConnectedNodeId(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
+                        .findConnectedNodeIds(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
                         temp.getNextNodeIPs(),
                         temp.getNextNodeMacs());
 

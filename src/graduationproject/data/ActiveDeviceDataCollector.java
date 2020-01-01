@@ -89,7 +89,7 @@ public class ActiveDeviceDataCollector {
         return unknownDevices;
     }
 
-    public int[] findConnectedNodeId(List<String> ipAddresses, List<String> macAddresses) {
+    public int[] findConnectedNodeIds(List<String> ipAddresses, List<String> macAddresses) {
         int tempSize = macAddresses.size();
         int[] result = new int[tempSize];
         for (int i = 0; i < tempSize; i++) {
@@ -98,14 +98,18 @@ public class ActiveDeviceDataCollector {
             if (ActiveDeviceDataCollector.getInstance().isConnectedToManager(ipAddresses.get(i), macAddresses.get(i))) {
                 result[i] = ActiveDeviceDataCollector.MANAGER_DEVICE_ID;
             } else {
-                synchronized (this.importedDevices) {
-                    for (ActiveDeviceData device : this.importedDevices) {
-                        if (device.containInterface(ipAddresses.get(i), macAddresses.get(i))) {
-                            result[i] = device.id;
-                        }
-                    }
-
-                }
+//                synchronized (this.importedDevices) {
+//                    for (ActiveDeviceData device : this.importedDevices) {
+//                        if (device.containInterface(ipAddresses.get(i), macAddresses.get(i))) {
+//                            result[i] = device.id;
+//                        }
+//                    }
+//
+//                }
+                Device device = DataManager.getInstance().getDeviceManager().getDevice(macAddresses.get(i));
+                if (device != null) {
+                    result[i] = device.getId();
+                } 
             }
         }
         return result;
