@@ -64,6 +64,7 @@ public class PanelImportedDevices extends JPanel {
     private PanelMonitoringDevice panelMonitoringDevice;
     private PanelDeviceResources panelDeviceResources;
     private PanelDeviceStatistics panelDeviceStatistics;
+    private PanelSSHClient panelSSHClient;
 
     private List<LabelDevice> labelDevices;
     private List<LabelInterface> labelInterfaces;
@@ -71,7 +72,7 @@ public class PanelImportedDevices extends JPanel {
     private JPopupMenu pmenuDevices;
     private JMenuItem mitemConnect;
     private JMenuItem mitemDelete;
-    
+
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
     private MouseAdapter listenerListDevices;
@@ -89,7 +90,7 @@ public class PanelImportedDevices extends JPanel {
     private final int LABEL_CLICK = 2;
 
     private LabelInterface currentChosenLabelInterface;
-    private LabelDevice pendingLabelToDelete;
+    private LabelDevice pendingLabel;
     private LabelDevice currentChosenLabelDevice;
     private DataOrders currentDataOrder;
 
@@ -174,7 +175,6 @@ public class PanelImportedDevices extends JPanel {
 //        buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 //        buttonTopology.setBorderPainted(false);
 //        panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
-
         labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png")));
         panelDevices.add(labelHideDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 330, 30, 190));
 
@@ -208,10 +208,18 @@ public class PanelImportedDevices extends JPanel {
         this.panelTopology = new PanelBasicTopology();
         this.panelTopology.setVisible(false);
         this.panelTopology.setEnabled(false);
+
+        this.panelSSHClient = new PanelSSHClient();
+        this.add(this.panelSSHClient, new AbsoluteConstraints(1100, 400, -1, -1));
+        this.panelSSHClient.setVisible(false);
+        this.panelSSHClient.setEnabled(false);
     }
 
     private void initMenu() {
         this.pmenuDevices = new JPopupMenu();
+
+        this.mitemConnect = new JMenuItem("Connect");
+        this.pmenuDevices.add(this.mitemConnect);
 
         this.mitemDelete = new JMenuItem("Delete");
         this.pmenuDevices.add(this.mitemDelete);
@@ -305,7 +313,7 @@ public class PanelImportedDevices extends JPanel {
                     enableInterfaces = false;
                 } else {
                     pmenuDevices.show(source, e.getX(), e.getY());
-                    pendingLabelToDelete = source;
+                    pendingLabel = source;
                 }
 
             }
@@ -361,7 +369,7 @@ public class PanelImportedDevices extends JPanel {
                 JMenuItem source = (JMenuItem) e.getSource();
                 if (source == mitemDelete) {
                     DeviceManagementController deviceController = new DeviceManagementController();
-                    if (!deviceController.processDeletingDevice(pendingLabelToDelete.getDeviceId())) {
+                    if (!deviceController.processDeletingDevice(pendingLabel.getDeviceId())) {
                         JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
                         return;
                     }
@@ -369,9 +377,14 @@ public class PanelImportedDevices extends JPanel {
                     initViewData();
                     System.gc();
                 }
+                if (source == mitemConnect) {
+                    PanelImportedDevices.this.switchSSHClientVisibility(true);
+                    panelSSHClient.initViewData(pendingLabel.getDeviceId());
+                }
             }
 
         };
+        this.mitemConnect.addActionListener(this.listenerItems);
         this.mitemDelete.addActionListener(this.listenerItems);
 
         this.listenerLabel = new MouseAdapter() {
@@ -398,6 +411,7 @@ public class PanelImportedDevices extends JPanel {
     public void initViewData() {
         this.hideDisplayedPanel();
         this.clearLabelInterfaces();
+        this.switchSSHClientVisibility(false);
         this.initDeviceList();
     }
 
@@ -565,6 +579,14 @@ public class PanelImportedDevices extends JPanel {
         } else {
             this.switchDisplayedPanel(PANELS.PANEL_TOPOLOGY);
         }
+    }
+
+    public void switchSSHClientVisibility(boolean visible) {
+        this.panelSSHClient.setVisible(visible);
+        this.panelSSHClient.setEnabled(visible);
+
+        this.revalidate();
+        this.repaint();
     }
 
     public void switchDisplayedPanel(PANELS panel) {

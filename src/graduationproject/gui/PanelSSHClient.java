@@ -64,11 +64,11 @@ public class PanelSSHClient extends JPanel {
     private KeyAdapter listenerField;
 
     private AreaDisplayTextController areaTextDisplayer;
-    
+
     public PanelSSHClient() {
         initComponents();
         initListeners();
-        
+
         this.areaTextDisplayer = new AreaDisplayTextController();
     }
 
@@ -102,8 +102,8 @@ public class PanelSSHClient extends JPanel {
         tareaResult.setFont(new java.awt.Font("SansSerif", 0, 12));
         tareaResult.setForeground(java.awt.Color.white);
         tareaResult.setLineWrap(true);
-        tareaResult.setRows(20);
-        tareaResult.setPreferredSize(new java.awt.Dimension(500, 1000));
+        tareaResult.setRows(500);
+        tareaResult.setPreferredSize(new java.awt.Dimension(500, 2000));
         scrollpane1.setViewportView(tareaResult);
 
         panelCommand.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 500, 420));
@@ -172,6 +172,8 @@ public class PanelSSHClient extends JPanel {
         panelInformation.add(labelClose2, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 0, -1, 30));
 
         setPreferredSize(new java.awt.Dimension(500, 500));
+        setOpaque(false);
+        setBackground(Color.white);
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
     }
 
@@ -191,26 +193,27 @@ public class PanelSSHClient extends JPanel {
 
         };
         this.buttonConnect.addActionListener(listenerButton);
-        
+
         this.listenerLabel = new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.getSource() == labelClose1 || e.getSource() == labelClose2) {
-                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelTopology().switchSSHClientVisibility(false);
+                    ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().switchSSHClientVisibility(false);
                     SSHClient.getInstance().close();
                 }
             }
         };
         this.labelClose1.addMouseListener(listenerLabel);
         this.labelClose2.addMouseListener(listenerLabel);
-        
+
         this.listenerField = new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getSource() == tfieldCommand) {
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        areaTextDisplayer.addText(tfieldUserName.getText() + "@" + labelHostInfo.getText() + ":" + tfieldCommand.getText());
+//                        areaTextDisplayer.addText(tfieldUserName.getText() + "@" + labelHostInfo.getText() + ":" + tfieldCommand.getText());
                         String commandResult = SSHClient.getInstance().sendCommand(tfieldCommand.getText());
+                        tfieldCommand.setText("");
                         if (commandResult != null) {
                             areaTextDisplayer.addText(commandResult);
                             tareaResult.setText(areaTextDisplayer.getString());
@@ -221,13 +224,12 @@ public class PanelSSHClient extends JPanel {
                         super.keyReleased(e);
                     }
                 }
-                
+
             }
         };
         this.tfieldCommand.addKeyListener(listenerField);
     }
 
-       
     public void initViewData(int deviceId) {
         DeviceManagementController deviceController = new DeviceManagementController();
         List<String> data = deviceController.processGettingDeviceInfo(deviceId);
@@ -240,7 +242,6 @@ public class PanelSSHClient extends JPanel {
 
     public void initViewData(String address) {
         if (!this.panelInformation.isVisible()) {
-            System.out.println("DISPLAY PANEL INFO");
             this.switchDisplayedPanel(true);
         }
 
@@ -252,8 +253,9 @@ public class PanelSSHClient extends JPanel {
             this.tfieldHostAddress.setText(address);
             this.labelHostInfo.setText(address);
         }
-        
+
         this.tareaResult.setText("");
+        this.tfieldCommand.setText("");
         this.areaTextDisplayer.lines.clear();
         System.gc();
     }
@@ -280,37 +282,46 @@ public class PanelSSHClient extends JPanel {
         if (panel == panelInformation) {
             System.out.println("DISPLAY PANEL INFORMATION");
         }
-        this.add(panel, new AbsoluteConstraints(x, y,  width, height));
+        this.add(panel, new AbsoluteConstraints(x, y, width, height));
         panel.setVisible(true);
         panel.setEnabled(true);
     }
-    
+
     public class AreaDisplayTextController {
+
         private int listLimit = 300;
         private List<String> lines;
-        
+
         public AreaDisplayTextController() {
             this.lines = new LinkedList<String>();
         }
-        
+
         public void addText(String text) {
-            String[] newLines = text.split("\\r?\\n");
+            String[] newLines = text.split("\\n?\\r");
             int sizeToRemove = this.lines.size() + newLines.length - this.listLimit;
-            
+
             for (int i = 0; i < sizeToRemove; i++) {
-                this.lines.remove(i);
+                this.lines.remove(0);
             }
-            
-            for (String newLine : newLines) {
-                this.lines.add(newLine);
+
+            int tempSize = this.lines.size();
+            String lastRow = null;
+            if (tempSize > 0) {
+                lastRow = this.lines.get(tempSize - 1);
+            }
+            if (lastRow != null) {
+                this.lines.set(tempSize - 1, lastRow + newLines[0]);
+            }
+
+            for (int i = 1; i < newLines.length; i++) {
+                this.lines.add(newLines[i]);
             }
         }
-        
+
         public String getString() {
             StringBuilder builder = new StringBuilder();
             for (String line : this.lines) {
                 builder.append(line);
-                builder.append("\n");
             }
             return builder.toString();
         }

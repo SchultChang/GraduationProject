@@ -7,6 +7,7 @@ package graduationproject;
 
 import graduationproject.data.DataManager;
 import graduationproject.gui.ApplicationWindow;
+import graduationproject.helpers.SSHClient;
 import graduationproject.snmpd.SnmpManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +43,7 @@ public class GraduationProject {
         Runtime.getRuntime().addShutdownHook(new Thread() { 
             @Override
             public void run() {
+                SSHClient.getInstance().close();
                 SnmpManager.getInstance().close();
                 try {
                     Thread.sleep(2000);
