@@ -8,7 +8,7 @@ package graduationproject.snmpd.helpers;
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
 import graduationproject.helpers.AddressParser;
-import graduationproject.snmpd.callbacks.InterfaceQueryCallbackStage1;
+import graduationproject.snmpd.callbacks.InterfaceQueryCallback;
 import java.util.ArrayList;
 import java.util.List;
 import org.soulwing.snmp.SnmpContext;
@@ -29,8 +29,8 @@ public class InterfaceQueryHelper {
 
     public void startQueryAllInterfaces(int deviceId, SnmpContext context) {
         InterfaceDataCollector dataCollector = new InterfaceDataCollector(deviceId);
-        InterfaceQueryCallbackStage1 stage1Callback = new InterfaceQueryCallbackStage1(dataCollector);
-        context.asyncWalk(stage1Callback, 1, ifTable);
+        InterfaceQueryCallback callback = new InterfaceQueryCallback(dataCollector);
+        context.asyncWalk(callback, 1, ifTable);
     }
 
     public class InterfaceDataCollector {

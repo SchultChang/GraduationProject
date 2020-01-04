@@ -505,7 +505,7 @@ public class PanelImportedDevices extends JPanel {
     }
 
     public synchronized void updateLabelInterfaces(int deviceId, int[] interfaceIds, String[] names, InterfaceStates[] interfaceStates) {
-        if (this.currentChosenLabelDevice.getDeviceId() != deviceId) {
+        if (this.currentChosenLabelDevice == null || this.currentChosenLabelDevice.getDeviceId() != deviceId) {
             return;
         }
 
