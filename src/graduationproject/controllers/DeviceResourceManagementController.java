@@ -48,6 +48,8 @@ public class DeviceResourceManagementController extends ManagementController {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
+                System.gc();
+                
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
                 DeviceQueryHelper deviceQueryHelper = new DeviceQueryHelper();
 

@@ -75,7 +75,8 @@ public class InterfaceManagementController extends ManagementController {
         TimerTask queryTask = new TimerTask() {
             @Override
             public void run() {
-                TopoDrawer.getInstance().checkRedrawingTopo();
+                System.gc();
+//                TopoDrawer.getInstance().checkRedrawingTopo();
                 System.out.println("START CHECKING INTERFACE STATES");
                 int[] deviceIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
                 InterfaceQueryHelper helper = new InterfaceQueryHelper();
