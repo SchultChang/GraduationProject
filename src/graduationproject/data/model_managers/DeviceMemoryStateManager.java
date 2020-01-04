@@ -6,6 +6,7 @@
 package graduationproject.data.model_managers;
 
 import graduationproject.data.models.Device;
+import graduationproject.data.models.DeviceCPUState;
 import graduationproject.data.models.DeviceMemoryState;
 import java.util.Calendar;
 import java.util.List;
@@ -13,7 +14,9 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 
@@ -53,6 +56,71 @@ public class DeviceMemoryStateManager {
         return result;
     }
     
+    
+    public List<String> getDeviceMemoryInfo(Device device) {
+        Session session = null;
+        Transaction tx = null;
+        List<String> result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            Criteria cri = session.createCriteria(DeviceMemoryState.class);
+            cri.setProjection(Projections.distinct(Projections.property("description")))
+                    .add(Restrictions.eq("device", device));
+            
+            result = cri.list();
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        
+        return result;
+    }
+    
+    public DeviceMemoryState getDeviceMemoryState(String info, Device device) {
+        Session session = null;
+        Transaction tx = null;
+        DeviceMemoryState result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+            
+            DetachedCriteria maxId = DetachedCriteria.forClass(DeviceMemoryState.class)
+                    .setProjection(Projections.max("id"))
+                    .add(Restrictions.eq("device", device))
+                    .add(Restrictions.eq("description", info));
+            
+            Criteria cri = session.createCriteria(DeviceMemoryState.class)
+                    .add(Property.forName("id").eq(maxId));
+
+            List<Object> temp = cri.list();
+            if (!temp.isEmpty())            {
+                result = (DeviceMemoryState) temp.get(0);
+            }
+            
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        
+        return result;
+        
+    }
+    
+    
     public List<DeviceMemoryState> getDeviceMemoryStates(Device device, Calendar startTime, Calendar endTime, String type) {
         Session session = null;
         Transaction tx = null;
@@ -84,6 +152,5 @@ public class DeviceMemoryStateManager {
         }
         
         return result;
-        
     }
 }

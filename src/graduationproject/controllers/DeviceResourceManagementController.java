@@ -75,6 +75,44 @@ public class DeviceResourceManagementController extends ManagementController {
         }
     }
 
+    public boolean processGettingSavedResourcesOfDevice(int deviceId) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return false;
+        }
+
+        Calendar updatedTime = null;
+        
+        List<Integer> cpuIds = DataManager.getInstance().getDeviceCpuManager().getDeviceCpuDeviceIds(device);
+        List<Object> cpuDataForView = new ArrayList<Object>();
+        DeviceCPUState cpuState;
+        if (cpuIds != null) {
+            for (int cpuId : cpuIds) {
+                cpuState = DataManager.getInstance().getDeviceCpuManager().getDeviceCPUState(cpuId, device);
+                updatedTime = cpuState.getUpdatedTime();
+                cpuDataForView.add(new Object[]{cpuState.getHrDeviceId(), cpuState.getFirmwareId(), cpuState.getDescription(), cpuState.getCpuLoad()});
+            }
+        } else {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+        }
+
+        List<String> memoryInfo = DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryInfo(device);
+        List<Object> memoryDataForView = new ArrayList<Object>();
+        DeviceMemoryState memoryState;
+        if (memoryInfo != null) {
+            for (String info : memoryInfo) {
+                memoryState = DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryState(info, device);
+                memoryDataForView.add(new Object[]{memoryState.getDescription(), memoryState.getTotalSize(), memoryState.getUsedSize()});
+            }
+        }
+
+        ApplicationWindow.getInstance()
+                .getPanelMain().getPanelImportedDevices().getPanelDeviceResources()
+                .updateView(deviceId, cpuDataForView, memoryDataForView, new DataConverter().convertCalendarToString(updatedTime));
+        return true;
+    }
+
     public boolean processChangingResourceCheckingPeriod(int newPeriod) {
         User user = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId());
         if (user == null) {
@@ -107,16 +145,16 @@ public class DeviceResourceManagementController extends ManagementController {
 
         Calendar updatedTime = Calendar.getInstance();
 
-        List<Object> cpuDataToView = new ArrayList<Object>();
+        List<Object> cpuDataForView = new ArrayList<Object>();
         for (DeviceQueryHelper.DeviceCpuData cpuData : cpuDataList) {
-            cpuDataToView.add(new Object[]{cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
+            cpuDataForView.add(new Object[]{cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
             DataManager.getInstance().getDeviceCpuManager().saveDeviceCPUState(
                     new DeviceCPUState(cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad(), updatedTime, device));
         }
 
-        List<Object> memoryDataToView = new ArrayList<Object>();
+        List<Object> memoryDataForView = new ArrayList<Object>();
         for (DeviceQueryHelper.DeviceMemoryData memoryData : memoryDataList) {
-            memoryDataToView.add(new Object[]{memoryData.getDescription(), memoryData.getTotalSize(), memoryData.getUsedSize()});
+            memoryDataForView.add(new Object[]{memoryData.getDescription(), memoryData.getTotalSize(), memoryData.getUsedSize()});
             DataManager.getInstance().getDeviceMemoryManager().saveDeviceMemoryState(
                     new DeviceMemoryState(memoryData.getType(), memoryData.getDescription(),
                             memoryData.getTotalSize(), memoryData.getUsedSize(), updatedTime, device));
@@ -124,7 +162,7 @@ public class DeviceResourceManagementController extends ManagementController {
 
         ApplicationWindow.getInstance()
                 .getPanelMain().getPanelImportedDevices().getPanelDeviceResources()
-                .updateView(deviceId, cpuDataToView, memoryDataToView, new DataConverter().convertCalendarToString(updatedTime));
+                .updateView(deviceId, cpuDataForView, memoryDataForView, new DataConverter().convertCalendarToString(updatedTime));
     }
 
     public class ResultMessageGenerator {

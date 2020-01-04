@@ -225,7 +225,6 @@ public class PanelDeviceResources extends JPanel {
         tfieldUpdatePeriod.setOpaque(false);
         add(tfieldUpdatePeriod, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 880, 90, 30));
 
-        
         buttonChange.setBackground(new java.awt.Color(70, 120, 227));
         buttonChange.setFont(new java.awt.Font("SansSerif", 1, 16));
         buttonChange.setForeground(java.awt.Color.white);
@@ -269,50 +268,53 @@ public class PanelDeviceResources extends JPanel {
         this.buttonChange.addActionListener(this.listenerButton);
         this.buttonStop.addActionListener(this.listenerButton);
     }
-    
+
     public synchronized void initViewData(int deviceId) {
         this.deviceId = deviceId;
-        
-        this.clearTable((DefaultTableModel) this.tableCPU.getModel());
-        this.clearTable((DefaultTableModel) this.tableDisks.getModel());
-        
-        this.labelTotalRam.setText("");
-        this.labelUsedRam.setText("");
-        this.labelTotalVirtual.setText("");
-        this.labelUsedVirtual.setText("");
-        this.labelTotalOther.setText("");
-        this.labelUsedOther.setText("");
-        this.labelUpdatedTime.setText("");
 
+//        this.clearTable((DefaultTableModel) this.tableCPU.getModel());
+//        this.clearTable((DefaultTableModel) this.tableDisks.getModel());
+//        
+//        this.labelTotalRam.setText("");
+//        this.labelUsedRam.setText("");
+//        this.labelTotalVirtual.setText("");
+//        this.labelUsedVirtual.setText("");
+//        this.labelTotalOther.setText("");
+//        this.labelUsedOther.setText("");
+//        this.labelUpdatedTime.setText("");
+//
         this.tfieldUpdatePeriod.setText(String.valueOf(new DeviceResourceManagementController().processGettingResourceCheckingPeriod()));
-//        DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
-//        if (!resourceController.processGettingDeviceResource(deviceId, 
-//                ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getSelectedDeviceStates())) {
-//            JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
-//        }
+        DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
+        if (!resourceController.processGettingSavedResourcesOfDevice(deviceId)) {
+            JOptionPane.showMessageDialog(null, resourceController.getResultMessage());
+        }
     }
 
     public synchronized void updateView(int deviceId, List<Object> cpuData, List<Object> memoryData, String updatedTime) {
         DefaultTableModel tableModel = (DefaultTableModel) this.tableCPU.getModel();
         this.clearTable(tableModel);
-        for (Object cpuState : cpuData) {
-            tableModel.addRow((Object[]) cpuState);
+        if (!cpuData.isEmpty()) {
+            for (Object cpuState : cpuData) {
+                tableModel.addRow((Object[]) cpuState);
+            }
         }
 
-        Object[] memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_RAM.getValue());
-        this.labelTotalRam.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
-        this.labelUsedRam.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
+        if (!memoryData.isEmpty()) {
+            Object[] memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_RAM.getValue());
 
-        memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_VIRTUAL.getValue());
-        this.labelTotalVirtual.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
-        this.labelUsedVirtual.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
+            this.labelTotalRam.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
+            this.labelUsedRam.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
 
-        memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_OTHER.getValue());
-        this.labelTotalOther.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
-        this.labelUsedOther.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
+            memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_VIRTUAL.getValue());
+            this.labelTotalVirtual.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
+            this.labelUsedVirtual.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
+
+            memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_OTHER.getValue());
+            this.labelTotalOther.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
+            this.labelUsedOther.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
+        }
 
         tableModel = (DefaultTableModel) this.tableDisks.getModel();
-
         this.clearTable(tableModel);
         int tempSize = memoryData.size();
         for (int i = DataOrders.MEMORY_DISK.getValue(); i < tempSize; i++) {
@@ -331,7 +333,7 @@ public class PanelDeviceResources extends JPanel {
             tableModel.removeRow(i);
         }
     }
-    
+
 //    @Override
 //    public void setEnabled(boolean enabled) {
 //        super.setEnabled(enabled);
