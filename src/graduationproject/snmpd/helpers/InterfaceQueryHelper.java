@@ -7,6 +7,7 @@ package graduationproject.snmpd.helpers;
 
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.DataOrders;
+import graduationproject.helpers.AddressParser;
 import graduationproject.snmpd.callbacks.InterfaceQueryCallbackStage1;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +106,7 @@ public class InterfaceQueryHelper {
             this.index = varbind.get("ifIndex").asInt();
             this.operStatus = varbind.get("ifOperStatus").asInt();
             this.name = varbind.get("ifDescr").asString();
-            this.macAddress = varbind.get("ifPhysAddress").asString();
+            this.macAddress = AddressParser.normalizeMac(varbind.get("ifPhysAddress").asString());
             this.type = varbind.get("ifType").asString();
             this.mtu = varbind.get("ifMtu").asLong();
             this.speed = varbind.get("ifSpeed").asLong();
@@ -134,7 +135,7 @@ public class InterfaceQueryHelper {
                 return false;
             }
 
-            this.nextNodeMacs.add(varbind.get("ipNetToMediaPhysAddress").asString());
+            this.nextNodeMacs.add(AddressParser.normalizeMac(varbind.get("ipNetToMediaPhysAddress").asString()));
             this.nextNodeIPs.add(varbind.get("ipNetToMediaNetAddress").asString());
             return true;
         }

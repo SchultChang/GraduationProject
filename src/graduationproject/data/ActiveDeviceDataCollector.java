@@ -70,7 +70,7 @@ public class ActiveDeviceDataCollector {
                     }
                 }
                 this.managerDevice.interfaces.add(new InterfaceData(MANAGER_DEVICE_ID, intf.getName(), ipAddress,
-                        new AddressParser().getNetworkIp(ipAddress, prefixLength), macAddress));
+                        new AddressParser().getNetworkIp(ipAddress, prefixLength), AddressParser.normalizeMac(macAddress)));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
