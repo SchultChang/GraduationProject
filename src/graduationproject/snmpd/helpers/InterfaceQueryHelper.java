@@ -94,12 +94,12 @@ public class InterfaceQueryHelper {
         private String ipAddress;
         private String netmask;
 
-        private List<String> nextNodeMacs;
-        private List<String> nextNodeIPs;
+        private List<String> connectedNodeMacs;
+        private List<String> connectedNodeIPs;
 
         public InterfaceRawData() {
-            this.nextNodeIPs = new ArrayList<String>();
-            this.nextNodeMacs = new ArrayList<String>();
+            this.connectedNodeIPs = new ArrayList<String>();
+            this.connectedNodeMacs = new ArrayList<String>();
         }
 
         public void parseIfTable(VarbindCollection varbind) {
@@ -135,8 +135,8 @@ public class InterfaceQueryHelper {
                 return false;
             }
 
-            this.nextNodeMacs.add(AddressParser.normalizeMac(varbind.get("ipNetToMediaPhysAddress").asString()));
-            this.nextNodeIPs.add(varbind.get("ipNetToMediaNetAddress").asString());
+            this.connectedNodeMacs.add(AddressParser.normalizeMac(varbind.get("ipNetToMediaPhysAddress").asString()));
+            this.connectedNodeIPs.add(varbind.get("ipNetToMediaNetAddress").asString());
             return true;
         }
 
@@ -200,12 +200,12 @@ public class InterfaceQueryHelper {
             return this.macAddress;
         }
 
-        public List<String> getNextNodeMacs() {
-            return nextNodeMacs;
+        public List<String> getConnectedNodeMacs() {
+            return connectedNodeMacs;
         }
 
-        public List<String> getNextNodeIPs() {
-            return nextNodeIPs;
+        public List<String> getConnectedNodeIPs() {
+            return connectedNodeIPs;
         }
         
         public List<Object> getDynamicData() {

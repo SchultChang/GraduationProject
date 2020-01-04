@@ -101,7 +101,7 @@ public class TopoDrawer {
         for (int i = 0; i < this.unknownSize; i++) {
             for (VirtualSwitch vs : this.vsDevices) {
                 if (this.unknownDevices.get(i).belongToNetwork(vs.networkAddress)) {
-                    vs.nextNodeTopoIds.add(i + this.importedSize + 1);
+                    vs.connectedNodeTopoIds.add(i + this.importedSize + 1);
                 }
             }
         }
@@ -118,7 +118,7 @@ public class TopoDrawer {
             if (vsListId == -1) {
                 this.vsDevices.add(new VirtualSwitch(networkAddress, topoId));
             } else {
-                this.vsDevices.get(vsListId).nextNodeTopoIds.add(topoId);
+                this.vsDevices.get(vsListId).connectedNodeTopoIds.add(topoId);
             }
         }
     }
@@ -151,20 +151,20 @@ public class TopoDrawer {
         this.topoNodes.add(new TopoNodeData(0, -1));
         int left = 0, right = 0, current = 0;
 
-        List<ConnectedNodeData> nextNodes;
+        List<ConnectedNodeData> connectedNodes;
         List<Integer> topoIds;
         while (left <= right) {
             Object device = this.getDeviceForTopoId(this.topoNodes.get(left).topoId);
             if (this.topoNodes.get(left).topoId <= this.importedSize + this.unknownSize) {
-                nextNodes = ((ActiveDeviceData) device).getAllConnectedNodes();
+                connectedNodes = ((ActiveDeviceData) device).getAllConnectedNodes();
                 topoIds = new ArrayList<Integer>();
-                if (nextNodes != null) {
-                    for (ConnectedNodeData nextNode : nextNodes) {
-                        topoIds.add(this.getTopoIdForData(nextNode));
+                if (connectedNodes != null) {
+                    for (ConnectedNodeData connectedNode : connectedNodes) {
+                        topoIds.add(this.getTopoIdForData(connectedNode));
                     }
                 }
             } else {
-                topoIds = ((VirtualSwitch) device).nextNodeTopoIds;
+                topoIds = ((VirtualSwitch) device).connectedNodeTopoIds;
             }
             
             for (Integer topoId : topoIds) {
@@ -209,25 +209,25 @@ public class TopoDrawer {
         return null;
     }
 
-    private int getTopoIdForData(ConnectedNodeData nextNode) {
-        if (nextNode.getId() == ActiveDeviceDataCollector.MANAGER_DEVICE_ID) {
+    private int getTopoIdForData(ConnectedNodeData connectedNode) {
+        if (connectedNode.getId() == ActiveDeviceDataCollector.MANAGER_DEVICE_ID) {
             return 0;
         }
 
-        if (nextNode.getId() == ActiveDeviceDataCollector.UNKNOWN_DEVICE_ID) {
+        if (connectedNode.getId() == ActiveDeviceDataCollector.UNKNOWN_DEVICE_ID) {
             for (int i = 0; i < this.unknownSize; i++) {
-                if (this.unknownDevices.get(i).containInterface(nextNode.getIpAddress(), nextNode.getMacAddress())) {
+                if (this.unknownDevices.get(i).containInterface(connectedNode.getIpAddress(), connectedNode.getMacAddress())) {
                     return this.importedSize + i + 1;
                 }
             }
         }
 
-        if (nextNode.getId() == VS_DEVICE_ID) {
-            return this.findVsListId(nextNode.getNetworkIp()) + this.importedSize + this.unknownSize + 1;
+        if (connectedNode.getId() == VS_DEVICE_ID) {
+            return this.findVsListId(connectedNode.getNetworkIp()) + this.importedSize + this.unknownSize + 1;
         }
 
         for (int i = 0; i < this.importedSize; i++) {
-            if (this.importedDevices.get(i).getId() == nextNode.getId()) {
+            if (this.importedDevices.get(i).getId() == connectedNode.getId()) {
                 return i + 1;
             }
         }
@@ -415,17 +415,17 @@ public class TopoDrawer {
     public class VirtualSwitch {
 
         private String networkAddress;
-        private List<Integer> nextNodeTopoIds;
+        private List<Integer> connectedNodeTopoIds;
 
-        public VirtualSwitch(String networkAddress, int nextNodeTopoId) {
+        public VirtualSwitch(String networkAddress, int connectedNodeTopoId) {
             this.networkAddress = networkAddress;
-            this.nextNodeTopoIds = new ArrayList<Integer>();
-            this.nextNodeTopoIds.add(nextNodeTopoId);
+            this.connectedNodeTopoIds = new ArrayList<Integer>();
+            this.connectedNodeTopoIds.add(connectedNodeTopoId);
         }
 
         public void displayConnectedNodes() {
             System.out.println("VS: " + this.networkAddress);
-            for (Integer value : this.nextNodeTopoIds) {
+            for (Integer value : this.connectedNodeTopoIds) {
                 System.out.println("VS - NEXT NODE : " + value);
             }
         }

@@ -182,9 +182,9 @@ public class InterfaceManagementController extends ManagementController {
                         temp.getInDiscards(),
                         temp.getOutDiscards(),
                         ActiveDeviceDataCollector.getInstance()
-                        .findConnectedNodeIds(temp.getNextNodeIPs(), temp.getNextNodeMacs()),
-                        temp.getNextNodeIPs(),
-                        temp.getNextNodeMacs());
+                        .findConnectedNodeIds(temp.getConnectedNodeIPs(), temp.getConnectedNodeMacs()),
+                        temp.getConnectedNodeIPs(),
+                        temp.getConnectedNodeMacs());
 
 //                DeviceInterfaceDynamicData dynamicData = new DeviceInterfaceDynamicData(
 //                        rawData, updatedTime, device.getNetworkInterfaces().get(i));
