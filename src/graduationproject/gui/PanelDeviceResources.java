@@ -23,9 +23,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -124,6 +126,11 @@ public class PanelDeviceResources extends JPanel {
                 new Object[][]{},
                 this.tableCPUHeaders
         ));
+        DefaultTableCellRenderer tableRenderer = new DefaultTableCellRenderer();
+        tableRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        tableCPU.getColumn("ID").setCellRenderer(tableRenderer);
+        tableCPU.getColumn("FirmwareID").setCellRenderer(tableRenderer);
+        tableCPU.getColumn("Load(%)").setCellRenderer(tableRenderer);
         scrollpane1.setViewportView(tableCPU);
 
         panelCPU.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 50, 921, 120));

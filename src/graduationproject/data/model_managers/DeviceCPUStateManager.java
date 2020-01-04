@@ -117,6 +117,37 @@ public class DeviceCPUStateManager {
         return result;
     }
     
+    public List<Integer> getDeviceCPULoad(Device device, Calendar startTime, Calendar endTime, Integer choice) {
+        Session session = null;
+        Transaction tx = null;
+        List<Integer> result = null;
+        
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            Criteria cri = session.createCriteria(DeviceCPUState.class);
+            cri.setProjection(Projections.property("cpuLoad"))
+                    .add(Restrictions.eq("device", device))
+                    .add(Restrictions.ge("updatedTime", startTime))
+                    .add(Restrictions.le("updatedTime", endTime))
+                    .add(Restrictions.eq("hrDeviceId", choice.intValue()));
+
+            result = cri.list();
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        
+        return result;
+        
+    }
+    
     public double getAverageCpuLoad(Device device, Calendar startTime, Calendar endTime) {
         Session session = null;
         Transaction tx = null;

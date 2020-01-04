@@ -71,7 +71,8 @@ public class DeviceResourceManagementController extends ManagementController {
         Setting setting = DataManager.getInstance().getUserManager().getUser(DataManager.getInstance().getActiveAccountId()).getSetting();
         if (setting != null) {
             SnmpManager.getInstance().getQueryTimerManager().startDeviceResourceTimer(timerTask,
-                    setting.getNormalizedTime(setting.getDeviceCheckingPeriod()), setting.getNormalizedTime(setting.getResourceCheckingPeriod()));
+                    setting.getNormalizedTime(setting.getDeviceCheckingPeriod()), 
+                    setting.getNormalizedTime(setting.getResourceCheckingPeriod()));
         }
     }
 
@@ -83,7 +84,7 @@ public class DeviceResourceManagementController extends ManagementController {
         }
 
         Calendar updatedTime = null;
-        
+
         List<Integer> cpuIds = DataManager.getInstance().getDeviceCpuManager().getDeviceCpuDeviceIds(device);
         List<Object> cpuDataForView = new ArrayList<Object>();
         DeviceCPUState cpuState;
@@ -91,7 +92,8 @@ public class DeviceResourceManagementController extends ManagementController {
             for (int cpuId : cpuIds) {
                 cpuState = DataManager.getInstance().getDeviceCpuManager().getDeviceCPUState(cpuId, device);
                 updatedTime = cpuState.getUpdatedTime();
-                cpuDataForView.add(new Object[]{cpuState.getHrDeviceId(), cpuState.getFirmwareId(), cpuState.getDescription(), cpuState.getCpuLoad()});
+                cpuDataForView.add(new Object[]{cpuId - cpuIds.get(0) + 1, cpuState.getFirmwareId(), 
+                    cpuState.getDescription(), cpuState.getCpuLoad()});
             }
         } else {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
@@ -111,6 +113,16 @@ public class DeviceResourceManagementController extends ManagementController {
                 .getPanelMain().getPanelImportedDevices().getPanelDeviceResources()
                 .updateView(deviceId, cpuDataForView, memoryDataForView, new DataConverter().convertCalendarToString(updatedTime));
         return true;
+    }
+
+    public List<Integer> processGettingCPUIds(int deviceId) {
+        Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
+        if (device == null) {
+            this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
+            return null;
+        }
+
+        return DataManager.getInstance().getDeviceCpuManager().getDeviceCpuDeviceIds(device);
     }
 
     public boolean processChangingResourceCheckingPeriod(int newPeriod) {
@@ -147,9 +159,11 @@ public class DeviceResourceManagementController extends ManagementController {
 
         List<Object> cpuDataForView = new ArrayList<Object>();
         for (DeviceQueryHelper.DeviceCpuData cpuData : cpuDataList) {
-            cpuDataForView.add(new Object[]{cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
+            cpuDataForView.add(new Object[]{cpuData.getDeviceId() - cpuDataList.get(0).getDeviceId() + 1,
+                cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
             DataManager.getInstance().getDeviceCpuManager().saveDeviceCPUState(
-                    new DeviceCPUState(cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad(), updatedTime, device));
+                    new DeviceCPUState(cpuData.getDeviceId(), cpuData.getFirmwareId(),
+                            cpuData.getDescription(), cpuData.getLoad(), updatedTime, device));
         }
 
         List<Object> memoryDataForView = new ArrayList<Object>();

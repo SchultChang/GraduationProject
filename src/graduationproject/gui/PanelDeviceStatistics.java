@@ -7,6 +7,7 @@ package graduationproject.gui;
 
 import graduationproject.controllers.ChartManagementController;
 import graduationproject.controllers.ChartManagementController.QueryPeriod;
+import graduationproject.controllers.DeviceResourceManagementController;
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.snmpd.helpers.DeviceQueryHelper.MemoryType;
 import java.awt.Color;
@@ -38,6 +39,7 @@ public class PanelDeviceStatistics extends JPanel {
     private final AbsoluteConstraints PANEL_MEMORY_POSITION = new AbsoluteConstraints(80, 380, 990, 190);
     private final AbsoluteConstraints PANEL_BANDWIDTH_POSITION = new AbsoluteConstraints(80, 650, 990, 190);
     private final String DEFAULT_CHOICE_VALUE = "All";
+    private Integer[] cpuChoices;
     private String[] memoryChoices = {MemoryType.RAM.getDisplayType(), MemoryType.VIRTUAL.getDisplayType(), MemoryType.OTHER.getDisplayType()};
     private String[] interfaceChoices;
 
@@ -48,12 +50,14 @@ public class PanelDeviceStatistics extends JPanel {
     private JRadioButton buttonYesterday;
     private JComboBox<String> cboxInterfaces;
     private JComboBox<String> cboxMemory;
+    private JComboBox<String> cboxCPU;
     private JLabel label1;
     private JLabel label2;
     private JLabel label3;
     private JLabel label4;
     private JLabel label5;
     private JLabel label6;
+    private JLabel label7;
 
     private ChartViewer chartViewer;
     private XChartPanel currentCPUPanel;
@@ -64,6 +68,7 @@ public class PanelDeviceStatistics extends JPanel {
     private ActionListener listenerRadioButton;
     private ItemListener listenerComboBox;
 
+    private int currentCpuChoiceId; 
     private int currentMemoryChoiceId;
     private int currentInterfaceChoiceId;
     private int deviceId;
@@ -86,15 +91,17 @@ public class PanelDeviceStatistics extends JPanel {
         label4 = new JLabel();
         label5 = new JLabel();
         label6 = new JLabel();
+        label7 = new JLabel();
         cboxInterfaces = new JComboBox<>();
         cboxMemory = new JComboBox<>();
+        cboxCPU = new JComboBox<>();
 
         setPreferredSize(new java.awt.Dimension(1160, 940));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         setBackground(Color.white);
 
         chartViewer = new ChartViewer();
-        add(chartViewer, new AbsoluteConstraints(70, 60, 1000, 800));
+        add(chartViewer, new AbsoluteConstraints(70, 40, 1000, 810));
         switchChartViewerVisibility(false, null);
 
         label1.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -105,25 +112,25 @@ public class PanelDeviceStatistics extends JPanel {
         button7days.setText("Last 7 days");
         button7days.setActionCommand(QueryPeriod.LAST_7_DAYS.getValue());
         button7days.setOpaque(false);
-        add(button7days, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 50, -1, 30));
+        add(button7days, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 40, -1, 30));
 
         buttonToday.setFont(new java.awt.Font("SansSerif", 0, 16));
         buttonToday.setText("Today");
         buttonToday.setActionCommand(QueryPeriod.TODAY.getValue());
         buttonToday.setOpaque(false);
-        add(buttonToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 50, -1, 30));
+        add(buttonToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 40, -1, 30));
 
         buttonYesterday.setFont(new java.awt.Font("SansSerif", 0, 16));
         buttonYesterday.setText("Yesterday");
         buttonYesterday.setActionCommand(QueryPeriod.YESTERDAY.getValue());
         buttonYesterday.setOpaque(false);
-        add(buttonYesterday, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 50, -1, 30));
+        add(buttonYesterday, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 40, -1, 30));
 
         button3days.setFont(new java.awt.Font("SansSerif", 0, 16));
         button3days.setText("Last 3 days");
         button3days.setActionCommand(QueryPeriod.LAST_3_DAYS.getValue());
         button3days.setOpaque(false);
-        add(button3days, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 50, -1, 30));
+        add(button3days, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 40, -1, 30));
 
         buttonGroup.add(buttonToday);
         buttonGroup.add(buttonYesterday);
@@ -133,14 +140,14 @@ public class PanelDeviceStatistics extends JPanel {
 
         label2.setFont(new java.awt.Font("SansSerif", 1, 16));
         label2.setText("Period:");
-        add(label2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 50, -1, 30));
+        add(label2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 40, -1, 30));
 
         label3.setFont(new java.awt.Font("SansSerif", 1, 16));
         label3.setText("RAM Usage:");
         add(label3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, -1, 30));
 
         label4.setFont(new java.awt.Font("SansSerif", 1, 16));
-        label4.setText("Interface:");
+        label4.setText("Interface");
         add(label4, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 610, -1, 30));
 
         label5.setFont(new java.awt.Font("SansSerif", 1, 16));
@@ -153,7 +160,7 @@ public class PanelDeviceStatistics extends JPanel {
         add(cboxInterfaces, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 610, 290, 30));
 
         label6.setFont(new java.awt.Font("SansSerif", 1, 16));
-        label6.setText("Memory:");
+        label6.setText("Memory");
         add(label6, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 340, -1, 30));
 
         cboxMemory.setFont(new java.awt.Font("SansSerif", 0, 16));
@@ -165,6 +172,14 @@ public class PanelDeviceStatistics extends JPanel {
         cboxMemory.setModel(memoryModel);
         cboxMemory.setSelectedIndex(0);
         add(cboxMemory, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 340, 290, 30));
+
+        label7.setFont(new java.awt.Font("SansSerif", 1, 16));
+        label7.setText("CPU");
+        add(label7, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 80, 50, 30));
+
+        cboxCPU.setFont(new java.awt.Font("SansSerif", 0, 16));
+        cboxCPU.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Item 1", "Item 2", "Item 3", "Item 4"}));
+        add(cboxCPU, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 80, 290, 30));
 
     }
 
@@ -187,6 +202,25 @@ public class PanelDeviceStatistics extends JPanel {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     JComboBox source = (JComboBox) e.getSource();
+                    if (source == cboxCPU) {
+                        if (source.getSelectedIndex() != currentCpuChoiceId) {
+                            currentCpuChoiceId = cboxCPU.getSelectedIndex();
+                            ChartManagementController chartController = new ChartManagementController();
+                            
+                            Chart chart = chartController.processGettingChart(deviceId, 
+                                    ChartManagementController.DataType.CPU_LOAD, 
+                                    buttonGroup.getSelection().getActionCommand(), 
+                                    getCPUChoices());
+                            if (chart == null) {
+                                JOptionPane.showMessageDialog(null, chartController.getResultMessage());
+                                return;
+                            }          
+                            
+                            currentCPUPanel = displayChart(currentCPUPanel, chart, PANEL_CPU_POSITION);
+                            PanelDeviceStatistics.this.revalidate();
+                            PanelDeviceStatistics.this.repaint();
+                        }
+                    }
                     if (source == cboxMemory) {
                         if (source.getSelectedIndex() != currentMemoryChoiceId) {
                             currentMemoryChoiceId = cboxMemory.getSelectedIndex();
@@ -229,6 +263,7 @@ public class PanelDeviceStatistics extends JPanel {
             }
 
         };
+        this.cboxCPU.addItemListener(listenerComboBox);
         this.cboxInterfaces.addItemListener(listenerComboBox);
         this.cboxMemory.addItemListener(listenerComboBox);
 
@@ -261,6 +296,7 @@ public class PanelDeviceStatistics extends JPanel {
 
     public void initViewData(int deviceId) {
         this.deviceId = deviceId;
+        this.currentCpuChoiceId = 0;
         this.currentMemoryChoiceId = 0;
         this.currentInterfaceChoiceId = 0;
 
@@ -281,6 +317,21 @@ public class PanelDeviceStatistics extends JPanel {
             }
         }
 
+        List<Integer> cpuDeviceIds = new DeviceResourceManagementController().processGettingCPUIds(deviceId);
+        if (cpuDeviceIds != null && !cpuDeviceIds.isEmpty()) {
+            DefaultComboBoxModel cboxModel = (DefaultComboBoxModel) this.cboxCPU.getModel();
+            cboxModel.removeAllElements();
+            cboxModel.addElement(DEFAULT_CHOICE_VALUE);
+            
+            int tempSize = cpuDeviceIds.size();
+            this.cpuChoices = new Integer[tempSize];
+            for (int i = 0; i < tempSize; i++) {
+                this.cpuChoices[i] = cpuDeviceIds.get(i);
+                cboxModel.addElement(this.cpuChoices[i] - this.cpuChoices[0] + 1);
+            }
+        }
+        
+        this.cboxCPU.setSelectedIndex(0);
         this.cboxInterfaces.setSelectedIndex(0);
         this.cboxMemory.setSelectedIndex(0);
 
@@ -290,7 +341,7 @@ public class PanelDeviceStatistics extends JPanel {
     private void displayAllCharts(int deviceId, String period) {
         ChartManagementController chartController = new ChartManagementController();
 
-        Chart chart = chartController.processGettingChart(deviceId, ChartManagementController.DataType.CPU_LOAD, period, null);
+        Chart chart = chartController.processGettingChart(deviceId, ChartManagementController.DataType.CPU_LOAD, period, this.getCPUChoices());
         if (chart == null) {
             JOptionPane.showMessageDialog(null, chartController.getResultMessage());
             return;
@@ -326,6 +377,16 @@ public class PanelDeviceStatistics extends JPanel {
         newPanel.addMouseListener(this.listenerPanel);
         this.add(newPanel, position);
         return newPanel;
+    }
+    
+    private Integer[] getCPUChoices() {
+        if (this.cboxCPU.getSelectedItem().toString().equals(DEFAULT_CHOICE_VALUE)) {
+            return this.cpuChoices;
+        }
+        if (this.cpuChoices != null) {
+            return new Integer[] {this.cpuChoices[this.cboxCPU.getSelectedIndex() - 1]};
+        }
+        return null;
     }
 
     private String[] getMemoryChoices() {

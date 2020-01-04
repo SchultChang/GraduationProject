@@ -58,65 +58,50 @@ public class ChartManagementController extends ManagementController {
         }
     }
 
-    public Chart processGettingChart(int deviceId, DataType dataType, String period, String[] choices) {
+    public Chart processGettingChart(int deviceId, DataType dataType, String period, Object[] choices) {
+        String xTitle = "Hour";
+        String yTitle = "Avg Usage(%)";
         if (dataType == DataType.CPU_LOAD) {
-            List<Object> data = this.getDataForChart(deviceId, dataType, period, null);
-            if (data != null) {
-                String xTitle = "Hour";
-                String yTitle = "Avg Load(%)";
-                String seriesName = "CPU Load";
-                if (QueryPeriod.TODAY.getValue().equals(period) || QueryPeriod.YESTERDAY.getValue().equals(period)) {
-                    XYChart chart = this.buildChartForADay(xTitle, yTitle);
-                    chart.addSeries(seriesName, (double[]) data.get(0), (double[]) data.get(1));
-                    return chart;
-                }
-
-                xTitle = "Day";
-                if (QueryPeriod.LAST_3_DAYS.getValue().equals(period) || QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
-                    CategoryChart chart = this.buildChartForDays(xTitle, yTitle);
-                    chart.addSeries(seriesName, Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
-                    return chart;
-                }
-
-            }
+            yTitle = "Avg Load(%)";
         }
 
-        if (dataType == DataType.MEMORY_USAGE || dataType == DataType.BANDWIDTH_USAGE) {
-            String xTitle = "Hour";
-            String yTitle = "Avg Usage(%)";
-            if (QueryPeriod.TODAY.getValue().equals(period) || QueryPeriod.YESTERDAY.getValue().equals(period)) {
-                XYChart chart = this.buildChartForADay(xTitle, yTitle);
-                List<Object> data = null;
-                if (choices != null) {
-                    for (String choice : choices) {
-                        data = this.getDataForChart(deviceId, dataType, period, choice);
-//                        double[] values = (double[]) data.get(1);
-//                        System.out.println("VALUES OF " + choice);
-//                        for (double value : values) {
-//                            System.out.println(value);
-//                        }
-                        if (data != null) {
-                            chart.addSeries(choice, (double[]) data.get(0), (double[]) data.get(1));
+        if (QueryPeriod.TODAY.getValue().equals(period) || QueryPeriod.YESTERDAY.getValue().equals(period)) {
+            XYChart chart = this.buildChartForADay(xTitle, yTitle);
+            List<Object> data = null;
+            if (choices != null) {
+                for (Object choice : choices) {
+                    data = this.getDataForChart(deviceId, dataType, period, choice);
+                    if (data != null) {
+                        if (DataType.CPU_LOAD == dataType) {
+                            chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1), 
+                                    (double[]) data.get(0), (double[]) data.get(1));
+                        } else {
+                            chart.addSeries(String.valueOf(choice), (double[]) data.get(0), (double[]) data.get(1));
                         }
                     }
                 }
-                return chart;
             }
+            return chart;
+        }
 
-            xTitle = "Day";
-            if (QueryPeriod.LAST_3_DAYS.getValue().equals(period) || QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
-                CategoryChart chart = this.buildChartForDays(xTitle, yTitle);
-                List<Object> data = null;
-                if (choices != null) {
-                    for (String choice : choices) {
-                        data = this.getDataForChart(deviceId, dataType, period, choice);
-                        if (data != null) {
-                            chart.addSeries(choice, Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
+        xTitle = "Day";
+        if (QueryPeriod.LAST_3_DAYS.getValue().equals(period) || QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
+            CategoryChart chart = this.buildChartForDays(xTitle, yTitle);
+            List<Object> data = null;
+            if (choices != null) {
+                for (Object choice : choices) {
+                    data = this.getDataForChart(deviceId, dataType, period, choice);
+                    if (data != null) {
+                        if (DataType.CPU_LOAD == dataType) {
+                            chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1), 
+                                    (double[]) data.get(0), (double[]) data.get(1));
+                        } else {
+                            chart.addSeries(String.valueOf(choice), (double[]) data.get(0), (double[]) data.get(1));
                         }
                     }
                 }
-                return chart;
             }
+            return chart;
         }
 
         return null;
@@ -156,7 +141,7 @@ public class ChartManagementController extends ManagementController {
         return chart;
     }
 
-    public List<Object> getDataForChart(int deviceId, DataType dataType, String period, String choice) {
+    public List<Object> getDataForChart(int deviceId, DataType dataType, String period, Object choice) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
         if (device == null) {
             this.resultMessage = new ResultMessageGenerator().GETTING_FAILED_OTHER;
@@ -184,7 +169,7 @@ public class ChartManagementController extends ManagementController {
         return null;
     }
 
-    public List<Object> getDataForADay(Device device, DataType dataType, Calendar day, String choice) {
+    public List<Object> getDataForADay(Device device, DataType dataType, Calendar day, Object choice) {
         List<Object> result = new ArrayList<Object>();
         int startHour = 0;
         int endHour = 23;
@@ -212,7 +197,7 @@ public class ChartManagementController extends ManagementController {
         return result;
     }
 
-    public List<Object> getDataForDays(Device device, DataType dataType, Calendar day, int dayCount, String choice) {
+    public List<Object> getDataForDays(Device device, DataType dataType, Calendar day, int dayCount, Object choice) {
         List<Object> result = new ArrayList<Object>();
 
         Calendar startTime = (Calendar) day.clone();
@@ -240,21 +225,37 @@ public class ChartManagementController extends ManagementController {
         return result;
     }
 
-    public double getDataForTime(Device device, DataType dataType, Calendar startTime, Calendar endTime, String choice) {
+    public double getDataForTime(Device device, DataType dataType, Calendar startTime, Calendar endTime, Object choice) {
         if (dataType == DataType.CPU_LOAD) {
-            return this.getAverageCpuLoadForTime(device, startTime, endTime);
+            return this.getAverageCpuLoadForTime(device, startTime, endTime, (Integer) choice);
         }
         if (dataType == DataType.MEMORY_USAGE) {
-            return this.getAverageMemoryUsageForTime(device, startTime, endTime, choice);
+            return this.getAverageMemoryUsageForTime(device, startTime, endTime, (String) choice);
         }
         if (dataType == DataType.BANDWIDTH_USAGE) {
-            return this.getAverageBandwidthUsageForTime(device, startTime, endTime, choice);
+            return this.getAverageBandwidthUsageForTime(device, startTime, endTime, (String) choice);
         }
         return 0;
     }
 
-    public double getAverageCpuLoadForTime(Device device, Calendar startTime, Calendar endTime) {
-        return DataManager.getInstance().getDeviceCpuManager().getAverageCpuLoad(device, startTime, endTime);
+    public double getAverageCpuLoadForTime(Device device, Calendar startTime, Calendar endTime, Integer choice) {
+        List<Integer> loads = DataManager.getInstance().getDeviceCpuManager().getDeviceCPULoad(device, startTime, endTime, choice);
+        System.out.println("choice:" + choice);
+        System.out.println("load size:" + loads.size());
+        if (loads == null && loads.isEmpty()) {
+            return 0.0;
+        }
+
+        int tempSize = loads.size();
+        double loadSum = 0.0;
+        for (Integer load : loads) {
+            loadSum += load;
+        }
+
+        if (tempSize != 0) {
+            return loadSum * 1.0 / tempSize;
+        }
+        return 0.0;
     }
 
     public double getAverageMemoryUsageForTime(Device device, Calendar startTime, Calendar endTime, String choice) {
