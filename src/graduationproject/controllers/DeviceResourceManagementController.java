@@ -109,9 +109,9 @@ public class DeviceResourceManagementController extends ManagementController {
 
         List<Object> cpuDataToView = new ArrayList<Object>();
         for (DeviceQueryHelper.DeviceCpuData cpuData : cpuDataList) {
-            cpuDataToView.add(new Object[]{cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
+            cpuDataToView.add(new Object[]{cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad()});
             DataManager.getInstance().getDeviceCpuManager().saveDeviceCPUState(
-                    new DeviceCPUState(cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad(), updatedTime, device));
+                    new DeviceCPUState(cpuData.getDeviceId(), cpuData.getFirmwareId(), cpuData.getDescription(), cpuData.getLoad(), updatedTime, device));
         }
 
         List<Object> memoryDataToView = new ArrayList<Object>();

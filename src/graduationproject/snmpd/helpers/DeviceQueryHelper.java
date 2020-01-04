@@ -27,7 +27,7 @@ public class DeviceQueryHelper {
 
     public static final String DEVICE_ID_SEP = ":_:";
     public static final String[] processorLoadTable = {"sysUpTime", "hrProcessorFrwID", "hrProcessorLoad"};
-    public static final String[] deviceTable = {"sysUpTime", "hrDeviceType", "hrDeviceDescr", "hrDeviceID"};
+    public static final String[] deviceTable = {"sysUpTime", "hrDeviceIndex", "hrDeviceType", "hrDeviceDescr", "hrDeviceID"};
     private static final String CPU_DEVICE_TYPEOID = "1.3.6.1.2.1.25.3.1.3";
     public static final String[] memoryTable = {"sysUpTime", "hrStorageType", "hrStorageDescr", "hrStorageSize", "hrStorageUsed"};
 
@@ -237,6 +237,7 @@ public class DeviceQueryHelper {
                     DeviceCpuData temp = this.deviceCpuData.get(i);
                     if (temp.description == null && temp.firmwareId.equals(varbindCol.get("hrDeviceID").asString())) {
                         temp.description = varbindCol.get("hrDeviceDescr").asString();
+                        temp.deviceId = varbindCol.get("hrDeviceIndex").asInt();
                         break;
                     }
                 }
@@ -279,6 +280,7 @@ public class DeviceQueryHelper {
 
     public static class DeviceCpuData {
 
+        private int deviceId;
         private String firmwareId;
         private String description;
         private int load;
@@ -289,6 +291,10 @@ public class DeviceQueryHelper {
             this.description = null;
         }
 
+        public int getDeviceId() {
+            return deviceId;
+        }
+        
         public String getFirmwareId() {
             return firmwareId;
         }

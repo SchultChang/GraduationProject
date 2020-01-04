@@ -9,8 +9,6 @@ import graduationproject.data.DataManager;
 import graduationproject.gui.ApplicationWindow;
 import graduationproject.helpers.SSHClient;
 import graduationproject.snmpd.SnmpManager;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

@@ -13,6 +13,7 @@ import java.util.Calendar;
  */
 public class DeviceCPUState {
     private int id;
+    private int hrDeviceId;
     private String firmwareId;
     private String description;
     private int cpuLoad;
@@ -23,7 +24,8 @@ public class DeviceCPUState {
     public DeviceCPUState() {
     }
     
-    public DeviceCPUState(String firmwareId, String description, int cpuLoad, Calendar updatedTime, Device device) {
+    public DeviceCPUState(int hrDeviceId, String firmwareId, String description, int cpuLoad, Calendar updatedTime, Device device) {
+        this.hrDeviceId = hrDeviceId;
         this.firmwareId = firmwareId;
         this.description = description;
         this.cpuLoad = cpuLoad;
@@ -34,11 +36,19 @@ public class DeviceCPUState {
     public int getId() {
         return id;
     }
-
+    
     public void setId(int id) {
         this.id = id;
     }
 
+    public int getHrDeviceId() {
+        return hrDeviceId;
+    }
+
+    public void setHrDeviceId(int hrDeviceId) {
+        this.hrDeviceId = hrDeviceId;
+    }
+    
     public String getFirmwareId() {
         return firmwareId;
     }

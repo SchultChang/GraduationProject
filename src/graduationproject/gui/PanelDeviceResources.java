@@ -35,7 +35,7 @@ import javax.swing.table.TableModel;
  */
 public class PanelDeviceResources extends JPanel {
 
-    private String[] tableCPUHeaders = {"Firmware Id", "Description", "Load(%)"};
+    private String[] tableCPUHeaders = {"ID", "FirmwareID", "Description", "Load(%)"};
     private String[] tableDiskHeaders = {"Name", "Total Size", "Used Size"};
 
     private JButton buttonChange;
