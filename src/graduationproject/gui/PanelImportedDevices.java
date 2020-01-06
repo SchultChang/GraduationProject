@@ -94,7 +94,7 @@ public class PanelImportedDevices extends JPanel {
     private LabelDevice currentChosenLabelDevice;
     private DataOrders currentDataOrder;
 
-    private boolean enableInterfaces = true;
+    private boolean interfaceShowed = true;
 
     public enum PANELS {
         PANEL_TOPOLOGY,
@@ -175,7 +175,6 @@ public class PanelImportedDevices extends JPanel {
 //        buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 //        buttonTopology.setBorderPainted(false);
 //        panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
-
         labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png")));
         panelDevices.add(labelHideDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 330, 30, 190));
 
@@ -304,14 +303,14 @@ public class PanelImportedDevices extends JPanel {
 
                         PanelImportedDevices.this.clearLabelInterfaces();
                         PanelImportedDevices.this.displaySavedInterfacesOfDevice(source.getDeviceId());
-                        enableInterfaces = false;
-                    } else if (!enableInterfaces) {
+                        interfaceShowed = true;
+                    } else if (!labelInterfaces.isEmpty()) {
                         PanelImportedDevices.this.clearLabelInterfaces();
-                        enableInterfaces = true;
+                        interfaceShowed = false;
                     } else {
+                        interfaceShowed = true;
                         PanelImportedDevices.this.displaySavedInterfacesOfDevice(source.getDeviceId());
                     }
-                    enableInterfaces = false;
                 } else {
                     pmenuDevices.show(source, e.getX(), e.getY());
                     pendingLabel = source;
@@ -430,10 +429,6 @@ public class PanelImportedDevices extends JPanel {
         }
 
         this.updateDeviceList(deviceController.getDeviceIds(), data);
-//        if (data != null) {
-//            deviceController.processCheckingStateOfDevices(deviceController.getDeviceIds());
-//            new InterfaceManagementController().processGettingInterfacesOfActiveDevices();
-//        }
     }
 
     public synchronized void updateDeviceList(int[] deviceIds, List<String> data) {
@@ -525,7 +520,7 @@ public class PanelImportedDevices extends JPanel {
         }
 
         InterfaceStates temp;
-        if (this.labelInterfaces.size() != interfaceIds.length) {
+        if (this.interfaceShowed && this.labelInterfaces.size() != interfaceIds.length) {
             for (int i = listPosition + 1; i < tempSize; i++) {
                 this.panelDeviceList.remove(this.labelDevices.get(i));
             }
@@ -543,7 +538,7 @@ public class PanelImportedDevices extends JPanel {
             for (int i = listPosition + 1; i < tempSize; i++) {
                 this.panelDeviceList.add(this.labelDevices.get(i));
             }
-        } else {
+        } else if (!this.labelInterfaces.isEmpty()) {
             for (int i = 0; i < interfaceIds.length; i++) {
                 temp = (this.currentChosenLabelDevice.getDeviceState() == DeviceStates.ACTIVE) ? interfaceStates[i] : InterfaceStates.DOWN;
                 this.updateLabelInterfaceState(deviceId, i, names[i], temp);
