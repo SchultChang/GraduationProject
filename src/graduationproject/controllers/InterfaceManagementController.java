@@ -114,6 +114,12 @@ public class InterfaceManagementController extends ManagementController {
             return false;
         }
 
+        List<Integer> intStates = ActiveDeviceDataCollector.getInstance().getInterfaceStatesForView(deviceId);
+        int stateSize = 0;
+        if (intStates != null) {
+            stateSize = intStates.size();
+        }
+                
         int tempSize = interfaceList.size();
         String[] names = new String[tempSize];
         int[] interfaceIds = new int[tempSize];
@@ -123,7 +129,10 @@ public class InterfaceManagementController extends ManagementController {
             names[i] = interfaceList.get(i).getName();
 //            interfaceIds[i] = interfaceList.get(i).getIndex();
             interfaceIds[i] = i;
-            interfaceStates[i] = InterfaceStates.DOWN;
+            if (stateSize > i) {
+                interfaceStates[i] = (intStates.get(i) != 1) ? InterfaceStates.DOWN : InterfaceStates.UP;
+            } else 
+                interfaceStates[i] = InterfaceStates.DOWN;
         }
 
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelInterfaces(deviceId, interfaceIds, names, interfaceStates);
@@ -172,6 +181,7 @@ public class InterfaceManagementController extends ManagementController {
                 List<Object> rawData = temp.getDynamicData();
 
                 ActiveDeviceDataCollector.getInstance().updateInterfaceData(deviceId,
+                        temp.getOperStatus(),
                         temp.getName(),
                         temp.getIpAddress(),
                         addressParser.getNetworkIp(temp.getIpAddress(), temp.getNetmask()),

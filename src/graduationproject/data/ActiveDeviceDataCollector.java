@@ -215,14 +215,14 @@ public class ActiveDeviceDataCollector {
 //            }
 //        }
 //    }
-//                String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards) {
-    public synchronized InterfaceData updateInterfaceData(int deviceId, String interfaceName, String interfaceIp, String networkIp, String interfaceMac,
+    
+    public synchronized InterfaceData updateInterfaceData(int deviceId, int operStatus, String interfaceName, String interfaceIp, String networkIp, String interfaceMac,
             String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards,
             int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
         synchronized (this.importedDevices) {
             for (ActiveDeviceData deviceData : this.importedDevices) {
                 if (deviceData.id == deviceId) {
-                    return deviceData.updateInterface(interfaceName, interfaceIp, networkIp, interfaceMac,
+                    return deviceData.updateInterface(operStatus, interfaceName, interfaceIp, networkIp, interfaceMac,
                             netmask, mtu, inboundPackets, outboundPackets, inboundDiscards, outboundDiscards,
                             connectedNodeIds, connectedNodeIps, connectedNodeMacs);
                 }
@@ -253,6 +253,15 @@ public class ActiveDeviceDataCollector {
         }
     }
 
+    public synchronized List<Integer> getInterfaceStatesForView(int deviceId) {
+        for (ActiveDeviceData deviceData : this.importedDevices) {
+            if (deviceData.id == deviceId) {
+                return deviceData.getInterfaceStatesForView();
+            }
+        }
+        return null;
+    }
+    
     public synchronized List<Object> getInterfaceDynamicDataForView(int deviceId, String mac) {
         for (ActiveDeviceData deviceData : this.importedDevices) {
             if (deviceData.id == deviceId) {
@@ -316,7 +325,6 @@ public class ActiveDeviceDataCollector {
             Device device = DataManager.getInstance().getDeviceManager().getDevice(this.id);
             return device.getLabel();
         }
-//                String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards) {
 
         public void updateInterface(String name, String ip, String networkIp, String mac,
                 int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
@@ -340,12 +348,12 @@ public class ActiveDeviceDataCollector {
             }
         }
 
-        public InterfaceData updateInterface(String name, String ip, String networkIp, String mac,
+        public InterfaceData updateInterface(int operStatus, String name, String ip, String networkIp, String mac,
                 String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards,
                 int[] connectedNodeIds, List<String> connectedNodeIps, List<String> connectedNodeMacs) {
 //            boolean isExisted = false;
 //            if (!isExisted) {
-            InterfaceData newInterface = new InterfaceData(this.id, name, ip, networkIp, mac,
+            InterfaceData newInterface = new InterfaceData(this.id, operStatus, name, ip, networkIp, mac,
                     netmask, mtu, inboundPackets, outboundPackets, inboundDiscards, outboundDiscards);
             newInterface.updateConnectedNodes(connectedNodeIds, connectedNodeIps, connectedNodeMacs);
             this.newInterfaces.add(newInterface);
@@ -482,6 +490,14 @@ public class ActiveDeviceDataCollector {
             return result;
         }
 
+        public List<Integer> getInterfaceStatesForView() {
+            List<Integer> result = new ArrayList<Integer>();
+            for (InterfaceData interfaceData : this.interfaces) {
+                result.add(interfaceData.operStatus);
+            }
+            return result;
+        }
+
         public List<String> getNetworkWithManyConnectedNodes() {
             List<String> result = new ArrayList<String>();
 
@@ -516,6 +532,7 @@ public class ActiveDeviceDataCollector {
     public class InterfaceData {
 
         private int deviceId;
+        private int operStatus;
 //        private String ipAddress;
         private String name;
         private String macAddress;
@@ -547,9 +564,10 @@ public class ActiveDeviceDataCollector {
             this.connectedNodes = new ArrayList<ConnectedNodeData>();
         }
 
-        public InterfaceData(int deviceId, String name, String ipAddress, String networkIp, String macAddress,
+        public InterfaceData(int deviceId, int operStatus, String name, String ipAddress, String networkIp, String macAddress, 
                 String netmask, long mtu, long inboundPackets, long outboundPackets, long inboundDiscards, long outboundDiscards) {
             this.deviceId = deviceId;
+            this.operStatus = operStatus;
             this.name = name;
             this.ipAddress = ipAddress;
             this.networkIp = networkIp;
@@ -607,13 +625,6 @@ public class ActiveDeviceDataCollector {
         }
 
         public List<Object> getInterfaceDynamicDataForView() {
-//        IP_ADDRESS(0),
-//        NETMASK(1),
-//        MTU(2),
-//        INPACKETS(3),
-//        OUTPACKETS(4),
-//        INDISCARDS(5),
-//        OUTDISCARDS(6);
             List<Object> result = new ArrayList<>();
             result.add(InterfaceDynamicDataOrders.IP_ADDRESS.getValue(), this.ipAddress);
             result.add(InterfaceDynamicDataOrders.NETMASK.getValue(), this.netmask);

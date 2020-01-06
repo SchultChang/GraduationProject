@@ -175,6 +175,7 @@ public class PanelImportedDevices extends JPanel {
 //        buttonTopology.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 //        buttonTopology.setBorderPainted(false);
 //        panelDevices.add(buttonTopology, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, 150, 40));
+
         labelHideDeviceList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icon_double_left_white_40.png")));
         panelDevices.add(labelHideDeviceList, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 330, 30, 190));
 
