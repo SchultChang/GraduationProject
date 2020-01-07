@@ -8,7 +8,7 @@ package graduationproject.snmpd.helpers;
 import graduationproject.controllers.DeviceManagementController;
 import graduationproject.snmpd.SnmpManager;
 import graduationproject.snmpd.callbacks.DeviceResourceQueryCallback;
-import graduationproject.snmpd.callbacks.PushDeviceInfoCallbackStage1;
+import graduationproject.snmpd.callbacks.PushDeviceInfoCallback;
 import graduationproject.snmpd.callbacks.QueryGetNextCallback;
 import graduationproject.snmpd.callbacks.QueryWalkCallback;
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class DeviceQueryHelper {
         try {
             System.out.println("START PUSHING DATA INTO DEVICE");
             String deviceName = name + DEVICE_ID_SEP + label;
-            PushDeviceInfoCallbackStage1 stage1Callback = new PushDeviceInfoCallbackStage1(deviceId, deviceName, location, userInfo);
+            PushDeviceInfoCallback stage1Callback = new PushDeviceInfoCallback(deviceId, deviceName, location, userInfo);
             snmpContext.asyncGetNext(stage1Callback, getObjects);
         } catch (Exception e) {
             e.printStackTrace();
