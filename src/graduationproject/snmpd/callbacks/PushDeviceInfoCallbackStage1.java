@@ -34,19 +34,24 @@ public class PushDeviceInfoCallbackStage1 implements SnmpCallback<VarbindCollect
         try {
             VarbindCollection varbinds = se.getResponse().get();
 
-            String sysDescription = varbinds.get("sysDescr").asString();
+//            String sysDescription = varbinds.get("sysDescr").asString();
             DeviceManagementController deviceController = new DeviceManagementController();
-            deviceController.processUpdatingDeviceDescription(deviceId, sysDescription);
+            if (deviceController.processUpdatingDeviceInfo(deviceId,
+                    varbinds.get("sysName").asString(),
+                    varbinds.get("sysDescription").asString(),
+                    varbinds.get("sysLocation").asString())) {
+                PushDeviceInfoCallbackStage2 stage2Callback = new PushDeviceInfoCallbackStage2();
+                se.getContext().asyncSet(stage2Callback,
+                        varbinds.get("sysName"),
+                        varbinds.get("sysLocation"),
+                        varbinds.get("sysContact"));
+            } else {
+                se.getContext().close();
+            }
 
-            varbinds.get("sysName").set(this.name);
-            varbinds.get("sysLocation").set(this.location);
-            varbinds.get("sysContact").set(this.contact);
-
-            PushDeviceInfoCallbackStage2 stage2Callback = new PushDeviceInfoCallbackStage2();
-            se.getContext().asyncSet(stage2Callback,
-                    varbinds.get("sysName"),
-                    varbinds.get("sysLocation"),
-                    varbinds.get("sysContact"));
+//            varbinds.get("sysName").set(this.name);
+//            varbinds.get("sysLocation").set(this.location);
+//            varbinds.get("sysContact").set(this.contact);
         } catch (Exception e) {
             se.getContext().close();
         }

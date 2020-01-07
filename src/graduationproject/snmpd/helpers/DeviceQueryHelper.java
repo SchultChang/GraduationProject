@@ -25,7 +25,7 @@ import org.soulwing.snmp.VarbindCollection;
  */
 public class DeviceQueryHelper {
 
-    public static final String DEVICE_ID_SEP = ":_:";
+    public static final String DEVICE_ID_SEP = ".";
     public static final String[] processorLoadTable = {"sysUpTime", "hrProcessorFrwID", "hrProcessorLoad"};
     public static final String[] deviceTable = {"sysUpTime", "hrDeviceIndex", "hrDeviceType", "hrDeviceDescr", "hrDeviceID"};
     private static final String CPU_DEVICE_TYPEOID = "1.3.6.1.2.1.25.3.1.3";
@@ -64,18 +64,23 @@ public class DeviceQueryHelper {
         SnmpContext queryContext = SnmpManager.getInstance().createContext(target);
         VarbindCollection varbind = queryContext.getNext(objName).get();
         retrievedData = varbind.get(objName).asString();
-
+        
+        return parseDeviceIdentification(retrievedData);
+    }
+    
+    public static String[] parseDeviceIdentification(String retrievedData) {
         String[] result = new String[DataOrders.END.getValue()];
-        int sepPosition = retrievedData.lastIndexOf(this.DEVICE_ID_SEP);
+        int sepPosition = retrievedData.lastIndexOf(DEVICE_ID_SEP);
         if (sepPosition >= 0) {
             result[DataOrders.DEVICE_NAME.getValue()] = retrievedData.substring(0, sepPosition);
-            result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData.substring(sepPosition + this.DEVICE_ID_SEP.length());
+            result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData.substring(sepPosition + DEVICE_ID_SEP.length());
         } else {
             result[DataOrders.DEVICE_NAME.getValue()] = retrievedData;
             result[DataOrders.DEVICE_LABEL.getValue()] = retrievedData;
         }
 
         return result;
+        
     }
 
     //push other device info and get device description
