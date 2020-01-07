@@ -278,9 +278,6 @@ public class PanelDeviceInfo extends JPanel {
                     DeviceManagementController deviceController = new DeviceManagementController();
                     if (!deviceController.processSavingDeviceInfo(deviceId, getDeviceDataForUpdate())) {
                         JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
-                    } else {
-                        ApplicationWindow.getInstance().getPanelMain()
-                                .getPanelImportedDevices().updateLabelDeviceText(deviceId, deviceController.getExtraStringData());
                     }
                 }
                 if (source == buttonCancel) {

@@ -383,7 +383,7 @@ public class ActiveDeviceDataCollector {
                             if (!isExisted) {
                                 newDataForTopo = true;                                  //some connection is lost
                                 if (currentConnectedNode.id == MANAGER_DEVICE_ID) {
-                                    System.out.println("WHEN MERGING " + this.id);
+//                                    System.out.println("WHEN MERGING " + this.id);
                                     managerDevice.removeConnectedNode(this.id, new String());
                                 }
                                 if (currentConnectedNode.id == UNKNOWN_DEVICE_ID) {

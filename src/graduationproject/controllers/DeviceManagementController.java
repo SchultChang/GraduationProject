@@ -200,13 +200,11 @@ public class DeviceManagementController extends ManagementController {
         }
     }
 
-    public boolean processUpdatingDeviceInfo(int deviceId, String name, String description, String location) {
+    public boolean processUpdatingDeviceInfo(int deviceId, String name, String label, String description, String location) {
         Device device = DataManager.getInstance().getDeviceManager().getDevice(deviceId);
-//        if (device != null) {
-//            device.setDescription(description);
-//        }
         if (device != null) {
             int userChoice = ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo().askUserChoice(deviceId);
+
             if (userChoice == 0) {
                 device.setDescription(description);
                 DataManager.getInstance().getDeviceManager().updateDevice(device);
@@ -214,17 +212,18 @@ public class DeviceManagementController extends ManagementController {
                         .updateDeviceInfo(deviceId, null, null, device.getDescription(), null);
                 return true;
             }
+
             if (userChoice == 1) {
-                String[] ids = DeviceQueryHelper.parseDeviceIdentification(name);
-                device.setName(ids[0]);
-                device.setLabel(ids[1]);
+                device.setName(name);
+                device.setLabel(label);
                 device.setDescription(description);
                 device.setLocation(location);
                 DataManager.getInstance().getDeviceManager().updateDevice(device);
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo()
-                        .updateDeviceInfo(deviceId, ids[0], ids[1], device.getDescription(), location);
+                        .updateDeviceInfo(deviceId, name, label, device.getDescription(), location);
                 return false;            
             }
+
             if (userChoice == 2) {
                 return false;
             }
@@ -232,6 +231,10 @@ public class DeviceManagementController extends ManagementController {
         return false;
     }
 
+    public void processUpdateDeviceLabel(int deviceId, String label) {
+        ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceText(deviceId, label);
+    }
+    
     public List<String> processGettingImportedDevices(DataOrders order) {
         List<Device> devices = DataManager.getInstance().getDeviceManager().getDevices(order);
 

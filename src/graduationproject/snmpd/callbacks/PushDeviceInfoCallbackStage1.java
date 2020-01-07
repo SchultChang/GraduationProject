@@ -6,6 +6,7 @@
 package graduationproject.snmpd.callbacks;
 
 import graduationproject.controllers.DeviceManagementController;
+import graduationproject.snmpd.helpers.DeviceQueryHelper;
 import java.util.List;
 import org.soulwing.snmp.SnmpCallback;
 import org.soulwing.snmp.SnmpEvent;
@@ -33,26 +34,33 @@ public class PushDeviceInfoCallbackStage1 implements SnmpCallback<VarbindCollect
     public void onSnmpResponse(SnmpEvent<VarbindCollection> se) {
         try {
             VarbindCollection varbinds = se.getResponse().get();
-
-//            String sysDescription = varbinds.get("sysDescr").asString();
             DeviceManagementController deviceController = new DeviceManagementController();
+
+            String[] ids = DeviceQueryHelper.parseDeviceIdentification(varbinds.get("sysName").asString());
+            
             if (deviceController.processUpdatingDeviceInfo(deviceId,
-                    varbinds.get("sysName").asString(),
-                    varbinds.get("sysDescription").asString(),
+                    ids[0], ids[1],
+                    varbinds.get("sysDescr").asString(),
                     varbinds.get("sysLocation").asString())) {
+                
+                deviceController.processUpdateDeviceLabel(this.deviceId, 
+                        DeviceQueryHelper.parseDeviceIdentification(this.name)[1]);
+                varbinds.get("sysName").set(this.name);
+                varbinds.get("sysLocation").set(this.location);
+                varbinds.get("sysContact").set(this.contact);
+                
                 PushDeviceInfoCallbackStage2 stage2Callback = new PushDeviceInfoCallbackStage2();
                 se.getContext().asyncSet(stage2Callback,
                         varbinds.get("sysName"),
                         varbinds.get("sysLocation"),
                         varbinds.get("sysContact"));
             } else {
+                deviceController.processUpdateDeviceLabel(this.deviceId, ids[1]);
                 se.getContext().close();
             }
 
-//            varbinds.get("sysName").set(this.name);
-//            varbinds.get("sysLocation").set(this.location);
-//            varbinds.get("sysContact").set(this.contact);
         } catch (Exception e) {
+            e.printStackTrace();
             se.getContext().close();
         }
     }
