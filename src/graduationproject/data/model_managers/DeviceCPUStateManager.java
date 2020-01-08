@@ -18,6 +18,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.NativeQuery;
 
 /**
  *
@@ -59,15 +60,15 @@ public class DeviceCPUStateManager {
         Session session = null;
         Transaction tx = null;
         List<Integer> result = null;
-        
+
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
-            
+
             Criteria cri = session.createCriteria(DeviceCPUState.class);
             cri.setProjection(Projections.distinct(Projections.property("hrDeviceId")))
                     .add(Restrictions.eq("device", device));
-            
+
             result = cri.list();
             tx.commit();
         } catch (Exception e) {
@@ -78,32 +79,32 @@ public class DeviceCPUStateManager {
                 session.close();
             }
         }
-        
+
         return result;
     }
-    
+
     public DeviceCPUState getDeviceCPUState(int hrDeviceId, Device device) {
         Session session = null;
         Transaction tx = null;
         DeviceCPUState result = null;
-        
+
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
-            
+
             DetachedCriteria maxId = DetachedCriteria.forClass(DeviceCPUState.class)
                     .setProjection(Projections.max("id"))
                     .add(Restrictions.eq("device", device))
                     .add(Restrictions.eq("hrDeviceId", hrDeviceId));
-            
+
             Criteria cri = session.createCriteria(DeviceCPUState.class)
                     .add(Property.forName("id").eq(maxId));
 
             List<Object> temp = cri.list();
-            if (!temp.isEmpty())            {
+            if (!temp.isEmpty()) {
                 result = (DeviceCPUState) temp.get(0);
             }
-            
+
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,21 +114,21 @@ public class DeviceCPUStateManager {
                 session.close();
             }
         }
-        
+
         return result;
     }
-    
-    public List<Integer> getDeviceCPULoad(Device device, Calendar startTime, Calendar endTime, Integer choice) {
+
+    public List<Float> getDeviceCPULoads(Device device, Calendar startTime, Calendar endTime, String column, Integer choice) {
         Session session = null;
         Transaction tx = null;
-        List<Integer> result = null;
-        
+        List<Float> result = null;
+
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
 
             Criteria cri = session.createCriteria(DeviceCPUState.class);
-            cri.setProjection(Projections.property("cpuLoad"))
+            cri.setProjection(Projections.property(column))
                     .add(Restrictions.eq("device", device))
                     .add(Restrictions.ge("updatedTime", startTime))
                     .add(Restrictions.le("updatedTime", endTime))
@@ -143,31 +144,24 @@ public class DeviceCPUStateManager {
                 session.close();
             }
         }
-        
+
         return result;
-        
     }
-    
-    public double getAverageCpuLoad(Device device, Calendar startTime, Calendar endTime) {
+
+    public List<DeviceCPUState> getDeviceCPUStates(Calendar startTime, Calendar endTime) {
         Session session = null;
         Transaction tx = null;
-        double result = 0.0;
+        List<DeviceCPUState> result = null;
 
         try {
             session = this.sessionFactory.openSession();
             tx = session.beginTransaction();
 
             Criteria cri = session.createCriteria(DeviceCPUState.class);
-            cri.setProjection(Projections.avg("cpuLoad"))
-                    .add(Restrictions.eq("device", device))
-                    .add(Restrictions.ge("updatedTime", startTime))
+            cri.add(Restrictions.ge("updatedTime", startTime))
                     .add(Restrictions.le("updatedTime", endTime));
 
-            Object temp = cri.uniqueResult();
-            if (temp != null) {
-                result = (double) temp;
-            }
-
+            result = cri.list();
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,4 +174,31 @@ public class DeviceCPUStateManager {
 
         return result;
     }
+
+    public void renewDeviceCPUStateTable(List<DeviceCPUState> cpuStates) {
+        Session session = null;
+        Transaction tx = null;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            NativeQuery query = session.createNativeQuery("TRUNCATE DEVICE_CPU_STATES");
+            query.executeUpdate();
+            
+            for (DeviceCPUState cpuState : cpuStates) {
+                session.save(cpuState);
+            }
+            
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+        
 }

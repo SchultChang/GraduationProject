@@ -15,9 +15,10 @@ public class DeviceMemoryState {
     private int id;
     private String type;
     private String description;
-    private long totalSize;
-    private long usedSize;
+    private float totalSize;
+    private float usedSize;
     private Calendar updatedTime;
+    private boolean isSummarized;
     
     private Device device;
 
@@ -31,8 +32,21 @@ public class DeviceMemoryState {
         this.usedSize = usedSize;
         this.updatedTime = updatedTime;
         this.device = device;
+        
+        this.isSummarized = false;
     }
 
+    public DeviceMemoryState(String type, String description, long totalSize, long usedSize, Calendar updatedTime, boolean isSummarized, Device device) {
+        this.type = type;
+        this.description = description;
+        this.totalSize = totalSize;
+        this.usedSize = usedSize;
+        this.updatedTime = updatedTime;
+        this.device = device;
+        
+        this.isSummarized = isSummarized;
+    }
+    
     public int getId() {
         return id;
     }
@@ -57,22 +71,24 @@ public class DeviceMemoryState {
         this.description = description;
     }
 
-    public long getTotalSize() {
+    public float getTotalSize() {
         return totalSize;
     }
 
-    public void setTotalSize(long totalSize) {
+    public void setTotalSize(float totalSize) {
         this.totalSize = totalSize;
     }
 
-    public long getUsedSize() {
+    public float getUsedSize() {
         return usedSize;
     }
 
-    public void setUsedSize(long usedSize) {
+    public void setUsedSize(float usedSize) {
         this.usedSize = usedSize;
     }
 
+
+    
     public Calendar getUpdatedTime() {
         return updatedTime;
     }
@@ -91,6 +107,14 @@ public class DeviceMemoryState {
     
     public double getUsagePercentage() {
         return this.usedSize * 100.0d / this.totalSize;
+    }
+
+    public boolean isIsSummarized() {
+        return isSummarized;
+    }
+
+    public void setIsSummarized(boolean isSummarized) {
+        this.isSummarized = isSummarized;
     }
     
 }

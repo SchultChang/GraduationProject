@@ -8,21 +8,14 @@ package graduationproject.data.model_managers;
 import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
-import graduationproject.data.models.DeviceInterfaceDynamicData;
-import graduationproject.data.models.DeviceNetworkInterface;
-import graduationproject.data.models.User;
-import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.hibernate.transform.Transformers;
 
 /**
@@ -77,6 +70,31 @@ public class DeviceManager {
                             .add(Projections.property("id"), "id")
                             .add(Projections.property(Device.getColumnName(order)), Device.getColumnName(order)));
             cri.setResultTransformer(Transformers.aliasToBean(Device.class));
+            result = cri.list();
+
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        return result;
+    }
+    
+    public List<Device> getDevices() {
+        Session session = null;
+        Transaction tx = null;
+        List<Device> result = null;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            Criteria cri = session.createCriteria(Device.class);
             result = cri.list();
 
             tx.commit();

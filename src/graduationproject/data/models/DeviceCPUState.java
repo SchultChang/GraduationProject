@@ -16,21 +16,35 @@ public class DeviceCPUState {
     private int hrDeviceId;
     private String firmwareId;
     private String description;
-    private int cpuLoad;
+    private float cpuLoad;
     private Calendar updatedTime;
+    private boolean isSummarized;
     
     private Device device;
 
     public DeviceCPUState() {
     }
     
-    public DeviceCPUState(int hrDeviceId, String firmwareId, String description, int cpuLoad, Calendar updatedTime, Device device) {
+    public DeviceCPUState(int hrDeviceId, String firmwareId, String description, float cpuLoad, Calendar updatedTime, Device device) {
         this.hrDeviceId = hrDeviceId;
         this.firmwareId = firmwareId;
         this.description = description;
         this.cpuLoad = cpuLoad;
         this.updatedTime = updatedTime;
         this.device = device;
+        
+        this.isSummarized = false;
+    }
+
+    public DeviceCPUState(int hrDeviceId, String firmwareId, String description, float cpuLoad, Calendar updatedTime, boolean isSummarized, Device device) {
+        this.hrDeviceId = hrDeviceId;
+        this.firmwareId = firmwareId;
+        this.description = description;
+        this.cpuLoad = cpuLoad;
+        this.updatedTime = updatedTime;
+        this.device = device;
+        
+        this.isSummarized = isSummarized;
     }
 
     public int getId() {
@@ -65,11 +79,11 @@ public class DeviceCPUState {
         this.description = description;
     }
 
-    public int getCpuLoad() {
+    public float getCpuLoad() {
         return cpuLoad;
     }
 
-    public void setCpuLoad(int cpuLoad) {
+    public void setCpuLoad(float cpuLoad) {
         this.cpuLoad = cpuLoad;
     }
 
@@ -81,6 +95,14 @@ public class DeviceCPUState {
         this.updatedTime = updatedTime;
     }
 
+    public boolean isIsSummarized() {
+        return isSummarized;
+    }
+
+    public void setIsSummarized(boolean isSummarized) {
+        this.isSummarized = isSummarized;
+    }
+
     public Device getDevice() {
         return device;
     }
@@ -88,6 +110,4 @@ public class DeviceCPUState {
     public void setDevice(Device device) {
         this.device = device;
     }
-    
-    
 }

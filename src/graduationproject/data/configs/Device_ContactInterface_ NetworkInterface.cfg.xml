@@ -56,8 +56,8 @@
         <property name="bandwidth" column="bandwidth" type="long"/>
         <property name="inboundBytes" column="inbound_bytes" type="long"/>
         <property name="outboundBytes" column="outbound_bytes" type="long"/>
-
         <property name="updatedTime" column="updated_time" type="calendar"/>
+        <property name="isSummarized" column="is_summarized" type="boolean"/>
         
         <many-to-one name="networkInterface" column="network_interface_id" cascade="save-update"
                      class="graduationproject.data.models.DeviceNetworkInterface" />        
@@ -71,9 +71,10 @@
         <property name="hrDeviceId" column="hr_device_id" type="int"/>
         <property name="firmwareId" column="firmware_id" type="string"/>
         <property name="description" column="description" type="string"/>
-        <property name="cpuLoad" column="cpu_load" type="int"/>
+        <property name="cpuLoad" column="cpu_load" type="float"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
-        
+        <property name="isSummarized" column="is_summarized" type="boolean"/>
+                
         <many-to-one name="device" column="device_id" cascade="save-update"
                      class="graduationproject.data.models.Device"/>
     </class>
@@ -88,7 +89,8 @@
         <property name="totalSize" column="total_size" type="long"/>
         <property name="usedSize" column="used_size" type="long"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
-        
+        <property name="isSummarized" column="is_summarized" type="boolean"/>
+                
         <many-to-one name="device" column="device_id" cascade="save-update"
                      class="graduationproject.data.models.Device"/>
     </class>

@@ -239,14 +239,14 @@ public class ChartManagementController extends ManagementController {
     }
 
     public double getAverageCpuLoadForTime(Device device, Calendar startTime, Calendar endTime, Integer choice) {
-        List<Integer> loads = DataManager.getInstance().getDeviceCpuManager().getDeviceCPULoad(device, startTime, endTime, choice);
+        List<Float> loads = DataManager.getInstance().getDeviceCpuManager().getDeviceCPULoads(device, startTime, endTime, "cpuLoad", choice);
         if (loads == null && loads.isEmpty()) {
             return 0.0;
         }
 
         int tempSize = loads.size();
         double loadSum = 0.0;
-        for (Integer load : loads) {
+        for (Float load : loads) {
             loadSum += load;
         }
 
