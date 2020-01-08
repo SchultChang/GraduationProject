@@ -32,7 +32,7 @@ public class DeviceInterfaceDynamicData {
         this.bandwidth = bandwidth;
         this.inboundBytes = inboundBytes;
         this.outboundBytes = outboundBytes;
-        this.updatedTime = updatedTime;
+        this.updatedTime = (Calendar) updatedTime.clone();
         this.networkInterface = networkInterface;
         
         this.isSummarized = false;
@@ -42,7 +42,7 @@ public class DeviceInterfaceDynamicData {
         this.bandwidth = bandwidth;
         this.inboundBytes = inboundBytes;
         this.outboundBytes = outboundBytes;
-        this.updatedTime = updatedTime;
+        this.updatedTime = (Calendar) updatedTime.clone();
         this.networkInterface = networkInterface;
         
         this.isSummarized = isSummarized;

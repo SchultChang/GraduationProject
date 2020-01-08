@@ -30,7 +30,7 @@ public class DeviceCPUState {
         this.firmwareId = firmwareId;
         this.description = description;
         this.cpuLoad = cpuLoad;
-        this.updatedTime = updatedTime;
+        this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
         
         this.isSummarized = false;
@@ -41,7 +41,7 @@ public class DeviceCPUState {
         this.firmwareId = firmwareId;
         this.description = description;
         this.cpuLoad = cpuLoad;
-        this.updatedTime = updatedTime;
+        this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
         
         this.isSummarized = isSummarized;

@@ -30,7 +30,7 @@ public class DeviceMemoryState {
         this.description = description;
         this.totalSize = totalSize;
         this.usedSize = usedSize;
-        this.updatedTime = updatedTime;
+        this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
         
         this.isSummarized = false;
@@ -41,7 +41,7 @@ public class DeviceMemoryState {
         this.description = description;
         this.totalSize = totalSize;
         this.usedSize = usedSize;
-        this.updatedTime = updatedTime;
+        this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
         
         this.isSummarized = isSummarized;

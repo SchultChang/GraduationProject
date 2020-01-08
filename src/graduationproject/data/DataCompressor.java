@@ -71,6 +71,7 @@ public class DataCompressor {
                             .getDeviceCPULoads(device, startTime, endTime, "cpuLoad", cpuId);
                     DeviceCPUState deviceCPUState = null;
                     if (cpuLoads != null && !cpuLoads.isEmpty()) {
+                        System.out.println("HELLO WORLD");
                         float loadSum = 0;
                         for (float cpuLoad : cpuLoads) {
                             loadSum += cpuLoad;
@@ -90,9 +91,9 @@ public class DataCompressor {
                 }
             }
         }
-//        System.out.println("COMPRESSED SIZE " + newDeviceCPUStates.size());
-//        System.out.println(startTime.get(Calendar.DAY_OF_YEAR));
-//        System.out.println(endTime.get(Calendar.DAY_OF_YEAR));
+        System.out.println("COMPRESSED SIZE " + newDeviceCPUStates.size());
+        System.out.println(startTime.get(Calendar.DAY_OF_YEAR));
+        System.out.println(endTime.get(Calendar.DAY_OF_YEAR));
 
         //add data today
         startTime.add(Calendar.DAY_OF_YEAR, 1);
@@ -142,9 +143,11 @@ public class DataCompressor {
                     DeviceMemoryState deviceMemoryState = null;
 
                     if (memoryStates != null && !memoryStates.isEmpty()) {
+//                        System.out.println("HELLO WORLD");
                         float memorySum = 0.0f;
                         for (DeviceMemoryState memoryState : memoryStates) {
                             if (memoryState.getTotalSize() != 0) {
+//                                System.out.println(memorySum);
                                 memorySum += (memoryState.getUsedSize() / memoryState.getTotalSize());
                             }
                         }
@@ -158,6 +161,7 @@ public class DataCompressor {
                                 0.0f, 0.0f, startTime, true, device);
                     }
 
+                    deviceMemoryState.displayInfo();
                     newDeviceMemoryStates.add(deviceMemoryState);
                 }
             }
@@ -170,6 +174,10 @@ public class DataCompressor {
         endTime.set(Calendar.HOUR_OF_DAY, 23);
         newDeviceMemoryStates.addAll(DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryStates(startTime, endTime, null));
 
+//        for (DeviceMemoryState memoryState : newDeviceMemoryStates) {
+//            memoryState.displayInfo();
+//        }
+        
         DataManager.getInstance().getDeviceMemoryManager().renewDeviceMemoryStateTable(newDeviceMemoryStates);
     }
 
@@ -188,6 +196,9 @@ public class DataCompressor {
 
         List<DeviceInterfaceDynamicData> newInterfaceDynamicDataList = DataManager.getInstance()
                 .getInterfaceDynamicDataManager().getDeviceDynamicData(null, startTime, endTime);
+        if (newInterfaceDynamicDataList == null) {
+            newInterfaceDynamicDataList = new ArrayList<DeviceInterfaceDynamicData>();
+        }
 
         startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 2);
         endTime.add(Calendar.DAY_OF_YEAR, 1);

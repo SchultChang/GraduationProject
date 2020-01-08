@@ -86,7 +86,7 @@ public class InterfaceManagementController extends ManagementController {
                         return;
                     }
                     SnmpContext snmpContext = SnmpManager.getInstance().createContext(
-                            device.getSnmpVersion(), 
+                            device.getSnmpVersion(),
                             device.getContactInterface().getIpAddress(),
                             device.getContactInterface().getPort(),
                             device.getContactInterface().getCommunity());
@@ -119,7 +119,7 @@ public class InterfaceManagementController extends ManagementController {
         if (intStates != null) {
             stateSize = intStates.size();
         }
-                
+
         int tempSize = interfaceList.size();
         String[] names = new String[tempSize];
         int[] interfaceIds = new int[tempSize];
@@ -131,8 +131,9 @@ public class InterfaceManagementController extends ManagementController {
             interfaceIds[i] = i;
             if (stateSize > i) {
                 interfaceStates[i] = (intStates.get(i) != 1) ? InterfaceStates.DOWN : InterfaceStates.UP;
-            } else 
+            } else {
                 interfaceStates[i] = InterfaceStates.DOWN;
+            }
         }
 
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelInterfaces(deviceId, interfaceIds, names, interfaceStates);
@@ -150,21 +151,28 @@ public class InterfaceManagementController extends ManagementController {
             return;
         }
 
-        int tempSize = device.getNetworkInterfaces().size();
-        for (int i = 0; i < tempSize; i++) {
-            device.getNetworkInterfaces().get(i).setName(rawDataList.get(i).getName());
-            device.getNetworkInterfaces().get(i).setMacAddress(rawDataList.get(i).getMacAddress());
-            device.getNetworkInterfaces().get(i).setType(rawDataList.get(i).getType());
+        int tempSize = rawDataList.size();
+        int tempSize2 = 0;
+        if (device.getNetworkInterfaces() != null) {
+            tempSize2 = device.getNetworkInterfaces().size();
         }
 
-        int tempSize2 = rawDataList.size();
-        if (tempSize < tempSize2) {
-            for (int i = tempSize; i < tempSize2; i++) {
+        if (tempSize != tempSize2) {
+            for (int i = 0; i < tempSize2; i++) {
+                DataManager.getInstance().getNetworkInterfaceManager().deleteNetworkInterface(device.getNetworkInterfaces().get(i));
+            }
+            for (int i = 0; i < tempSize; i++) {
                 device.getNetworkInterfaces().add(new DeviceNetworkInterface(rawDataList.get(i).getName(),
                         rawDataList.get(i).getMacAddress(),
                         rawDataList.get(i).getType()));
             }
             tempSize = tempSize2;
+        } else {
+//            for (int i = 0; i < tempSize; i++) {
+//                device.getNetworkInterfaces().get(i).setName(rawDataList.get(i).getName());
+//                device.getNetworkInterfaces().get(i).setMacAddress(rawDataList.get(i).getMacAddress());
+//                device.getNetworkInterfaces().get(i).setType(rawDataList.get(i).getType());
+//            }
         }
         DataManager.getInstance().getDeviceManager().updateDevice(device);
 
