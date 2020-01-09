@@ -425,11 +425,11 @@ public class PanelInterfaceInfo extends JPanel {
                 this.labelNetmask.setText((String) data.get(DataOrders.NETMASK.getValue()));
 
                 this.labelMTU.setText(String.valueOf(data.get(DataOrders.MTU.getValue())));
-                this.labelCurrentBandwidth.setText(String.valueOf(data.get(DataOrders.BANDWIDTH.getValue())));
+                this.labelCurrentBandwidth.setText(String.valueOf((int) data.get(DataOrders.BANDWIDTH.getValue())));
                 this.labelInPackAmount.setText(String.valueOf(data.get(DataOrders.IN_PACK_NUMBER.getValue())));
                 this.labelOutPackAmount.setText(String.valueOf(data.get(DataOrders.OUT_PACK_NUMBER.getValue())));
-                this.labelInboundBytes.setText(String.valueOf(data.get(DataOrders.IN_BYTES.getValue())));
-                this.labelOutboundBytes.setText(String.valueOf(data.get(DataOrders.OUT_BYTES.getValue())));
+                this.labelInboundBytes.setText(String.valueOf((int) data.get(DataOrders.IN_BYTES.getValue())));
+                this.labelOutboundBytes.setText(String.valueOf((int) data.get(DataOrders.OUT_BYTES.getValue())));
                 this.labelInDiscardCount.setText(String.valueOf(data.get(DataOrders.IN_DISCARD_PACK_NUMBER.getValue())));
                 this.labelOutDiscardCount.setText(String.valueOf(data.get(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue())));
 

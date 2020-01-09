@@ -18,6 +18,7 @@ import graduationproject.data.model_managers.TemplateManager;
 import graduationproject.data.model_managers.UserManager;
 import java.util.Calendar;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -42,11 +43,12 @@ public class DataManager {
     private DeviceCPUStateManager deviceCpuManager;
     private DeviceMemoryStateManager deviceMemoryManager;
     
+    private DataCompressor dataCompressor;
+
     private int activeAccountId;
     private Calendar startTime;
     
     private static DataManager instance;
-    
     
     private DataManager() {
 //        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);        
@@ -66,6 +68,20 @@ public class DataManager {
         
         this.startTime = Calendar.getInstance();
         this.startTime.add(Calendar.DATE, -1);
+        
+        this.dataCompressor = new DataCompressor();
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                    dataCompressor.compressDataOnInit();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        };
+        t.start();
     }
     
     public static DataManager getInstance() {

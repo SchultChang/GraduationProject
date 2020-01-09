@@ -25,7 +25,7 @@ public class DeviceMemoryState {
     public DeviceMemoryState() {
     }
     
-    public DeviceMemoryState(String type, String description, long totalSize, long usedSize, Calendar updatedTime, Device device) {
+    public DeviceMemoryState(String type, String description, float totalSize, float usedSize, Calendar updatedTime, Device device) {
         this.type = type;
         this.description = description;
         this.totalSize = totalSize;
@@ -36,7 +36,7 @@ public class DeviceMemoryState {
         this.isSummarized = false;
     }
 
-    public DeviceMemoryState(String type, String description, long totalSize, long usedSize, Calendar updatedTime, boolean isSummarized, Device device) {
+    public DeviceMemoryState(String type, String description, float totalSize, float usedSize, Calendar updatedTime, boolean isSummarized, Device device) {
         this.type = type;
         this.description = description;
         this.totalSize = totalSize;
@@ -86,8 +86,6 @@ public class DeviceMemoryState {
     public void setUsedSize(float usedSize) {
         this.usedSize = usedSize;
     }
-
-
     
     public Calendar getUpdatedTime() {
         return updatedTime;
@@ -115,6 +113,15 @@ public class DeviceMemoryState {
 
     public void setIsSummarized(boolean isSummarized) {
         this.isSummarized = isSummarized;
+    }
+    
+    public void displayInfo() {
+        System.out.println(this.type);
+        System.out.println(this.description);
+        System.out.println(this.totalSize);
+        System.out.println(this.usedSize);
+        System.out.println(this.isSummarized);
+//        System.out.println(this.);
     }
     
 }

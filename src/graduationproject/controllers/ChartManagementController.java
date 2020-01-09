@@ -94,9 +94,9 @@ public class ChartManagementController extends ManagementController {
                     if (data != null) {
                         if (DataType.CPU_LOAD == dataType) {
                             chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1), 
-                                    (double[]) data.get(0), (double[]) data.get(1));
+                                    Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
                         } else {
-                            chart.addSeries(String.valueOf(choice), (double[]) data.get(0), (double[]) data.get(1));
+                            chart.addSeries(String.valueOf(choice), Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[])data.get(1)));
                         }
                     }
                 }
@@ -132,6 +132,7 @@ public class ChartManagementController extends ManagementController {
                 .yAxisTitle(yTitle)
                 .theme(Styler.ChartTheme.XChart)
                 .build();
+        
         chart.getStyler().setDatePattern("dd-MM");
         chart.getStyler().setYAxisLabelAlignment(Styler.TextAlignment.Right);
         chart.getStyler().setYAxisMin(0.0);
@@ -149,7 +150,6 @@ public class ChartManagementController extends ManagementController {
         }
 
         Calendar day = Calendar.getInstance();
-
         if (QueryPeriod.TODAY.getValue().equals(period)) {
             return this.getDataForADay(device, dataType, day, choice);
         }

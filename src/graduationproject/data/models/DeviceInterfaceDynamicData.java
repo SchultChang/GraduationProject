@@ -28,7 +28,7 @@ public class DeviceInterfaceDynamicData {
     public DeviceInterfaceDynamicData() {
     }
 
-    public DeviceInterfaceDynamicData(long bandwidth, long inboundBytes, long outboundBytes, Calendar updatedTime, DeviceNetworkInterface networkInterface) {
+    public DeviceInterfaceDynamicData(float bandwidth, float inboundBytes, float outboundBytes, Calendar updatedTime, DeviceNetworkInterface networkInterface) {
         this.bandwidth = bandwidth;
         this.inboundBytes = inboundBytes;
         this.outboundBytes = outboundBytes;
@@ -38,7 +38,7 @@ public class DeviceInterfaceDynamicData {
         this.isSummarized = false;
     }
     
-    public DeviceInterfaceDynamicData(long bandwidth, long inboundBytes, long outboundBytes, Calendar updatedTime, boolean isSummarized, DeviceNetworkInterface networkInterface) {
+    public DeviceInterfaceDynamicData(float bandwidth, float inboundBytes, float outboundBytes, Calendar updatedTime, boolean isSummarized, DeviceNetworkInterface networkInterface) {
         this.bandwidth = bandwidth;
         this.inboundBytes = inboundBytes;
         this.outboundBytes = outboundBytes;

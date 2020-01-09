@@ -53,9 +53,9 @@
             <generator class="native"/>
         </id>
         
-        <property name="bandwidth" column="bandwidth" type="long"/>
-        <property name="inboundBytes" column="inbound_bytes" type="long"/>
-        <property name="outboundBytes" column="outbound_bytes" type="long"/>
+        <property name="bandwidth" column="bandwidth" type="float"/>
+        <property name="inboundBytes" column="inbound_bytes" type="float"/>
+        <property name="outboundBytes" column="outbound_bytes" type="float"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
         <property name="isSummarized" column="is_summarized" type="boolean"/>
         
@@ -86,8 +86,8 @@
         
         <property name="type" column="type" type="string"/>
         <property name="description" column="description" type="string"/>
-        <property name="totalSize" column="total_size" type="long"/>
-        <property name="usedSize" column="used_size" type="long"/>
+        <property name="totalSize" column="total_size" type="float"/>
+        <property name="usedSize" column="used_size" type="float"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
         <property name="isSummarized" column="is_summarized" type="boolean"/>
                 

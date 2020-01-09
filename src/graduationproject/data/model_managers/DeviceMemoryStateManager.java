@@ -6,7 +6,7 @@
 package graduationproject.data.model_managers;
 
 import graduationproject.data.models.Device;
-import graduationproject.data.models.DeviceCPUState;
+import graduationproject.data.models.DeviceMemoryState;
 import graduationproject.data.models.DeviceMemoryState;
 import java.util.Calendar;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.transform.Transformers;
 
 /**
@@ -159,9 +160,10 @@ public class DeviceMemoryStateManager {
 
             Criteria cri = session.createCriteria(DeviceMemoryState.class);
             cri.add(Restrictions.ge("updatedTime", startTime))
-                    .add(Restrictions.le("updatedTime", endTime))
-                    .add(Restrictions.eq("type", type))
-                    .setResultTransformer(Transformers.aliasToBean(DeviceMemoryState.class));
+                    .add(Restrictions.le("updatedTime", endTime));
+            if (type != null) {
+                cri.add(Restrictions.eq("type", type));
+            }
             result = cri.list();
 
             tx.commit();
@@ -176,4 +178,35 @@ public class DeviceMemoryStateManager {
 
         return result;
     }
+
+    public void renewDeviceMemoryStateTable(List<DeviceMemoryState> memoryStates) {
+        Session session = null;
+        Transaction tx = null;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            NativeQuery query = session.createNativeQuery("TRUNCATE DEVICE_MEMORY_STATES");
+            query.executeUpdate();
+
+            for (DeviceMemoryState memoryState : memoryStates) {
+                try {
+                    session.save(memoryState);
+                } catch (Exception e) {
+                    memoryState.displayInfo();
+                }
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
 }

@@ -318,13 +318,13 @@ public class InterfaceManagementController extends ManagementController {
                     InterfaceDynamicDataOrders.NETMASK.getValue()));
             result.add(DataOrders.MTU.getValue(), interfaceActiveData.get(
                     InterfaceDynamicDataOrders.MTU.getValue()));
-            result.add(DataOrders.BANDWIDTH.getValue(), data.getBandwidth());
+            result.add(DataOrders.BANDWIDTH.getValue(), (int) data.getBandwidth());
             result.add(DataOrders.IN_PACK_NUMBER.getValue(), interfaceActiveData.get(
                     InterfaceDynamicDataOrders.INPACKETS.getValue()));
             result.add(DataOrders.OUT_PACK_NUMBER.getValue(), interfaceActiveData.get(
                     InterfaceDynamicDataOrders.OUTPACKETS.getValue()));
-            result.add(DataOrders.IN_BYTES.getValue(), data.getInboundBytes());
-            result.add(DataOrders.OUT_BYTES.getValue(), data.getOutboundBytes());
+            result.add(DataOrders.IN_BYTES.getValue(), (int) data.getInboundBytes());
+            result.add(DataOrders.OUT_BYTES.getValue(), (int) data.getOutboundBytes());
             result.add(DataOrders.IN_DISCARD_PACK_NUMBER.getValue(), interfaceActiveData.get(
                     InterfaceDynamicDataOrders.INDISCARDS.getValue()));
             result.add(DataOrders.OUT_DISCARD_PACK_NUMBER.getValue(), interfaceActiveData.get(

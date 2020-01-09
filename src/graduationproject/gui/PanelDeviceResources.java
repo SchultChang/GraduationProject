@@ -279,17 +279,6 @@ public class PanelDeviceResources extends JPanel {
     public synchronized void initViewData(int deviceId) {
         this.deviceId = deviceId;
 
-//        this.clearTable((DefaultTableModel) this.tableCPU.getModel());
-//        this.clearTable((DefaultTableModel) this.tableDisks.getModel());
-//        
-//        this.labelTotalRam.setText("");
-//        this.labelUsedRam.setText("");
-//        this.labelTotalVirtual.setText("");
-//        this.labelUsedVirtual.setText("");
-//        this.labelTotalOther.setText("");
-//        this.labelUsedOther.setText("");
-//        this.labelUpdatedTime.setText("");
-//
         this.tfieldUpdatePeriod.setText(String.valueOf(new DeviceResourceManagementController().processGettingResourceCheckingPeriod()));
         DeviceResourceManagementController resourceController = new DeviceResourceManagementController();
         if (!resourceController.processGettingSavedResourcesOfDevice(deviceId)) {
@@ -341,12 +330,4 @@ public class PanelDeviceResources extends JPanel {
         }
     }
 
-//    @Override
-//    public void setEnabled(boolean enabled) {
-//        super.setEnabled(enabled);
-//
-//        if (!enabled) {
-//            SnmpManager.getInstance().getQueryTimerManager().cancelDeviceResourceTimer();
-//        }
-//    }
 }
