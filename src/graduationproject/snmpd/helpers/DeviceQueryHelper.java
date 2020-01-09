@@ -17,6 +17,7 @@ import java.util.List;
 import org.soulwing.snmp.SnmpContext;
 import org.soulwing.snmp.SnmpTarget;
 import org.soulwing.snmp.TimeoutException;
+import org.soulwing.snmp.Varbind;
 import org.soulwing.snmp.VarbindCollection;
 
 /**
@@ -64,10 +65,10 @@ public class DeviceQueryHelper {
         SnmpContext queryContext = SnmpManager.getInstance().createContext(target);
         VarbindCollection varbind = queryContext.getNext(objName).get();
         retrievedData = varbind.get(objName).asString();
-        
+
         return parseDeviceIdentification(retrievedData);
     }
-    
+
     public static String[] parseDeviceIdentification(String retrievedData) {
         String[] result = new String[DataOrders.END.getValue()];
         int sepPosition = retrievedData.lastIndexOf(DEVICE_ID_SEP);
@@ -80,7 +81,7 @@ public class DeviceQueryHelper {
         }
 
         return result;
-        
+
     }
 
     //push other device info and get device description
@@ -179,7 +180,13 @@ public class DeviceQueryHelper {
                 int tempSize = templateQuery.itemList.size();
 
                 for (int i = 0; i < tempSize; i++) {
-                    templateQuery.result.add(varbinds.get(templateQuery.itemList.get(i)).asString());
+//                    templateQuery.result.add(varbinds.get(templateQuery.itemList.get(i)).asString());
+                    for (Varbind varbind : varbinds) {
+                        String temp = varbind.getOid();
+                        if (temp.substring(0, temp.lastIndexOf(".")).equalsIgnoreCase(templateQuery.itemList.get(i))) {
+                            templateQuery.result.add(varbind.asString());
+                        }
+                    }
                 }
 
                 DeviceManagementController deviceController = new DeviceManagementController();
@@ -197,9 +204,17 @@ public class DeviceQueryHelper {
                 for (VarbindCollection varbinds : varbindsList) {
                     System.out.println(varbinds.toString());
                     Object[] objects = new Object[tempSize];
+
                     for (int i = 0; i < tempSize; i++) {
-                        objects[i] = varbinds.get(templateQuery.itemList.get(i)).asString();
+//                        objects[i] = varbinds.get(templateQuery.itemList.get(i)).getOid().asString();
+                        for (Varbind varbind : varbinds) {
+                            String temp = varbind.getOid();
+                            if (temp.substring(0, temp.lastIndexOf(".")).equalsIgnoreCase(templateQuery.itemList.get(i))) {
+                                objects[i] = varbind.asString();
+                            }
+                        }
                     }
+
                     templateQuery.result.add(objects);
                 }
                 DeviceManagementController deviceController = new DeviceManagementController();
@@ -299,7 +314,7 @@ public class DeviceQueryHelper {
         public int getDeviceId() {
             return deviceId;
         }
-        
+
         public String getFirmwareId() {
             return firmwareId;
         }
@@ -378,7 +393,7 @@ public class DeviceQueryHelper {
         private Calendar receivedTime;
         private List<Object> result;
 
-        public TemplateQuery(int deviceId, String ipAddress, int port, String community, 
+        public TemplateQuery(int deviceId, String ipAddress, int port, String community,
                 int templateId, List<String> itemList, boolean isTable) {
             this.deviceId = deviceId;
             this.ipAddress = ipAddress;
@@ -391,7 +406,7 @@ public class DeviceQueryHelper {
             this.receivedTime = null;
             this.result = new ArrayList<Object>();
         }
-        
+
         public int getDeviceId() {
             return deviceId;
         }
@@ -431,9 +446,9 @@ public class DeviceQueryHelper {
         public void setPort(int port) {
             this.port = port;
         }
-        
+
         public void setReceivedTime(Calendar receivedTime) {
             this.receivedTime = receivedTime;
-        }        
+        }
     }
 }

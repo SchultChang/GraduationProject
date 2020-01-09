@@ -536,7 +536,7 @@ public class DeviceManagementController extends ManagementController {
         List<String> displayNames = new ArrayList<String>();
         for (TemplateItem templateItem : templateItems) {
             if (templateItem.isIsEnabled()) {
-                queryItems.add(templateItem.getMibName());
+                queryItems.add(templateItem.getOid());
                 displayNames.add(templateItem.getDisplayName());
             }
         }
