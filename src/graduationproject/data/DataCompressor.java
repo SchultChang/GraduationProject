@@ -224,7 +224,13 @@ public class DataCompressor {
                             }
                         }
 
-                        newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum / tempSize, interfaceSum / tempSize, startTime, true, networkInterface);
+                        if (tempSize - 1 > 0) {
+                            newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum / (tempSize - 1), 
+                                    interfaceSum / (tempSize - 1), startTime, true, networkInterface);
+                        } else {
+                            newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum, 
+                                    interfaceSum, startTime, true, networkInterface);
+                        }
                     } else {
                         newInterfaceData = new DeviceInterfaceDynamicData(0.0f, 0.0f, 0.0f, startTime, true, networkInterface);
                     }

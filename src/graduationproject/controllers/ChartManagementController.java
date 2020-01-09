@@ -73,7 +73,7 @@ public class ChartManagementController extends ManagementController {
                     data = this.getDataForChart(deviceId, dataType, period, choice);
                     if (data != null) {
                         if (DataType.CPU_LOAD == dataType) {
-                            chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1), 
+                            chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1),
                                     (double[]) data.get(0), (double[]) data.get(1));
                         } else {
                             chart.addSeries(String.valueOf(choice), (double[]) data.get(0), (double[]) data.get(1));
@@ -93,10 +93,10 @@ public class ChartManagementController extends ManagementController {
                     data = this.getDataForChart(deviceId, dataType, period, choice);
                     if (data != null) {
                         if (DataType.CPU_LOAD == dataType) {
-                            chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1), 
+                            chart.addSeries("CPU " + String.valueOf((Integer) choice - (Integer) choices[0] + 1),
                                     Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
                         } else {
-                            chart.addSeries(String.valueOf(choice), Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[])data.get(1)));
+                            chart.addSeries(String.valueOf(choice), Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
                         }
                     }
                 }
@@ -132,7 +132,7 @@ public class ChartManagementController extends ManagementController {
                 .yAxisTitle(yTitle)
                 .theme(Styler.ChartTheme.XChart)
                 .build();
-        
+
         chart.getStyler().setDatePattern("dd-MM");
         chart.getStyler().setYAxisLabelAlignment(Styler.TextAlignment.Right);
         chart.getStyler().setYAxisMin(0.0);
@@ -267,7 +267,11 @@ public class ChartManagementController extends ManagementController {
         double percentageSum = 0.0;
 
         for (DeviceMemoryState memoryState : memoryStates) {
-            percentageSum += memoryState.getUsagePercentage();
+            if (!memoryState.isIsSummarized()) {
+                percentageSum += memoryState.getUsagePercentage();
+            } else {
+                percentageSum += memoryState.getUsedSize();
+            }
         }
 
         if (tempSize != 0) {
@@ -301,21 +305,33 @@ public class ChartManagementController extends ManagementController {
         double upperPart, lowerPart;
         DataConverter dataConverter = new DataConverter();
 
+        if (tempSize > 0 && interfaceDataList.get(0).isIsSummarized()) {
+            percentageSum = interfaceDataList.get(0).getInboundBytes();
+        }
+
         for (int i = 1; i < tempSize; i++) {
-            previous = interfaceDataList.get(i - 1);
             current = interfaceDataList.get(i);
-            upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
-                    current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
-            lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
-                    - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
-            if (lowerPart != 0) {
-                percentageSum += (upperPart / lowerPart);
+
+            if (!current.isIsSummarized()) {
+                previous = interfaceDataList.get(i - 1);
+                upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
+                        current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
+                lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
+                        - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
+                if (lowerPart != 0) {
+                    percentageSum += (upperPart / lowerPart);
+                }
+            } else {
+                percentageSum += current.getInboundBytes();
             }
         }
 
-        if (tempSize != 0) {
+        if (tempSize > 0 && interfaceDataList.get(0).isIsSummarized()) {
             return percentageSum / tempSize;
         }
+        if (tempSize - 1 > 0) {
+            return percentageSum / (tempSize - 1);
+        } 
         return 0.0;
     }
 
