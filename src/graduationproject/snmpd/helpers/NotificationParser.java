@@ -23,128 +23,165 @@ public class NotificationParser {
 
     public List<Object> parseNotification(SimpleSnmpV2cTarget target, VarbindCollection varbinds) {
         List<Object> result = new ArrayList<Object>();
-
-//        result.add(DataOrders.IP_ADDRESS.getValue(), target.getAddress());
-//        result.add(DataOrders.COMMUNITY.getValue(), target.getCommunity());
         String typeOid = varbinds.get(typeName).asString();
+        boolean parseResult = false;
 
         if (typeOid.equals(NotificationType.COLD_START.getOid())) {
-            this.parseColdStartNotification(target, varbinds, result);
+            parseResult = this.parseColdStartNotification(target, varbinds, result);
         } else if (typeOid.equals(NotificationType.WARM_START.getOid())) {
-            this.parseWarmStartNotification(target, varbinds, result);
+            parseResult = this.parseWarmStartNotification(target, varbinds, result);
         } else if (typeOid.equals(NotificationType.LINK_DOWN.getOid())) {
-            this.parseLinkDownNotification(target, varbinds, result);
+            parseResult = this.parseLinkDownNotification(target, varbinds, result);
         } else if (typeOid.equals(NotificationType.LINK_UP.getOid())) {
-            this.parseLinkUpNotification(target, varbinds, result);
+            parseResult = this.parseLinkUpNotification(target, varbinds, result);
         } else if (typeOid.equals((NotificationType.AUTHENTICATION_FAILURE.getOid()))) {
-            this.parseAuthenticationFailureNotification(target, varbinds, result);
+            parseResult = this.parseAuthenticationFailureNotification(target, varbinds, result);
         } else {
-            this.parseEnterpriseNotification(target, varbinds, result);
+            parseResult = this.parseEnterpriseNotification(target, varbinds, result);
         }
 
-        return result;
+        if (parseResult) {
+            return result;
+        }
+        return null;
     }
 
-    private void parseColdStartNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseColdStartNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithStartNotification(target, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.COLD_START.getName());
-        result.add(DataOrders.CONTENT.getValue(), NotificationType.COLD_START.getMessage());
+        if (deviceId >= 0) {
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.COLD_START.getName());
+            result.add(DataOrders.CONTENT.getValue(), NotificationType.COLD_START.getMessage());
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
-    private void parseWarmStartNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseWarmStartNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithStartNotification(target, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.WARM_START.getName());
-        result.add(DataOrders.CONTENT.getValue(), NotificationType.WARM_START.getMessage());
+        if (deviceId >= 0) {
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.WARM_START.getName());
+            result.add(DataOrders.CONTENT.getValue(), NotificationType.WARM_START.getMessage());
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
-    private void parseLinkDownNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseLinkDownNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int interfaceId = varbinds.get("ifIndex").asInt();
         int deviceId = deviceController.processDeviceInfoWithLinkNotification(target, interfaceId, false, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_DOWN.getName());
         if (deviceId >= 0) {
-            String interfaceName = deviceController.getCheckingDeviceInterfaceName(interfaceId);
-            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceName + " is down.");
-        } else {
-            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceId + " is down.");
-        }
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_DOWN.getName());
+            if (deviceId >= 0) {
+                String[] interfaceInfo = deviceController.getCheckingDeviceInterfaceInfo(interfaceId);
+                if (interfaceInfo.length == 1) {
+                    result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceInfo[0] + " is down.");
+                } else {
+                    result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceInfo[0] + " (" + interfaceInfo[1] + ")" + " is down.");
+                }
+            } else {
+                result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceId + " is down.");
+            }
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
-    private void parseLinkUpNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseLinkUpNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int interfaceId = varbinds.get("ifIndex").asInt();
         int deviceId = deviceController.processDeviceInfoWithLinkNotification(target, interfaceId, true, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_UP.getName());
         if (deviceId >= 0) {
-            String interfaceName = deviceController.getCheckingDeviceInterfaceName(interfaceId);
-            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceName + " is up.");
-        } else {
-            result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceId + " is up.");
-        }
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.LINK_UP.getName());
+            if (deviceId >= 0) {
+                String[] interfaceInfo = deviceController.getCheckingDeviceInterfaceInfo(interfaceId);
+                if (interfaceInfo.length == 1) {
+                    result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceInfo[0] + " is up.");
+                } else {
+                    result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceInfo[0] + " (" + interfaceInfo[1] + ")" + " is up.");
+                }
+            } else {
+                result.add(DataOrders.CONTENT.getValue(), "Interface " + interfaceId + " is up.");
+            }
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
-    private void parseAuthenticationFailureNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseAuthenticationFailureNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithAuthenticationNotification(target, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.AUTHENTICATION_FAILURE.getName());
-        result.add(DataOrders.CONTENT.getValue(), NotificationType.AUTHENTICATION_FAILURE.getMessage());
+        if (deviceId >= 0) {
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.AUTHENTICATION_FAILURE.getName());
+            result.add(DataOrders.CONTENT.getValue(), NotificationType.AUTHENTICATION_FAILURE.getMessage());
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
-    private void parseEgpNeighborLossNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseEgpNeighborLossNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithEgpNotification(target, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.EGP_LOSS.getName());
-        result.add(DataOrders.CONTENT.getValue(), NotificationType.EGP_LOSS.getMessage());
+        if (deviceId >= 0) {
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.EGP_LOSS.getName());
+            result.add(DataOrders.CONTENT.getValue(), NotificationType.EGP_LOSS.getMessage());
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
-    private void parseEnterpriseNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
+    private boolean parseEnterpriseNotification(SnmpTarget target, VarbindCollection varbinds, List<Object> result) {
         DeviceManagementController deviceController = new DeviceManagementController();
         int deviceId = deviceController.processDeviceInfoWithEnterpriseNotification(target, true);
-        result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
-        result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
 
-        result.add(DataOrders.TYPE.getValue(), NotificationType.ENTERPRISE.getName());
-        result.add(DataOrders.CONTENT.getValue(), NotificationType.ENTERPRISE.getMessage());
+        if (deviceId >= 0) {
+            result.add(DataOrders.DEVICE_ID.getValue(), deviceId);
+            result.add(DataOrders.DEVICE_ADDRESS.getValue(), target.getAddress());
+            result.add(DataOrders.TYPE.getValue(), NotificationType.ENTERPRISE.getName());
+            result.add(DataOrders.CONTENT.getValue(), NotificationType.ENTERPRISE.getMessage());
 
-        this.getExtraData(varbinds, result);
+            this.getExtraData(varbinds, result);
+            return true;
+        }
+        return false;
     }
 
     private void getExtraData(VarbindCollection varbinds, List<Object> result) {
         int count = 0;
         String[] pair;
-        
+
         for (Varbind varbind : varbinds) {
             if (!varbind.getName().contains(typeName)) {
                 pair = new String[DataOrders.EXTRA_SIZE.getValue()];
@@ -201,11 +238,9 @@ public class NotificationParser {
         TYPE(2),
         CONTENT(3),
         EXTRA(4),
-        
         EXTRA_SIZE(2),
         EXTRA_NAME(0),
         EXTRA_VALUE(1);
-        
 
         private int value;
 
@@ -217,4 +252,4 @@ public class NotificationParser {
             return this.value;
         }
     }
-}    
+}

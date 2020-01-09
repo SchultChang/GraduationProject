@@ -6,6 +6,7 @@
 package graduationproject.controllers;
 
 import com.opencsv.CSVReader;
+import graduationproject.data.ActiveDeviceDataCollector;
 import graduationproject.helpers.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.ContactNetworkInterface;
@@ -114,8 +115,8 @@ public class DeviceManagementController extends ManagementController {
 
             int countLine = 0, countSaving = 0;
             Date importedTime = new Date();
-            int name=0, label=1, type=2, location=3, snmpVersion=4, ip = 5, port = 6, community = 7;
-            
+            int name = 0, label = 1, type = 2, location = 3, snmpVersion = 4, ip = 5, port = 6, community = 7;
+
             while ((line = reader.readNext()) != null) {
                 ContactNetworkInterface networkInterface = new ContactNetworkInterface(
                         line[ip],
@@ -191,7 +192,7 @@ public class DeviceManagementController extends ManagementController {
         List<Object> pushingResult = null;
         if (snmpContext == null) {
             queryHelper.pushInfoIntoDevice(
-                    device.getContactInterface().getIpAddress(), 
+                    device.getContactInterface().getIpAddress(),
                     device.getContactInterface().getPort(),
                     device.getContactInterface().getCommunity(),
                     deviceId, device.getName(), device.getLabel(), device.getLocation(), userInfo);
@@ -221,7 +222,7 @@ public class DeviceManagementController extends ManagementController {
                 DataManager.getInstance().getDeviceManager().updateDevice(device);
                 ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelDeviceInfo()
                         .updateDeviceInfo(deviceId, name, label, device.getDescription(), location);
-                return false;            
+                return false;
             }
 
             if (userChoice == 2) {
@@ -234,7 +235,7 @@ public class DeviceManagementController extends ManagementController {
     public void processUpdateDeviceLabel(int deviceId, String label) {
         ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().updateLabelDeviceText(deviceId, label);
     }
-    
+
     public List<String> processGettingImportedDevices(DataOrders order) {
         List<Device> devices = DataManager.getInstance().getDeviceManager().getDevices(order);
 
@@ -501,11 +502,18 @@ public class DeviceManagementController extends ManagementController {
 //        }
     }
 
-    public String getCheckingDeviceInterfaceName(int interfaceId) {
+    public String[] getCheckingDeviceInterfaceInfo(int interfaceId) {
         if (checkingDevice != null) {
-            List<DeviceNetworkInterface> networkInterfaces = (List<DeviceNetworkInterface>) this.checkingDevice.getNetworkInterfaces();
-            if (networkInterfaces != null) {
-                return networkInterfaces.get(interfaceId - 1).getName();
+            DeviceNetworkInterface networkInterface = this.checkingDevice.getNetworkInterfaces().get(interfaceId - 1);
+            if (networkInterface != null) {
+                List<Object> activeInfo = ActiveDeviceDataCollector.getInstance()
+                        .getInterfaceDynamicDataForView(this.checkingDevice.getId(), networkInterface.getMacAddress());
+                if (activeInfo == null || activeInfo.isEmpty()) {
+                    return new String[]{networkInterface.getName()};
+                } else {
+                    return new String[]{networkInterface.getName(), 
+                        String.valueOf(activeInfo.get(ActiveDeviceDataCollector.InterfaceDynamicDataOrders.IP_ADDRESS.getValue()))};
+                }
             }
         }
         return null;
@@ -548,8 +556,8 @@ public class DeviceManagementController extends ManagementController {
             }
 
             TemplateQuery templateQuery = new TemplateQuery(
-                    deviceId, 
-                    device.getContactInterface().getIpAddress(), 
+                    deviceId,
+                    device.getContactInterface().getIpAddress(),
                     device.getContactInterface().getPort(),
                     device.getContactInterface().getCommunity(),
                     templateId, queryItems, template.isIsTable());
