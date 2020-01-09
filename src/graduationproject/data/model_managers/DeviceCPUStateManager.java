@@ -11,6 +11,7 @@ import graduationproject.data.models.DeviceInterfaceDynamicData;
 import java.util.Calendar;
 import java.util.List;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -175,6 +176,35 @@ public class DeviceCPUStateManager {
         return result;
     }
 
+    public boolean deleteDeviceCPUState(Device device) {
+        Session session = null;
+        Transaction tx = null;
+        boolean result = false;
+
+        try {
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            String hql = "delete from " + DeviceCPUState.class.getSimpleName()
+                    + " where device=:device";
+            Query query = session.createQuery(hql);
+            query.setParameter("device", device);
+            query.executeUpdate();
+
+            tx.commit();
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            tx.rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        return result;
+    }
+
     public void renewDeviceCPUStateTable(List<DeviceCPUState> cpuStates) {
         Session session = null;
         Transaction tx = null;
@@ -185,11 +215,11 @@ public class DeviceCPUStateManager {
 
             NativeQuery query = session.createNativeQuery("TRUNCATE DEVICE_CPU_STATES");
             query.executeUpdate();
-            
+
             for (DeviceCPUState cpuState : cpuStates) {
                 session.save(cpuState);
             }
-            
+
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,5 +230,5 @@ public class DeviceCPUStateManager {
             }
         }
     }
-        
+
 }

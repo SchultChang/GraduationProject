@@ -239,6 +239,9 @@ public class DeviceManager {
             for (int i = 0; i < tempSize; i++) {
                 DataManager.getInstance().getInterfaceDynamicDataManager().deleteDynamicData(device.getNetworkInterfaces().get(i));
             }
+            
+            DataManager.getInstance().getDeviceCpuManager().deleteDeviceCPUState(device);
+            DataManager.getInstance().getDeviceMemoryManager().deleteDeviceMemoryState(device);
             DataManager.getInstance().getNotificationManager().deleteNotifications(device);
             session.delete(device);
 
