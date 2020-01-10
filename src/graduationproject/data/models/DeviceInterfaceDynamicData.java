@@ -104,4 +104,9 @@ public class DeviceInterfaceDynamicData {
         this.isSummarized = isSummarized;
     }
     
+    public void displayInfo() {
+        System.out.println(this.networkInterface.getId());
+        System.out.println(this.outboundBytes);
+    }
+    
 }

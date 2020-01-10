@@ -116,11 +116,13 @@ public class DeviceMemoryState {
     }
     
     public void displayInfo() {
+//        System.out.println(this.type);
+//        System.out.println(this.description);
         System.out.println(this.type);
-        System.out.println(this.description);
-        System.out.println(this.totalSize);
+//        System.out.println(this.totalSize);
         System.out.println(this.usedSize);
         System.out.println(this.isSummarized);
+        System.out.println(this.device.getId());
 //        System.out.println(this.);
     }
     

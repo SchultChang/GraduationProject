@@ -17,8 +17,6 @@ import graduationproject.data.model_managers.TemplateItemManager;
 import graduationproject.data.model_managers.TemplateManager;
 import graduationproject.data.model_managers.UserManager;
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 

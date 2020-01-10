@@ -71,7 +71,6 @@ public class DataCompressor {
                             .getDeviceCPULoads(device, startTime, endTime, "cpuLoad", cpuId);
                     DeviceCPUState deviceCPUState = null;
                     if (cpuLoads != null && !cpuLoads.isEmpty()) {
-                        System.out.println("HELLO WORLD");
                         float loadSum = 0;
                         for (float cpuLoad : cpuLoads) {
                             loadSum += cpuLoad;
@@ -79,21 +78,17 @@ public class DataCompressor {
 
                         deviceCPUState = new DeviceCPUState(cpuId, modelState.getFirmwareId(), modelState.getDescription(),
                                 loadSum / cpuLoads.size(), startTime, true, device);
-                    } else if (modelState != null) {
-                        deviceCPUState = new DeviceCPUState(cpuId, modelState.getFirmwareId(), modelState.getDescription(),
-                                0.0f, startTime, true, device);
-                    } else {
-                        deviceCPUState = new DeviceCPUState(cpuId, null, null,
-                                0.0f, startTime, true, device);
                     }
 
-                    newDeviceCPUStates.add(deviceCPUState);
+                    if (deviceCPUState != null) {
+                        newDeviceCPUStates.add(deviceCPUState);
+                    }
                 }
             }
         }
-        System.out.println("COMPRESSED SIZE " + newDeviceCPUStates.size());
-        System.out.println(startTime.get(Calendar.DAY_OF_YEAR));
-        System.out.println(endTime.get(Calendar.DAY_OF_YEAR));
+//        System.out.println("COMPRESSED SIZE " + newDeviceCPUStates.size());
+//        System.out.println(startTime.get(Calendar.DAY_OF_YEAR));
+//        System.out.println(endTime.get(Calendar.DAY_OF_YEAR));
 
         //add data today
         startTime.add(Calendar.DAY_OF_YEAR, 1);
@@ -116,17 +111,21 @@ public class DataCompressor {
         startTime.set(Calendar.HOUR_OF_DAY, 0);
         startTime.add(Calendar.DAY_OF_YEAR, -DAY_LIMIT);
 
-        Calendar endTime = Calendar.getInstance();
+        Calendar endTime = (Calendar) startTime.clone();
         endTime.set(Calendar.SECOND, 59);
         endTime.set(Calendar.MINUTE, 59);
         endTime.set(Calendar.HOUR_OF_DAY, 23);
-        endTime.add(Calendar.DAY_OF_YEAR, - 2);
+        endTime.add(Calendar.DAY_OF_YEAR, (DAY_LIMIT - 2));
 
         String[] memoryTypes = {MemoryType.RAM.getDisplayType(), MemoryType.VIRTUAL.getDisplayType(), MemoryType.OTHER.getDisplayType()};
+
         List<DeviceMemoryState> newDeviceMemoryStates = DataManager.getInstance().getDeviceMemoryManager()
                 .getDeviceMemoryStates(startTime, endTime, null);
+        if (newDeviceMemoryStates == null) {
+            newDeviceMemoryStates = new ArrayList<DeviceMemoryState>();
+        }
 
-        startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 2);
+        startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 1);
         endTime.add(Calendar.DAY_OF_YEAR, 1);
 
         //compress data from yesterday
@@ -139,30 +138,27 @@ public class DataCompressor {
                     endTime.set(Calendar.HOUR_OF_DAY, i);
 
                     List<DeviceMemoryState> memoryStates = DataManager.getInstance().getDeviceMemoryManager()
-                            .getDeviceMemoryStates(startTime, endTime, memoryType);
+                            .getDeviceMemoryStates(device, startTime, endTime, memoryType);
                     DeviceMemoryState deviceMemoryState = null;
 
                     if (memoryStates != null && !memoryStates.isEmpty()) {
-//                        System.out.println("HELLO WORLD");
                         float memorySum = 0.0f;
                         for (DeviceMemoryState memoryState : memoryStates) {
-                            if (memoryState.getTotalSize() != 0) {
+                            if (!memoryState.isIsSummarized()) {
 //                                System.out.println(memorySum);
-                                memorySum += (memoryState.getUsedSize() / memoryState.getTotalSize());
+                                memorySum += memoryState.getUsagePercentage();
+                            } else {
+                                memorySum += memoryState.getUsedSize();
                             }
                         }
-                        deviceMemoryState = new DeviceMemoryState(memoryType, modelState.getDescription(),
-                                memorySum / memoryStates.size(), memorySum / memoryStates.size(), startTime, true, device);
-                    } else if (modelState != null) {
-                        deviceMemoryState = new DeviceMemoryState(memoryType, modelState.getDescription(),
-                                0.0f, 0.0f, startTime, true, device);
-                    } else {
                         deviceMemoryState = new DeviceMemoryState(memoryType, memoryType,
-                                0.0f, 0.0f, startTime, true, device);
+                                memorySum / memoryStates.size(), memorySum / memoryStates.size(), startTime, true, device);
                     }
 
-                    deviceMemoryState.displayInfo();
-                    newDeviceMemoryStates.add(deviceMemoryState);
+//                    deviceMemoryState.displayInfo();
+                    if (deviceMemoryState != null) {
+                        newDeviceMemoryStates.add(deviceMemoryState);
+                    }
                 }
             }
         }
@@ -177,7 +173,6 @@ public class DataCompressor {
 //        for (DeviceMemoryState memoryState : newDeviceMemoryStates) {
 //            memoryState.displayInfo();
 //        }
-        
         DataManager.getInstance().getDeviceMemoryManager().renewDeviceMemoryStateTable(newDeviceMemoryStates);
     }
 
@@ -188,11 +183,11 @@ public class DataCompressor {
         startTime.set(Calendar.HOUR_OF_DAY, 0);
         startTime.add(Calendar.DAY_OF_YEAR, -DAY_LIMIT);
 
-        Calendar endTime = Calendar.getInstance();
+        Calendar endTime = (Calendar) startTime.clone();
         endTime.set(Calendar.SECOND, 59);
         endTime.set(Calendar.MINUTE, 59);
         endTime.set(Calendar.HOUR_OF_DAY, 23);
-        endTime.add(Calendar.DAY_OF_YEAR, - 2);
+        endTime.add(Calendar.DAY_OF_YEAR, (DAY_LIMIT - 2));
 
         List<DeviceInterfaceDynamicData> newInterfaceDynamicDataList = DataManager.getInstance()
                 .getInterfaceDynamicDataManager().getDeviceDynamicData(null, startTime, endTime);
@@ -200,10 +195,10 @@ public class DataCompressor {
             newInterfaceDynamicDataList = new ArrayList<DeviceInterfaceDynamicData>();
         }
 
-        startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 2);
+        startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 1);
         endTime.add(Calendar.DAY_OF_YEAR, 1);
 
-        DeviceInterfaceDynamicData current, previous, newInterfaceData;
+        DeviceInterfaceDynamicData current, previous;
         float upperPart, lowerPart;
         DataConverter dataConverter = new DataConverter();
 
@@ -218,35 +213,46 @@ public class DataCompressor {
 
                     List<DeviceInterfaceDynamicData> interfaceDataList = DataManager.getInstance()
                             .getInterfaceDynamicDataManager().getDeviceDynamicData(networkInterface, startTime, endTime);
+                    DeviceInterfaceDynamicData newInterfaceData = null;
 
                     if (interfaceDataList != null && !interfaceDataList.isEmpty()) {
                         float interfaceSum = 0.0f;
                         int tempSize = interfaceDataList.size();
 
+                        if (tempSize > 0 && interfaceDataList.get(0).isIsSummarized()) {
+                            interfaceSum = interfaceDataList.get(0).getInboundBytes();
+                        }
+
                         for (int j = 1; j < tempSize; j++) {
-                            previous = interfaceDataList.get(j - 1);
                             current = interfaceDataList.get(j);
-                            upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
-                                    current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100;
-                            lowerPart = (float) ((dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
-                                    - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth());
-                            if (lowerPart != 0) {
-                                interfaceSum += (upperPart / lowerPart);
+                            if (!current.isIsSummarized()) {
+                                previous = interfaceDataList.get(j - 1);
+                                upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
+                                        current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100;
+                                lowerPart = (float) ((dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
+                                        - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth());
+                                if (lowerPart != 0) {
+                                    interfaceSum += (upperPart / lowerPart);
+//                                    System.out.println("INTERFACE SUM:" + interfaceSum);
+                                }
+                            } else {
+                                interfaceSum += current.getOutboundBytes();
                             }
                         }
 
                         if (tempSize - 1 > 0) {
-                            newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum / (tempSize - 1), 
+                            newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum / (tempSize - 1),
                                     interfaceSum / (tempSize - 1), startTime, true, networkInterface);
                         } else {
-                            newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum, 
+                            newInterfaceData = new DeviceInterfaceDynamicData(0.0f, interfaceSum,
                                     interfaceSum, startTime, true, networkInterface);
                         }
-                    } else {
-                        newInterfaceData = new DeviceInterfaceDynamicData(0.0f, 0.0f, 0.0f, startTime, true, networkInterface);
                     }
 
-                    newInterfaceDynamicDataList.add(newInterfaceData);
+                    if (newInterfaceData != null) {
+//                        newInterfaceData.displayInfo();
+                        newInterfaceDynamicDataList.add(newInterfaceData);
+                    }
                 }
             }
         }
