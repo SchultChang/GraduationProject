@@ -5,10 +5,13 @@
  */
 package graduationproject.data;
 
+import graduationproject.data.model_managers.DeviceBandwidthUsageManager;
 import graduationproject.data.model_managers.DeviceCPUStateManager;
+import graduationproject.data.model_managers.DeviceCPUUsageManager;
 import graduationproject.data.model_managers.DeviceInterfaceDynamicDataManager;
 import graduationproject.data.model_managers.DeviceManager;
 import graduationproject.data.model_managers.DeviceMemoryStateManager;
+import graduationproject.data.model_managers.DeviceMemoryUsageManager;
 import graduationproject.data.model_managers.DeviceNetworkInterfaceManager;
 import graduationproject.data.model_managers.NotificationManager;
 import graduationproject.data.model_managers.RecoveryQuestionManager;
@@ -40,6 +43,9 @@ public class DataManager {
     private NotificationManager notificationManager;
     private DeviceCPUStateManager deviceCpuManager;
     private DeviceMemoryStateManager deviceMemoryManager;
+    private DeviceBandwidthUsageManager bandwidthManager;
+    private DeviceCPUUsageManager cpuUsageManager;
+    private DeviceMemoryUsageManager memoryUsageManager;
     
     private DataCompressor dataCompressor;
 
@@ -63,6 +69,9 @@ public class DataManager {
         this.notificationManager = new NotificationManager(this.sessionFactory);
         this.deviceCpuManager = new DeviceCPUStateManager(this.sessionFactory);
         this.deviceMemoryManager = new DeviceMemoryStateManager(this.sessionFactory);
+        this.memoryUsageManager = new DeviceMemoryUsageManager(this.sessionFactory);
+        this.cpuUsageManager = new DeviceCPUUsageManager(this.sessionFactory);
+        this.bandwidthManager = new DeviceBandwidthUsageManager(this.sessionFactory);
         
         this.startTime = Calendar.getInstance();
         this.startTime.add(Calendar.DATE, -1);
@@ -141,6 +150,18 @@ public class DataManager {
 
     public DeviceNetworkInterfaceManager getNetworkInterfaceManager() {
         return networkInterfaceManager;
+    }
+
+    public DeviceBandwidthUsageManager getBandwidthManager() {
+        return bandwidthManager;
+    }
+
+    public DeviceCPUUsageManager getCpuUsageManager() {
+        return cpuUsageManager;
+    }
+
+    public DeviceMemoryUsageManager getMemoryUsageManager() {
+        return memoryUsageManager;
     }
     
     public int getActiveAccountId() {

@@ -209,7 +209,7 @@ public class DeviceMemoryStateManager {
         return result;
     }
     
-    public void renewDeviceMemoryStateTable(List<DeviceMemoryState> memoryStates) {
+    public void renewDeviceMemoryStateTable() {
         Session session = null;
         Transaction tx = null;
 
@@ -219,14 +219,6 @@ public class DeviceMemoryStateManager {
 
             NativeQuery query = session.createNativeQuery("TRUNCATE DEVICE_MEMORY_STATES");
             query.executeUpdate();
-            tx.commit();
-            session.close();
-            
-            session = this.sessionFactory.openSession();
-            tx = session.beginTransaction();
-            for (DeviceMemoryState memoryState : memoryStates) {
-                    session.save(memoryState);
-            }
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();

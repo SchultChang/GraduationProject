@@ -27,7 +27,6 @@
 
         <property name="value" column="value" type="string"/>
         <property name="name" column="name" type="string"/>
-        
     </class>
     
 </hibernate-mapping>

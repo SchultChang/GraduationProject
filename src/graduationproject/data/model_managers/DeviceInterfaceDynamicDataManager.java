@@ -153,7 +153,7 @@ public class DeviceInterfaceDynamicDataManager {
         return result;
     }
 
-        public void renewDeviceInterfaceDynamicDataTable(List<DeviceInterfaceDynamicData> interfaceDataList) {
+    public void renewDeviceInterfaceDynamicDataTable() {
         Session session = null;
         Transaction tx = null;
 
@@ -163,14 +163,6 @@ public class DeviceInterfaceDynamicDataManager {
 
             NativeQuery query = session.createNativeQuery("TRUNCATE NETWORK_INTERFACE_DYNAMIC_DATA");
             query.executeUpdate();
-            tx.commit();
-            session.close();
-            
-            session = this.sessionFactory.openSession();
-            tx = session.beginTransaction();
-            for (DeviceInterfaceDynamicData interfaceData : interfaceDataList) {
-                session.save(interfaceData);
-            }
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -182,5 +174,4 @@ public class DeviceInterfaceDynamicDataManager {
         }
     }
 
-    
 }

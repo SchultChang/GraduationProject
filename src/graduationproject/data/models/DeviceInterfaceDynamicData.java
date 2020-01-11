@@ -21,7 +21,6 @@ public class DeviceInterfaceDynamicData {
     private float inboundBytes;
     private float outboundBytes;
     private Calendar updatedTime;
-    private boolean isSummarized;
     
     private DeviceNetworkInterface networkInterface; 
     
@@ -34,28 +33,14 @@ public class DeviceInterfaceDynamicData {
         this.outboundBytes = outboundBytes;
         this.updatedTime = (Calendar) updatedTime.clone();
         this.networkInterface = networkInterface;
-        
-        this.isSummarized = false;
     }
     
-    public DeviceInterfaceDynamicData(float bandwidth, float inboundBytes, float outboundBytes, Calendar updatedTime, boolean isSummarized, DeviceNetworkInterface networkInterface) {
-        this.bandwidth = bandwidth;
-        this.inboundBytes = inboundBytes;
-        this.outboundBytes = outboundBytes;
-        this.updatedTime = (Calendar) updatedTime.clone();
-        this.networkInterface = networkInterface;
-        
-        this.isSummarized = isSummarized;
-    }
-
     public DeviceInterfaceDynamicData(DeviceInterfaceDynamicData other) {
         this.bandwidth = other.bandwidth;
         this.inboundBytes = other.inboundBytes;
         this.outboundBytes = other.outboundBytes;
         this.updatedTime = other.updatedTime;
         this.networkInterface = other.networkInterface;
-        
-        this.isSummarized = other.isSummarized;
     }
     
     public int getId() {
@@ -106,14 +91,6 @@ public class DeviceInterfaceDynamicData {
         this.updatedTime = updatedTime;
     }
 
-    public boolean isIsSummarized() {
-        return isSummarized;
-    }
-
-    public void setIsSummarized(boolean isSummarized) {
-        this.isSummarized = isSummarized;
-    }
-    
     public void displayInfo() {
         System.out.println(this.networkInterface.getId());
         System.out.println(this.outboundBytes);

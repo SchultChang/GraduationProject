@@ -18,7 +18,6 @@ public class DeviceMemoryState {
     private float totalSize;
     private float usedSize;
     private Calendar updatedTime;
-    private boolean isSummarized;
     
     private Device device;
 
@@ -32,21 +31,8 @@ public class DeviceMemoryState {
         this.usedSize = usedSize;
         this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
-        
-        this.isSummarized = false;
     }
 
-    public DeviceMemoryState(String type, String description, float totalSize, float usedSize, Calendar updatedTime, boolean isSummarized, Device device) {
-        this.type = type;
-        this.description = description;
-        this.totalSize = totalSize;
-        this.usedSize = usedSize;
-        this.updatedTime = (Calendar) updatedTime.clone();
-        this.device = device;
-        
-        this.isSummarized = isSummarized;
-    }
-    
     public DeviceMemoryState(DeviceMemoryState other) {
         this.type = other.type;
         this.description = other.description;
@@ -54,8 +40,6 @@ public class DeviceMemoryState {
         this.usedSize = other.usedSize;
         this.updatedTime = other.updatedTime;
         this.device = other.device;
-        
-        this.isSummarized = other.isSummarized;
     }
     
     public int getId() {
@@ -118,21 +102,12 @@ public class DeviceMemoryState {
         return this.usedSize * 100.0d / this.totalSize;
     }
 
-    public boolean isIsSummarized() {
-        return isSummarized;
-    }
-
-    public void setIsSummarized(boolean isSummarized) {
-        this.isSummarized = isSummarized;
-    }
-    
     public void displayInfo() {
 //        System.out.println(this.type);
 //        System.out.println(this.description);
         System.out.println(this.type);
 //        System.out.println(this.totalSize);
         System.out.println(this.usedSize);
-        System.out.println(this.isSummarized);
         System.out.println(this.device.getId());
 //        System.out.println(this.);
     }

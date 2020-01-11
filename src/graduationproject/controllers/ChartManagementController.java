@@ -267,11 +267,7 @@ public class ChartManagementController extends ManagementController {
         double percentageSum = 0.0;
 
         for (DeviceMemoryState memoryState : memoryStates) {
-            if (!memoryState.isIsSummarized()) {
-                percentageSum += memoryState.getUsagePercentage();
-            } else {
-                percentageSum += memoryState.getUsedSize();
-            }
+            percentageSum += memoryState.getUsagePercentage();
         }
 
         if (tempSize != 0) {
@@ -305,34 +301,20 @@ public class ChartManagementController extends ManagementController {
         double upperPart, lowerPart;
         DataConverter dataConverter = new DataConverter();
 
-        if (tempSize > 0 && interfaceDataList.get(0).isIsSummarized()) {
-            percentageSum = interfaceDataList.get(0).getInboundBytes();
-        }
-
         for (int i = 1; i < tempSize; i++) {
             current = interfaceDataList.get(i);
+            previous = interfaceDataList.get(i - 1);
 
-            if (!current.isIsSummarized()) {
-                previous = interfaceDataList.get(i - 1);
-                upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
-                        current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
-                lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
-                        - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
-                if (lowerPart != 0) {
-                    percentageSum += (upperPart / lowerPart);
-                }
-            } else {
-                percentageSum += current.getInboundBytes();
+            upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
+                    current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
+            lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
+                    - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
+
+            if (lowerPart != 0) {
+                percentageSum += (upperPart / lowerPart);
             }
         }
-//        if (startTime.get(Calendar.DAY_OF_YEAR) == 11) {
-//            System.out.println(tempSize);
-//            System.out.println(percentageSum);
-//        }
 
-        if (tempSize > 0 && interfaceDataList.get(0).isIsSummarized()) {
-            return percentageSum / tempSize;
-        }
         if (tempSize - 1 > 0) {
             return percentageSum / (tempSize - 1);
         }

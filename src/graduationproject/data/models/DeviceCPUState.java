@@ -18,7 +18,6 @@ public class DeviceCPUState {
     private String description;
     private float cpuLoad;
     private Calendar updatedTime;
-    private boolean isSummarized;
     
     private Device device;
 
@@ -32,8 +31,6 @@ public class DeviceCPUState {
         this.cpuLoad = cpuLoad;
         this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
-        
-        this.isSummarized = false;
     }
 
     public DeviceCPUState(int hrDeviceId, String firmwareId, String description, float cpuLoad, Calendar updatedTime, boolean isSummarized, Device device) {
@@ -43,8 +40,6 @@ public class DeviceCPUState {
         this.cpuLoad = cpuLoad;
         this.updatedTime = (Calendar) updatedTime.clone();
         this.device = device;
-        
-        this.isSummarized = isSummarized;
     }
     
     public DeviceCPUState(DeviceCPUState other) {
@@ -54,8 +49,6 @@ public class DeviceCPUState {
         this.cpuLoad = other.cpuLoad;
         this.updatedTime = other.updatedTime;
         this.device = other.device;
-        
-        this.isSummarized = other.isSummarized;
     }
 
     public int getId() {
@@ -104,14 +97,6 @@ public class DeviceCPUState {
 
     public void setUpdatedTime(Calendar updatedTime) {
         this.updatedTime = updatedTime;
-    }
-
-    public boolean isIsSummarized() {
-        return isSummarized;
-    }
-
-    public void setIsSummarized(boolean isSummarized) {
-        this.isSummarized = isSummarized;
     }
 
     public Device getDevice() {

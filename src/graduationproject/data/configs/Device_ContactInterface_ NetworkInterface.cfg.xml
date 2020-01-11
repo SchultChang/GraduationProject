@@ -57,7 +57,6 @@
         <property name="inboundBytes" column="inbound_bytes" type="float"/>
         <property name="outboundBytes" column="outbound_bytes" type="float"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
-        <property name="isSummarized" column="is_summarized" type="boolean"/>
         
         <many-to-one name="networkInterface" column="network_interface_id" cascade="save-update"
                      class="graduationproject.data.models.DeviceNetworkInterface" />        
@@ -73,7 +72,6 @@
         <property name="description" column="description" type="string"/>
         <property name="cpuLoad" column="cpu_load" type="float"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
-        <property name="isSummarized" column="is_summarized" type="boolean"/>
                 
         <many-to-one name="device" column="device_id" cascade="save-update"
                      class="graduationproject.data.models.Device"/>
@@ -89,10 +87,45 @@
         <property name="totalSize" column="total_size" type="float"/>
         <property name="usedSize" column="used_size" type="float"/>
         <property name="updatedTime" column="updated_time" type="calendar"/>
-        <property name="isSummarized" column="is_summarized" type="boolean"/>
                 
         <many-to-one name="device" column="device_id" cascade="save-update"
                      class="graduationproject.data.models.Device"/>
     </class>
+
+
+    <class name="graduationproject.data.models.DeviceAvgBandwidthUsage" table="DEVICE_AVG_BANDWIDTH_USAGE">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="avgUsage" column="avg_usage" type="float"/>
+        <property name="time" column="time" type="calendar"/>
+        <many-to-one name="networkInterface" column="interface_id" cascade="save-update" 
+                class="graduationproject.data.models.DeviceNetworkInterface"/>
+    </class>
     
+    <class name="graduationproject.data.models.DeviceAvgCpuUsage" table="DEVICE_AVG_CPU_USAGE">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="cpuId" column="cpu_id" type="int"/>
+        <property name="avgUsage" column="avg_usage" type="float"/>
+        <property name="time" column="time" type="calendar"/>
+        <many-to-one name="device" column="device_id" cascade="save-update" 
+                class="graduationproject.data.models.DeviceCPUState"/>
+    </class>
+    
+    <class name="graduationproject.data.models.DeviceAvgMemoryUsage" table="DEVICE_AVG_MEMORY_USAGE">
+        <id name="id" column="id" type="int">
+            <generator class="native"/>
+        </id>
+        
+        <property name="type" column="type" type="string"/>
+        <property name="avgUsage" column="avg_usage" type="float"/>
+        <property name="time" column="time" type="calendar"/>
+        <many-to-one name="device" column="device_id" cascade="save-update" 
+                class="graduationproject.data.models.DeviceCPUState"/>
+    </class>
+
 </hibernate-mapping>

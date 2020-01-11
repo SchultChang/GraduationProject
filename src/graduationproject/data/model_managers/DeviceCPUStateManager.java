@@ -205,7 +205,7 @@ public class DeviceCPUStateManager {
         return result;
     }
 
-    public void renewDeviceCPUStateTable(List<DeviceCPUState> cpuStates) {
+    public void renewDeviceCPUStateTable() {
         Session session = null;
         Transaction tx = null;
 
@@ -215,15 +215,7 @@ public class DeviceCPUStateManager {
 
             NativeQuery query = session.createNativeQuery("TRUNCATE DEVICE_CPU_STATES");
             query.executeUpdate();
-            tx.commit();
-            session.close();
-            
-            session = this.sessionFactory.openSession();
-            tx = session.beginTransaction();
-            session = this.sessionFactory.openSession();
-            for (DeviceCPUState cpuState : cpuStates) {
-                session.save(cpuState);
-            }
+
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();

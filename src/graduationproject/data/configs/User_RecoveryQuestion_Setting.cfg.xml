@@ -43,6 +43,6 @@
         </list>
         
         <many-to-one name="setting" column="setting_id" unique="true" class="graduationproject.data.models.Setting" cascade="all"/> 
-
     </class>
+    
 </hibernate-mapping>
