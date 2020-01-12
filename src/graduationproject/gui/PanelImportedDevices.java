@@ -347,6 +347,7 @@ public class PanelImportedDevices extends JPanel {
                 if (!panelInterfaceInfo.isVisible()) {
                     PanelImportedDevices.this.switchDisplayedPanel(PANELS.PANEL_INTERFACE_INFO);
                 }
+//                System.out.println(source.getDeviceId() + "::::::" + source.getInterfaceId());
                 panelInterfaceInfo.initViewData(source.getDeviceId(), source.getInterfaceId());
 
                 if (currentChosenLabelInterface != source) {

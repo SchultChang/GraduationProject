@@ -168,11 +168,11 @@ public class InterfaceManagementController extends ManagementController {
             }
             tempSize = tempSize2;
         } else {
-//            for (int i = 0; i < tempSize; i++) {
-//                device.getNetworkInterfaces().get(i).setName(rawDataList.get(i).getName());
-//                device.getNetworkInterfaces().get(i).setMacAddress(rawDataList.get(i).getMacAddress());
-//                device.getNetworkInterfaces().get(i).setType(rawDataList.get(i).getType());
-//            }
+            for (int i = 0; i < tempSize; i++) {
+                device.getNetworkInterfaces().get(i).setName(rawDataList.get(i).getName());
+                device.getNetworkInterfaces().get(i).setMacAddress(rawDataList.get(i).getMacAddress());
+                device.getNetworkInterfaces().get(i).setType(rawDataList.get(i).getType());
+            }
         }
         DataManager.getInstance().getDeviceManager().updateDevice(device);
 
@@ -216,6 +216,7 @@ public class InterfaceManagementController extends ManagementController {
                 );
                 DataManager.getInstance().getInterfaceDynamicDataManager().saveDynamicData(dynamicData);
 
+//                System.out.println(i + ":::::" + displayedInterfaceId);
                 if (i == displayedInterfaceId) {
                     needToViewDynamicData = dynamicData;
 //                    interfaceActiveData = tempActiveData;
@@ -224,6 +225,7 @@ public class InterfaceManagementController extends ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);
 
         //for display
         String[] names = new String[tempSize];
@@ -243,6 +245,8 @@ public class InterfaceManagementController extends ManagementController {
         PanelInterfaceInfo infoPanel = ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelInterfaceInfo();
         if (ApplicationWindow.getInstance().getPanelMain().getPanelImportedDevices().getPanelInterfaceInfo().isVisible()) {
             if (infoPanel.getDeviceId() == deviceId && displayedInterfaceId < tempSize) {
+//                System.out.println(ActiveDeviceDataCollector.getInstance().getInterfaceDynamicDataForView(
+//                                deviceId, device.getNetworkInterfaces().get(displayedInterfaceId).getMacAddress()));
                 infoPanel.updateView(deviceId, this.convertDataForView(
                         device.getNetworkInterfaces().get(displayedInterfaceId),
                         needToViewDynamicData,
@@ -251,8 +255,6 @@ public class InterfaceManagementController extends ManagementController {
                         null));
             }
         }
-
-        ActiveDeviceDataCollector.getInstance().mergeNewInterfaceData(deviceId);
     }
 
     public List<Object> processGettingInterfaceFromDatabase(int deviceId, int interfaceListId) {
@@ -319,7 +321,9 @@ public class InterfaceManagementController extends ManagementController {
             List<Object> interfaceActiveData, List<Object> connectedNodeData) {
         List<Object> result = new ArrayList<Object>();
 
+//        System.out.println(networkInterface.getId() + ":::::"+ networkInterface.getName());
         if (interfaceActiveData != null) {
+//            System.out.println("HELLO WORLD");
             result.add(DataOrders.IP_ADDRESS.getValue(), interfaceActiveData.get(
                     InterfaceDynamicDataOrders.IP_ADDRESS.getValue()));
             result.add(DataOrders.NETMASK.getValue(), interfaceActiveData.get(
