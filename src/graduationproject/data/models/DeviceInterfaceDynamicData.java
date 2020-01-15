@@ -48,6 +48,16 @@ public class DeviceInterfaceDynamicData {
         this.isSummarized = isSummarized;
     }
 
+    public DeviceInterfaceDynamicData(DeviceInterfaceDynamicData other) {
+        this.bandwidth = other.bandwidth;
+        this.inboundBytes = other.inboundBytes;
+        this.outboundBytes = other.outboundBytes;
+        this.updatedTime = other.updatedTime;
+        this.networkInterface = other.networkInterface;
+        
+        this.isSummarized = other.isSummarized;
+    }
+    
     public int getId() {
         return id;
     }

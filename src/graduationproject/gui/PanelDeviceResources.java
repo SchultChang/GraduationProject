@@ -5,14 +5,12 @@
  */
 package graduationproject.gui;
 
-import graduationproject.controllers.DeviceManagementController;
 import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.controllers.DeviceResourceManagementController;
 import graduationproject.snmpd.SnmpManager;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Calendar;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,7 +27,6 @@ import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 /**
  *

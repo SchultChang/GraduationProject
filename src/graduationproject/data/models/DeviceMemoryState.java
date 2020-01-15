@@ -47,6 +47,17 @@ public class DeviceMemoryState {
         this.isSummarized = isSummarized;
     }
     
+    public DeviceMemoryState(DeviceMemoryState other) {
+        this.type = other.type;
+        this.description = other.description;
+        this.totalSize = other.totalSize;
+        this.usedSize = other.usedSize;
+        this.updatedTime = other.updatedTime;
+        this.device = other.device;
+        
+        this.isSummarized = other.isSummarized;
+    }
+    
     public int getId() {
         return id;
     }

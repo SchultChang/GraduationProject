@@ -15,6 +15,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -723,6 +725,11 @@ public class PanelInitial extends JPanel {
                             checkboxRememberPassword.isSelected())) {
                         JOptionPane.showMessageDialog(null, userController.getResultMessage());
                     } else {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
                         ActiveDeviceDataCollector.getInstance();
                         ApplicationWindow.getInstance().switchPanel(ApplicationWindow.PANELS.PANEL_MAIN);
                     }

@@ -23,7 +23,6 @@ import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;
-import org.netbeans.lib.awtextra.AbsoluteConstraints;
 
 /**
  *
@@ -250,8 +249,9 @@ public class ChartManagementController extends ManagementController {
             loadSum += load;
         }
 
+//        System.out.println(loadSum);
         if (tempSize != 0) {
-            return loadSum * 1.0 / tempSize;
+            return loadSum / tempSize;
         }
         return 0.0;
     }
@@ -325,13 +325,17 @@ public class ChartManagementController extends ManagementController {
                 percentageSum += current.getInboundBytes();
             }
         }
+//        if (startTime.get(Calendar.DAY_OF_YEAR) == 11) {
+//            System.out.println(tempSize);
+//            System.out.println(percentageSum);
+//        }
 
         if (tempSize > 0 && interfaceDataList.get(0).isIsSummarized()) {
             return percentageSum / tempSize;
         }
         if (tempSize - 1 > 0) {
             return percentageSum / (tempSize - 1);
-        } 
+        }
         return 0.0;
     }
 

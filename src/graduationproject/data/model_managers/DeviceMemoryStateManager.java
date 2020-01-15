@@ -219,15 +219,14 @@ public class DeviceMemoryStateManager {
 
             NativeQuery query = session.createNativeQuery("TRUNCATE DEVICE_MEMORY_STATES");
             query.executeUpdate();
-
+            tx.commit();
+            session.close();
+            
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
             for (DeviceMemoryState memoryState : memoryStates) {
-                try {
                     session.save(memoryState);
-                } catch (Exception e) {
-                    memoryState.displayInfo();
-                }
             }
-
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();

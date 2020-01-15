@@ -46,6 +46,17 @@ public class DeviceCPUState {
         
         this.isSummarized = isSummarized;
     }
+    
+    public DeviceCPUState(DeviceCPUState other) {
+        this.hrDeviceId = other.hrDeviceId;
+        this.firmwareId = other.firmwareId;
+        this.description = other.description;
+        this.cpuLoad = other.cpuLoad;
+        this.updatedTime = other.updatedTime;
+        this.device = other.device;
+        
+        this.isSummarized = other.isSummarized;
+    }
 
     public int getId() {
         return id;

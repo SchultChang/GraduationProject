@@ -16,6 +16,8 @@ import graduationproject.snmpd.helpers.DeviceQueryHelper.MemoryType;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -47,9 +49,10 @@ public class DataCompressor {
 //        System.out.println(startTime.get(Calendar.DAY_OF_MONTH));
 //        System.out.println(endTime.get(Calendar.DAY_OF_MONTH));
 
-        List<DeviceCPUState> newDeviceCPUStates = DataManager.getInstance().getDeviceCpuManager().getDeviceCPUStates(startTime, endTime);
-        if (newDeviceCPUStates == null) {
-            newDeviceCPUStates = new ArrayList<DeviceCPUState>();
+        List<DeviceCPUState> newDeviceCPUStates = new ArrayList<DeviceCPUState>();
+        List<DeviceCPUState> oldCPUStates = DataManager.getInstance().getDeviceCpuManager().getDeviceCPUStates(startTime, endTime);
+        for (DeviceCPUState oldState : oldCPUStates) {
+            newDeviceCPUStates.add(new DeviceCPUState(oldState));
         }
 //        System.out.println("OLD SIZE " + newDeviceCPUStates.size());
 
@@ -96,11 +99,14 @@ public class DataCompressor {
         startTime.set(Calendar.HOUR_OF_DAY, 0);
         endTime.set(Calendar.HOUR_OF_DAY, 23);
         List<DeviceCPUState> newList = DataManager.getInstance().getDeviceCpuManager().getDeviceCPUStates(startTime, endTime);
-        newDeviceCPUStates.addAll(newList);
+        oldCPUStates = DataManager.getInstance().getDeviceCpuManager().getDeviceCPUStates(startTime, endTime);
+        for (DeviceCPUState oldState : oldCPUStates) {
+            newDeviceCPUStates.add(new DeviceCPUState(oldState));
+        }
+
 //        System.out.println("NEW SIZE " + newList.size());
 //        System.out.println(startTime.get(Calendar.DAY_OF_YEAR));
 //        System.out.println(endTime.get(Calendar.DAY_OF_YEAR));
-
         DataManager.getInstance().getDeviceCpuManager().renewDeviceCPUStateTable(newDeviceCPUStates);
     }
 
@@ -119,10 +125,11 @@ public class DataCompressor {
 
         String[] memoryTypes = {MemoryType.RAM.getDisplayType(), MemoryType.VIRTUAL.getDisplayType(), MemoryType.OTHER.getDisplayType()};
 
-        List<DeviceMemoryState> newDeviceMemoryStates = DataManager.getInstance().getDeviceMemoryManager()
+        List<DeviceMemoryState> newDeviceMemoryStates = new ArrayList<DeviceMemoryState>();
+        List<DeviceMemoryState> oldStates = DataManager.getInstance().getDeviceMemoryManager()
                 .getDeviceMemoryStates(startTime, endTime, null);
-        if (newDeviceMemoryStates == null) {
-            newDeviceMemoryStates = new ArrayList<DeviceMemoryState>();
+        for (DeviceMemoryState oldState : oldStates) {
+            newDeviceMemoryStates.add(new DeviceMemoryState(oldState));
         }
 
         startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 1);
@@ -168,7 +175,12 @@ public class DataCompressor {
         endTime.add(Calendar.DAY_OF_YEAR, 1);
         startTime.set(Calendar.HOUR_OF_DAY, 0);
         endTime.set(Calendar.HOUR_OF_DAY, 23);
-        newDeviceMemoryStates.addAll(DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryStates(startTime, endTime, null));
+        oldStates = DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryStates(startTime, endTime, null);
+        oldStates = DataManager.getInstance().getDeviceMemoryManager()
+                .getDeviceMemoryStates(startTime, endTime, null);
+        for (DeviceMemoryState oldState : oldStates) {
+            newDeviceMemoryStates.add(new DeviceMemoryState(oldState));
+        }
 
 //        for (DeviceMemoryState memoryState : newDeviceMemoryStates) {
 //            memoryState.displayInfo();
@@ -189,12 +201,13 @@ public class DataCompressor {
         endTime.set(Calendar.HOUR_OF_DAY, 23);
         endTime.add(Calendar.DAY_OF_YEAR, (DAY_LIMIT - 2));
 
-        List<DeviceInterfaceDynamicData> newInterfaceDynamicDataList = DataManager.getInstance()
+        List<DeviceInterfaceDynamicData> newInterfaceDynamicDataList = new ArrayList<DeviceInterfaceDynamicData>();
+        List<DeviceInterfaceDynamicData> oldStates = DataManager.getInstance()
                 .getInterfaceDynamicDataManager().getDeviceDynamicData(null, startTime, endTime);
-        if (newInterfaceDynamicDataList == null) {
-            newInterfaceDynamicDataList = new ArrayList<DeviceInterfaceDynamicData>();
+        for (DeviceInterfaceDynamicData oldState : oldStates) {
+            newInterfaceDynamicDataList.add(new DeviceInterfaceDynamicData(oldState));
         }
-
+        
         startTime.add(Calendar.DAY_OF_YEAR, DAY_LIMIT - 1);
         endTime.add(Calendar.DAY_OF_YEAR, 1);
 
@@ -262,7 +275,11 @@ public class DataCompressor {
         endTime.add(Calendar.DAY_OF_YEAR, 1);
         startTime.set(Calendar.HOUR_OF_DAY, 0);
         endTime.set(Calendar.HOUR_OF_DAY, 23);
-        newInterfaceDynamicDataList.addAll(DataManager.getInstance().getInterfaceDynamicDataManager().getDeviceDynamicData(null, startTime, endTime));
+        oldStates = DataManager.getInstance()
+                .getInterfaceDynamicDataManager().getDeviceDynamicData(null, startTime, endTime);
+        for (DeviceInterfaceDynamicData oldState : oldStates) {
+            newInterfaceDynamicDataList.add(new DeviceInterfaceDynamicData(oldState));
+        }
 
         DataManager.getInstance().getInterfaceDynamicDataManager().renewDeviceInterfaceDynamicDataTable(newInterfaceDynamicDataList);
     }

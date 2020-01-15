@@ -163,11 +163,14 @@ public class DeviceInterfaceDynamicDataManager {
 
             NativeQuery query = session.createNativeQuery("TRUNCATE NETWORK_INTERFACE_DYNAMIC_DATA");
             query.executeUpdate();
+            tx.commit();
+            session.close();
             
+            session = this.sessionFactory.openSession();
+            tx = session.beginTransaction();
             for (DeviceInterfaceDynamicData interfaceData : interfaceDataList) {
                 session.save(interfaceData);
             }
-            
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
