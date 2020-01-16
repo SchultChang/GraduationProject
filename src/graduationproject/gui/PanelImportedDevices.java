@@ -72,6 +72,7 @@ public class PanelImportedDevices extends JPanel {
     private JPopupMenu pmenuDevices;
     private JMenuItem mitemConnect;
     private JMenuItem mitemDelete;
+    private JMenuItem mitemCreate;
 
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
@@ -218,6 +219,9 @@ public class PanelImportedDevices extends JPanel {
     private void initMenu() {
         this.pmenuDevices = new JPopupMenu();
 
+        this.mitemCreate = new JMenuItem("Create");
+        this.pmenuDevices.add(this.mitemCreate);
+        
         this.mitemConnect = new JMenuItem("Connect");
         this.pmenuDevices.add(this.mitemConnect);
 
@@ -367,6 +371,16 @@ public class PanelImportedDevices extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JMenuItem source = (JMenuItem) e.getSource();
+                if (source == mitemCreate) {
+                    DeviceManagementController deviceController = new DeviceManagementController();
+                    if (!deviceController.processCreatingEmptyDevice()) {
+                        JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
+                        return;
+                    }
+                    
+                    initViewData();
+                    System.gc();
+                }
                 if (source == mitemDelete) {
                     DeviceManagementController deviceController = new DeviceManagementController();
                     if (!deviceController.processDeletingDevice(pendingLabel.getDeviceId())) {
@@ -384,6 +398,7 @@ public class PanelImportedDevices extends JPanel {
             }
 
         };
+        this.mitemCreate.addActionListener(this.listenerItems);
         this.mitemConnect.addActionListener(this.listenerItems);
         this.mitemDelete.addActionListener(this.listenerItems);
 
@@ -484,7 +499,7 @@ public class PanelImportedDevices extends JPanel {
     public void displaySavedInterfacesOfDevice(int deviceId) {
         InterfaceManagementController interfaceController = new InterfaceManagementController();
         if (!interfaceController.processGettingSavedInterfacesOfDevice(deviceId)) {
-            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
+//            JOptionPane.showMessageDialog(null, interfaceController.getResultMessage());
         };
     }
 

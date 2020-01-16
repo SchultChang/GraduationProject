@@ -106,6 +106,30 @@ public class DeviceManagementController extends ManagementController {
         return null;
     }
 
+    public boolean processCreatingEmptyDevice() {
+        Date importedTime = new Date();
+        ContactNetworkInterface networkInterface = new ContactNetworkInterface(
+                new String(),
+                161,
+                "",
+                importedTime);
+        Device device = new Device(
+                "",
+                "",
+                "EndHost",
+                new String(),
+                "",
+                SnmpManager.getInstance().parseVersionString("v2c").getValue(),
+                importedTime,
+                networkInterface);
+
+        if (DataManager.getInstance().getDeviceManager().saveDevice(device) >= 0) {
+            return true;
+        }
+        this.resultMessage = new ResultMessageGenerator().IMPORTING_FAILED_FILE_IO;
+        return false;
+    }
+
     public boolean processImportingDevicesFromFile(File file) {
         CSVReader reader = null;
         boolean result = false;
@@ -365,10 +389,10 @@ public class DeviceManagementController extends ManagementController {
             return false;
         }
 
-        if (data.get(DataOrders.LABEL.getValue()).trim().isEmpty()) {
-            this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_NON_LABEL;
-            return false;
-        }
+//        if (data.get(DataOrders.LABEL.getValue()).trim().isEmpty()) {
+//            this.resultMessage = new ResultMessageGenerator().UPDATING_FAILED_NON_LABEL;
+//            return false;
+//        }
 
         device.setName(data.get(DataOrders.NAME.getValue()));
         device.setLabel(data.get(DataOrders.LABEL.getValue()));
@@ -511,7 +535,7 @@ public class DeviceManagementController extends ManagementController {
                 if (activeInfo == null || activeInfo.isEmpty()) {
                     return new String[]{networkInterface.getName()};
                 } else {
-                    return new String[]{networkInterface.getName(), 
+                    return new String[]{networkInterface.getName(),
                         String.valueOf(activeInfo.get(ActiveDeviceDataCollector.InterfaceDynamicDataOrders.IP_ADDRESS.getValue()))};
                 }
             }
@@ -576,6 +600,7 @@ public class DeviceManagementController extends ManagementController {
 
     public class ResultMessageGenerator {
 
+        public String CREATING_FAILED_OTHER = "Creating empty device is failed";
         public String IMPORTING_FAILED_FILE_NOT_FOUND = "The chosen file is not found. Please try again.";
         public String IMPORTING_FAILED_FILE_IO = "Some errors happened when reading data from that specified file. Please try again laster.";
         public String IMPORTING_FAILED_FILE_NON_CONTENT = "The chosen file doesn't have any content in it. Please check it then try again later.";
