@@ -280,7 +280,7 @@ public class ActiveDeviceDataCollector {
         }
         return null;
     }
-
+    
     public class ActiveDeviceData {
 
         private int id;

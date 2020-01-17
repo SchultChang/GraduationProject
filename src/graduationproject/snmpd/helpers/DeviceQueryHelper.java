@@ -182,8 +182,8 @@ public class DeviceQueryHelper {
                 for (int i = 0; i < tempSize; i++) {
 //                    templateQuery.result.add(varbinds.get(templateQuery.itemList.get(i)).asString());
                     for (Varbind varbind : varbinds) {
-                        String temp = varbind.getOid();
-                        if (temp.substring(0, temp.lastIndexOf(".")).equalsIgnoreCase(templateQuery.itemList.get(i))) {
+//                        String temp = varbind.getOid();
+                        if (varbind.getOid().contains(templateQuery.itemList.get(i))) {
                             templateQuery.result.add(varbind.asString());
                         }
                     }
@@ -202,14 +202,14 @@ public class DeviceQueryHelper {
                 int tempSize = templateQuery.itemList.size();
 
                 for (VarbindCollection varbinds : varbindsList) {
-                    System.out.println(varbinds.toString());
+//                    System.out.println(varbinds.toString());
                     Object[] objects = new Object[tempSize];
 
                     for (int i = 0; i < tempSize; i++) {
 //                        objects[i] = varbinds.get(templateQuery.itemList.get(i)).getOid().asString();
                         for (Varbind varbind : varbinds) {
-                            String temp = varbind.getOid();
-                            if (temp.substring(0, temp.lastIndexOf(".")).equalsIgnoreCase(templateQuery.itemList.get(i))) {
+//                            String temp = varbind.getOid();
+                            if (varbind.getOid().contains(templateQuery.itemList.get(i))) {
                                 objects[i] = varbind.asString();
                             }
                         }

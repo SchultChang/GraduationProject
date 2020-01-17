@@ -10,6 +10,7 @@ import graduationproject.controllers.DeviceManagementController.DataOrders;
 import graduationproject.controllers.DeviceManagementController.DeviceStates;
 import graduationproject.controllers.InterfaceManagementController;
 import graduationproject.controllers.InterfaceManagementController.InterfaceStates;
+import graduationproject.data.ActiveDeviceDataCollector;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -221,7 +222,7 @@ public class PanelImportedDevices extends JPanel {
 
         this.mitemCreate = new JMenuItem("Create");
         this.pmenuDevices.add(this.mitemCreate);
-        
+
         this.mitemConnect = new JMenuItem("Connect");
         this.pmenuDevices.add(this.mitemConnect);
 
@@ -377,7 +378,7 @@ public class PanelImportedDevices extends JPanel {
                         JOptionPane.showMessageDialog(null, deviceController.getResultMessage());
                         return;
                     }
-                    
+
                     initViewData();
                     System.gc();
                 }
@@ -451,9 +452,20 @@ public class PanelImportedDevices extends JPanel {
         this.labelDevices.clear();
         System.gc();
 
+        int[] activeIds = ActiveDeviceDataCollector.getInstance().getImportedDeviceIds();
+
         if (data != null) {
             for (int i = 0; i < deviceIds.length; i++) {
-                LabelDevice temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.DEACTIVE);
+                LabelDevice temp = null;
+                for (int j : activeIds) {
+                    if (j == deviceIds[i]) {
+                        temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.ACTIVE);
+                        break;
+                    }
+                }
+                if (temp == null) {
+                    temp = new LabelDevice(data.get(i), deviceIds[i], DeviceStates.DEACTIVE);
+                }
                 temp.addMouseListener(this.listenerListDevices);
                 this.labelDevices.add(temp);
                 this.panelDeviceList.add(temp);

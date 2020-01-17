@@ -207,10 +207,13 @@ public class PanelMonitoringDevice extends JPanel {
             } else {
                 int tempSize = data.size();
                 for (int i = 0; i < tempSize; i++) {
-                    tableModel.setValueAt(data.get(i), i, this.defaultValueCol);
+                    if (i < tableModel.getRowCount()) {
+                        tableModel.setValueAt(data.get(i), i, this.defaultValueCol);
+                    }
+//                    System.out.println(data.get(i));
                 }
             }
-            
+
             this.labelTime.setText(receivedTime);
         } catch (Exception e) {
             e.printStackTrace();
