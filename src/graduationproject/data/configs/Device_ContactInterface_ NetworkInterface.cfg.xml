@@ -113,7 +113,7 @@
         <property name="avgUsage" column="avg_usage" type="float"/>
         <property name="time" column="time" type="calendar"/>
         <many-to-one name="device" column="device_id" cascade="save-update" 
-                class="graduationproject.data.models.DeviceCPUState"/>
+                class="graduationproject.data.models.Device"/>
     </class>
     
     <class name="graduationproject.data.models.DeviceAvgMemoryUsage" table="DEVICE_AVG_MEMORY_USAGE">
@@ -125,7 +125,7 @@
         <property name="avgUsage" column="avg_usage" type="float"/>
         <property name="time" column="time" type="calendar"/>
         <many-to-one name="device" column="device_id" cascade="save-update" 
-                class="graduationproject.data.models.DeviceCPUState"/>
+                class="graduationproject.data.models.Device"/>
     </class>
 
 </hibernate-mapping>

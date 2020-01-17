@@ -155,18 +155,18 @@ public class DeviceInterfaceDynamicDataManager {
 
     public void renewDeviceInterfaceDynamicDataTable() {
         Session session = null;
-        Transaction tx = null;
+//        Transaction tx = null;
 
         try {
             session = this.sessionFactory.openSession();
-            tx = session.beginTransaction();
+//            tx = session.beginTransaction();
 
-            NativeQuery query = session.createNativeQuery("TRUNCATE NETWORK_INTERFACE_DYNAMIC_DATA");
+            NativeQuery query = session.createSQLQuery("TRUNCATE NETWORK_INTERFACE_DYNAMIC_DATA");
             query.executeUpdate();
-            tx.commit();
+//            tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            tx.rollback();
+//            tx.rollback();
         } finally {
             if (session != null) {
                 session.close();

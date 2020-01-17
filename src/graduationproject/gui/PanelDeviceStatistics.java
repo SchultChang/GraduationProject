@@ -68,7 +68,7 @@ public class PanelDeviceStatistics extends JPanel {
     private ActionListener listenerRadioButton;
     private ItemListener listenerComboBox;
 
-    private int currentCpuChoiceId; 
+    private int currentCpuChoiceId;
     private int currentMemoryChoiceId;
     private int currentInterfaceChoiceId;
     private int deviceId;
@@ -206,16 +206,16 @@ public class PanelDeviceStatistics extends JPanel {
                         if (source.getSelectedIndex() != currentCpuChoiceId) {
                             currentCpuChoiceId = cboxCPU.getSelectedIndex();
                             ChartManagementController chartController = new ChartManagementController();
-                            
-                            Chart chart = chartController.processGettingChart(deviceId, 
-                                    ChartManagementController.DataType.CPU_LOAD, 
-                                    buttonGroup.getSelection().getActionCommand(), 
+
+                            Chart chart = chartController.processGettingChart(deviceId,
+                                    ChartManagementController.DataType.CPU_LOAD,
+                                    buttonGroup.getSelection().getActionCommand(),
                                     getCPUChoices());
                             if (chart == null) {
                                 JOptionPane.showMessageDialog(null, chartController.getResultMessage());
                                 return;
-                            }          
-                            
+                            }
+
                             currentCPUPanel = displayChart(currentCPUPanel, chart, PANEL_CPU_POSITION);
                             PanelDeviceStatistics.this.revalidate();
                             PanelDeviceStatistics.this.repaint();
@@ -303,12 +303,13 @@ public class PanelDeviceStatistics extends JPanel {
         this.buttonToday.setSelected(true);
         this.switchChartViewerVisibility(false, null);
 
+        DefaultComboBoxModel cboxModel = (DefaultComboBoxModel) this.cboxInterfaces.getModel();
+        cboxModel.removeAllElements();
+        cboxModel.addElement(DEFAULT_CHOICE_VALUE);
+        this.interfaceChoices = null;
+
         List<String> interfaceNames = new InterfaceManagementController().processGettingInterfaceNames(this.deviceId);
         if (interfaceNames != null && !interfaceNames.isEmpty()) {
-            DefaultComboBoxModel cboxModel = (DefaultComboBoxModel) this.cboxInterfaces.getModel();
-            cboxModel.removeAllElements();
-            cboxModel.addElement(DEFAULT_CHOICE_VALUE);
-
             int tempSize = interfaceNames.size();
             this.interfaceChoices = new String[tempSize];
             for (int i = 0; i < tempSize; i++) {
@@ -317,12 +318,13 @@ public class PanelDeviceStatistics extends JPanel {
             }
         }
 
+        cboxModel = (DefaultComboBoxModel) this.cboxCPU.getModel();
+        cboxModel.removeAllElements();
+        cboxModel.addElement(DEFAULT_CHOICE_VALUE);
+        this.cpuChoices = null;
+
         List<Integer> cpuDeviceIds = new DeviceResourceManagementController().processGettingCPUIds(deviceId);
         if (cpuDeviceIds != null && !cpuDeviceIds.isEmpty()) {
-            DefaultComboBoxModel cboxModel = (DefaultComboBoxModel) this.cboxCPU.getModel();
-            cboxModel.removeAllElements();
-            cboxModel.addElement(DEFAULT_CHOICE_VALUE);
-            
             int tempSize = cpuDeviceIds.size();
             this.cpuChoices = new Integer[tempSize];
             for (int i = 0; i < tempSize; i++) {
@@ -330,7 +332,7 @@ public class PanelDeviceStatistics extends JPanel {
                 cboxModel.addElement(this.cpuChoices[i] - this.cpuChoices[0] + 1);
             }
         }
-        
+
         this.cboxCPU.setSelectedIndex(0);
         this.cboxInterfaces.setSelectedIndex(0);
         this.cboxMemory.setSelectedIndex(0);
@@ -378,13 +380,13 @@ public class PanelDeviceStatistics extends JPanel {
         this.add(newPanel, position);
         return newPanel;
     }
-    
+
     private Integer[] getCPUChoices() {
         if (this.cboxCPU.getSelectedItem().toString().equals(DEFAULT_CHOICE_VALUE)) {
             return this.cpuChoices;
         }
         if (this.cpuChoices != null) {
-            return new Integer[] {this.cpuChoices[this.cboxCPU.getSelectedIndex() - 1]};
+            return new Integer[]{this.cpuChoices[this.cboxCPU.getSelectedIndex() - 1]};
         }
         return null;
     }

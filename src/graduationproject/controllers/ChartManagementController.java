@@ -8,6 +8,9 @@ package graduationproject.controllers;
 import graduationproject.helpers.DataConverter;
 import graduationproject.data.DataManager;
 import graduationproject.data.models.Device;
+import graduationproject.data.models.DeviceAvgBandwidthUsage;
+import graduationproject.data.models.DeviceAvgCpuUsage;
+import graduationproject.data.models.DeviceAvgMemoryUsage;
 import graduationproject.data.models.DeviceInterfaceDynamicData;
 import graduationproject.data.models.DeviceMemoryState;
 import graduationproject.data.models.DeviceNetworkInterface;
@@ -79,6 +82,15 @@ public class ChartManagementController extends ManagementController {
                         }
                     }
                 }
+            } else {
+                data = this.getDataForChart(deviceId, dataType, period, null);
+                if (data != null) {
+                    if (DataType.CPU_LOAD == dataType) {
+                        chart.addSeries(" ", (double[]) data.get(0), (double[]) data.get(1));
+                    } else {
+                        chart.addSeries(" ", (double[]) data.get(0), (double[]) data.get(1));;;
+                    }
+                }
             }
             return chart;
         }
@@ -97,6 +109,15 @@ public class ChartManagementController extends ManagementController {
                         } else {
                             chart.addSeries(String.valueOf(choice), Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
                         }
+                    }
+                }
+            } else {
+                data = this.getDataForChart(deviceId, dataType, period, null);
+                if (data != null) {
+                    if (DataType.CPU_LOAD == dataType) {
+                        chart.addSeries(" ", Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
+                    } else {
+                        chart.addSeries(" ", Arrays.asList((Date[]) data.get(0)), Arrays.asList((Double[]) data.get(1)));
                     }
                 }
             }
@@ -150,25 +171,25 @@ public class ChartManagementController extends ManagementController {
 
         Calendar day = Calendar.getInstance();
         if (QueryPeriod.TODAY.getValue().equals(period)) {
-            return this.getDataForADay(device, dataType, day, choice);
+            return this.getDataForADay(device, dataType, day, choice, true);
         }
         if (QueryPeriod.YESTERDAY.getValue().equals(period)) {
             day.add(Calendar.DAY_OF_YEAR, -1);
-            return this.getDataForADay(device, dataType, day, choice);
+            return this.getDataForADay(device, dataType, day, choice, false);
         }
         if (QueryPeriod.LAST_3_DAYS.getValue().equals(period)) {
             day.add(Calendar.DAY_OF_YEAR, -4);
-            return this.getDataForDays(device, dataType, day, 3, choice);
+            return this.getDataForDays(device, dataType, day, 3, choice, false);
         }
         if (QueryPeriod.LAST_7_DAYS.getValue().equals(period)) {
             day.add(Calendar.DAY_OF_YEAR, -8);
-            return this.getDataForDays(device, dataType, day, 7, choice);
+            return this.getDataForDays(device, dataType, day, 7, choice, false);
         }
 
         return null;
     }
 
-    public List<Object> getDataForADay(Device device, DataType dataType, Calendar day, Object choice) {
+    public List<Object> getDataForADay(Device device, DataType dataType, Calendar day, Object choice, boolean today) {
         List<Object> result = new ArrayList<Object>();
         int startHour = 0;
         int endHour = 23;
@@ -185,9 +206,13 @@ public class ChartManagementController extends ManagementController {
 
         for (int i = startHour; i <= endHour; i++) {
             xValues[i] = i;
-            startTime.set(Calendar.HOUR_OF_DAY, i);
-            endTime.set(Calendar.HOUR_OF_DAY, i);
-            yValues[i] = this.getDataForTime(device, dataType, startTime, endTime, choice);
+            if (choice != null) {
+                startTime.set(Calendar.HOUR_OF_DAY, i);
+                endTime.set(Calendar.HOUR_OF_DAY, i);
+                yValues[i] = this.getDataForTime(device, dataType, startTime, endTime, choice, today);
+            } else {
+                yValues[i] = 0.0d;
+            }
         }
 
         result.add(xValues);
@@ -196,7 +221,7 @@ public class ChartManagementController extends ManagementController {
         return result;
     }
 
-    public List<Object> getDataForDays(Device device, DataType dataType, Calendar day, int dayCount, Object choice) {
+    public List<Object> getDataForDays(Device device, DataType dataType, Calendar day, int dayCount, Object choice, boolean today) {
         List<Object> result = new ArrayList<Object>();
 
         Calendar startTime = (Calendar) day.clone();
@@ -216,7 +241,11 @@ public class ChartManagementController extends ManagementController {
             startTime.add(Calendar.DAY_OF_YEAR, 1);
             endTime.add(Calendar.DAY_OF_YEAR, 1);
             xValues[i] = startTime.getTime();
-            yValues[i] = this.getDataForTime(device, dataType, startTime, endTime, choice);
+            if (choice != null) {
+                yValues[i] = this.getDataForTime(device, dataType, startTime, endTime, choice, today);
+            } else {
+                yValues[i] = 0.0d;
+            }
         }
 
         result.add(xValues);
@@ -224,59 +253,80 @@ public class ChartManagementController extends ManagementController {
         return result;
     }
 
-    public double getDataForTime(Device device, DataType dataType, Calendar startTime, Calendar endTime, Object choice) {
+    public double getDataForTime(Device device, DataType dataType, Calendar startTime, Calendar endTime, Object choice, boolean today) {
         if (dataType == DataType.CPU_LOAD) {
-            return this.getAverageCpuLoadForTime(device, startTime, endTime, (Integer) choice);
+            return this.getAverageCpuLoadForTime(device, startTime, endTime, (Integer) choice, today);
         }
         if (dataType == DataType.MEMORY_USAGE) {
-            return this.getAverageMemoryUsageForTime(device, startTime, endTime, (String) choice);
+            return this.getAverageMemoryUsageForTime(device, startTime, endTime, (String) choice, today);
         }
         if (dataType == DataType.BANDWIDTH_USAGE) {
-            return this.getAverageBandwidthUsageForTime(device, startTime, endTime, (String) choice);
+            return this.getAverageBandwidthUsageForTime(device, startTime, endTime, (String) choice, today);
         }
         return 0;
     }
 
-    public double getAverageCpuLoadForTime(Device device, Calendar startTime, Calendar endTime, Integer choice) {
-        List<Float> loads = DataManager.getInstance().getDeviceCpuManager().getDeviceCPULoads(device, startTime, endTime, "cpuLoad", choice);
-        if (loads == null && loads.isEmpty()) {
-            return 0.0;
-        }
+    public double getAverageCpuLoadForTime(Device device, Calendar startTime, Calendar endTime, Integer choice, boolean today) {
+        if (today) {
+            List<Float> loads = DataManager.getInstance().getDeviceCpuManager().getDeviceCPULoads(device, startTime, endTime, "cpuLoad", choice);
+            if (loads == null || loads.isEmpty()) {
+                return 0.0;
+            }
 
-        int tempSize = loads.size();
-        double loadSum = 0.0;
-        for (Float load : loads) {
-            loadSum += load;
-        }
-
-//        System.out.println(loadSum);
-        if (tempSize != 0) {
+            int tempSize = loads.size();
+            double loadSum = 0.0;
+            for (Float load : loads) {
+                loadSum += load;
+            }
             return loadSum / tempSize;
+        } else {
+            List<DeviceAvgCpuUsage> cpuUsages = DataManager.getInstance()
+                    .getCpuUsageManager().getAvgCPUUsages(device, startTime, endTime, choice);
+
+            if (cpuUsages != null && !cpuUsages.isEmpty()) {
+                float cpuSum = 0.0f;
+                for (DeviceAvgCpuUsage cpuUsage : cpuUsages) {
+                    cpuSum += cpuUsage.getAvgUsage();
+                }
+                return cpuSum / cpuUsages.size();
+            }
+
         }
         return 0.0;
     }
 
-    public double getAverageMemoryUsageForTime(Device device, Calendar startTime, Calendar endTime, String choice) {
-        List<DeviceMemoryState> memoryStates
-                = DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryStates(device, startTime, endTime, choice);
-        if (memoryStates == null && memoryStates.isEmpty()) {
-            return 0.0;
-        }
+    public double getAverageMemoryUsageForTime(Device device, Calendar startTime, Calendar endTime, String choice, boolean today) {
+        if (today) {
+            List<DeviceMemoryState> memoryStates
+                    = DataManager.getInstance().getDeviceMemoryManager().getDeviceMemoryStates(device, startTime, endTime, choice);
+            if (memoryStates == null || memoryStates.isEmpty()) {
+                return 0.0;
+            }
 
-        int tempSize = memoryStates.size();
-        double percentageSum = 0.0;
+            int tempSize = memoryStates.size();
+            double percentageSum = 0.0;
+            for (DeviceMemoryState memoryState : memoryStates) {
+                percentageSum += memoryState.getUsagePercentage();
+            }
+            if (tempSize != 0) {
+                return percentageSum / tempSize;
+            }
+        } else {
+            List<DeviceAvgMemoryUsage> memoryUsages = DataManager.getInstance()
+                    .getMemoryUsageManager().getAvgMemoryUsages(device, startTime, endTime, choice);
 
-        for (DeviceMemoryState memoryState : memoryStates) {
-            percentageSum += memoryState.getUsagePercentage();
-        }
-
-        if (tempSize != 0) {
-            return percentageSum / tempSize;
+            if (memoryUsages != null && !memoryUsages.isEmpty()) {
+                float memorySum = 0.0f;
+                for (DeviceAvgMemoryUsage memoryUsage : memoryUsages) {
+                    memorySum += memoryUsage.getAvgUsage();
+                }
+                return memorySum / memoryUsages.size();
+            }
         }
         return 0.0;
     }
 
-    public double getAverageBandwidthUsageForTime(Device device, Calendar startTime, Calendar endTime, String choice) {
+    public double getAverageBandwidthUsageForTime(Device device, Calendar startTime, Calendar endTime, String choice, boolean today) {
         DeviceNetworkInterface networkInterface = null;
         List<DeviceNetworkInterface> networkInterfaces = device.getNetworkInterfaces();
         for (DeviceNetworkInterface temp : networkInterfaces) {
@@ -285,38 +335,53 @@ public class ChartManagementController extends ManagementController {
                 break;
             }
         }
+
         if (networkInterface == null) {
             return 0.0;
         }
 
-        List<DeviceInterfaceDynamicData> interfaceDataList = DataManager.getInstance().getInterfaceDynamicDataManager()
-                .getDeviceDynamicData(networkInterface, startTime, endTime);
-        if (interfaceDataList == null && interfaceDataList.isEmpty()) {
-            return 0.0;
-        }
-
-        int tempSize = interfaceDataList.size();
-        double percentageSum = 0.0;
-        DeviceInterfaceDynamicData previous, current;
-        double upperPart, lowerPart;
-        DataConverter dataConverter = new DataConverter();
-
-        for (int i = 1; i < tempSize; i++) {
-            current = interfaceDataList.get(i);
-            previous = interfaceDataList.get(i - 1);
-
-            upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
-                    current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
-            lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
-                    - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
-
-            if (lowerPart != 0) {
-                percentageSum += (upperPart / lowerPart);
+        if (today) {
+            List<DeviceInterfaceDynamicData> interfaceDataList = DataManager.getInstance().getInterfaceDynamicDataManager()
+                    .getDeviceDynamicData(networkInterface, startTime, endTime);
+            if (interfaceDataList == null || interfaceDataList.isEmpty()) {
+                return 0.0;
             }
-        }
 
-        if (tempSize - 1 > 0) {
-            return percentageSum / (tempSize - 1);
+            int tempSize = interfaceDataList.size();
+            double percentageSum = 0.0;
+            DeviceInterfaceDynamicData previous, current;
+            double upperPart, lowerPart;
+            DataConverter dataConverter = new DataConverter();
+
+            for (int i = 1; i < tempSize; i++) {
+                current = interfaceDataList.get(i);
+                previous = interfaceDataList.get(i - 1);
+
+                upperPart = Math.max(current.getInboundBytes() - previous.getInboundBytes(),
+                        current.getOutboundBytes() - previous.getOutboundBytes()) * 8 * 100 * 1.0d;
+                lowerPart = (dataConverter.convertCalendarTimeToSecond(current.getUpdatedTime())
+                        - dataConverter.convertCalendarTimeToSecond(previous.getUpdatedTime())) * current.getBandwidth();
+
+                if (lowerPart != 0) {
+                    percentageSum += (upperPart / lowerPart);
+                }
+            }
+
+            if (tempSize - 1 > 0) {
+                return percentageSum / (tempSize - 1);
+            }
+        } else {
+            List<DeviceAvgBandwidthUsage> bandwidthUsages = DataManager.getInstance()
+                    .getBandwidthManager().getAvgBandwidthUsages(networkInterface, startTime, endTime);
+//            System.out.println(bandwidthUsages.size());
+            if (bandwidthUsages != null && !bandwidthUsages.isEmpty()) {
+                float bandwidthSum = 0.0f;
+                for (DeviceAvgBandwidthUsage bandwidthUsage : bandwidthUsages) {
+                    bandwidthSum += bandwidthUsage.getAvgUsage();
+                }
+                return bandwidthSum / bandwidthUsages.size();
+            }
+
         }
         return 0.0;
     }

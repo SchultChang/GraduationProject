@@ -124,7 +124,11 @@ public class DeviceResourceManagementController extends ManagementController {
             return null;
         }
 
-        return DataManager.getInstance().getDeviceCpuManager().getDeviceCpuDeviceIds(device);
+        List<Integer> result = DataManager.getInstance().getDeviceCpuManager().getDeviceCpuDeviceIds(device);
+        if (result == null || result.isEmpty()) {
+            result = DataManager.getInstance().getCpuUsageManager().getDeviceCpuDeviceIds(device);
+        }
+        return result;
     }
 
     public boolean processChangingResourceCheckingPeriod(int newPeriod) {

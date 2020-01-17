@@ -70,8 +70,11 @@ public class DataCompressor {
                                 loadSum += cpuLoad;
                             }
 
+                            startTime.set(Calendar.SECOND, 30);
                             DeviceAvgCpuUsage cpuUsage = new DeviceAvgCpuUsage(cpuId, loadSum / cpuLoads.size(), startTime, device);
+//                            System.out.println(loadSum / cpuLoads.size());
                             DataManager.getInstance().getCpuUsageManager().saveAvgCPUUsage(cpuUsage);
+                            startTime.set(Calendar.SECOND, 0);
                         }
                     }
                 }
@@ -120,9 +123,12 @@ public class DataCompressor {
                             for (DeviceMemoryState memoryState : memoryStates) {
                                 memorySum += memoryState.getUsagePercentage();
                             }
+
+                            startTime.set(Calendar.SECOND, 30);
                             DeviceAvgMemoryUsage memoryUsage = new DeviceAvgMemoryUsage(
                                     memoryType, memorySum / memoryStates.size(), startTime, device);
                             DataManager.getInstance().getMemoryUsageManager().saveAvgMemoryUsage(memoryUsage);
+                            startTime.set(Calendar.SECOND, 0);
                         }
 
                     }
@@ -184,8 +190,10 @@ public class DataCompressor {
                             }
 
                             if (tempSize - 1 > 0) {
+                                startTime.set(Calendar.SECOND, 30);
                                 DeviceAvgBandwidthUsage bandwidthUsage = new DeviceAvgBandwidthUsage(interfaceSum / (tempSize - 1), startTime, networkInterface);
                                 DataManager.getInstance().getBandwidthManager().saveAvgBandwidthUsage(bandwidthUsage);
+                                startTime.set(Calendar.SECOND, 0);
                             }
                         }
                     }
