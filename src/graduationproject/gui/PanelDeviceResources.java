@@ -284,6 +284,10 @@ public class PanelDeviceResources extends JPanel {
     }
 
     public synchronized void updateView(int deviceId, List<Object> cpuData, List<Object> memoryData, String updatedTime) {
+        if (this.deviceId != deviceId) {
+            return;
+        }
+        
         DefaultTableModel tableModel = (DefaultTableModel) this.tableCPU.getModel();
         this.clearTable(tableModel);
         if (!cpuData.isEmpty()) {
@@ -293,6 +297,7 @@ public class PanelDeviceResources extends JPanel {
         }
 
         if (!memoryData.isEmpty()) {
+//            System.out.println("hello world");
             Object[] memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_RAM.getValue());
 
             this.labelTotalRam.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
@@ -305,7 +310,7 @@ public class PanelDeviceResources extends JPanel {
             memoryState = (Object[]) memoryData.get(DataOrders.MEMORY_OTHER.getValue());
             this.labelTotalOther.setText(String.valueOf(memoryState[DataOrders.MEMORY_TOTAL.getValue()]));
             this.labelUsedOther.setText(String.valueOf(memoryState[DataOrders.MEMORY_USED.getValue()]));
-        }
+        } 
 
         tableModel = (DefaultTableModel) this.tableDisks.getModel();
         this.clearTable(tableModel);
