@@ -13,6 +13,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -45,11 +47,11 @@ public class PanelImportedTemplates extends JPanel {
     private JButton buttonImport;
     private JLabel label1;
     private JLabel labelSearch;
-    private JLabel labelTemplatesType;
     private JPanel panelTemplates;
     private JPanel panelTemplateList;
     private JScrollPane scrollpane1;
     private JTextField tfieldSearch;
+    private javax.swing.JComboBox<String> cboxTypes;
 
     private PanelItemInfo panelItemInfo;
     private PanelTemplateInfo panelTemplateInfo;
@@ -57,6 +59,7 @@ public class PanelImportedTemplates extends JPanel {
     private ActionListener listenerButton;
     private KeyAdapter listenerField;
     private MouseAdapter listenerListTemplates;
+    private ItemListener listenerItem;
 
     private LabelTemplate chosenLabelTemplate;
     private List<LabelTemplate> labelTemplates;
@@ -81,7 +84,7 @@ public class PanelImportedTemplates extends JPanel {
         labelSearch = new JLabel();
         buttonImport = new JButton();
         label1 = new JLabel();
-        labelTemplatesType = new JLabel();
+        cboxTypes = new javax.swing.JComboBox<>();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         setBackground(Color.white);
@@ -92,7 +95,7 @@ public class PanelImportedTemplates extends JPanel {
         panelTemplates.setPreferredSize(new java.awt.Dimension(280, 940));
         panelTemplates.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        tfieldSearch.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        tfieldSearch.setFont(new java.awt.Font("SansSerif", 0, 15)); 
         tfieldSearch.setForeground(java.awt.Color.white);
         tfieldSearch.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, java.awt.Color.white));
         tfieldSearch.setCaretColor(java.awt.Color.white);
@@ -110,27 +113,26 @@ public class PanelImportedTemplates extends JPanel {
         panelTemplates.add(scrollpane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 100, 360, 690));
 
         labelSearch.setHorizontalAlignment(SwingConstants.CENTER);
-        labelSearch.setIcon(new ImageIcon(getClass().getResource("/resources/icon_search_40.png"))); // NOI18N
+        labelSearch.setIcon(new ImageIcon(getClass().getResource("/resources/icon_search_40.png"))); 
         panelTemplates.add(labelSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 40, 50, 30));
 
         buttonImport.setBackground(new java.awt.Color(38, 56, 163));
-        buttonImport.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        buttonImport.setFont(new java.awt.Font("SansSerif", 1, 15)); 
         buttonImport.setForeground(java.awt.Color.white);
-        buttonImport.setIcon(new ImageIcon(getClass().getResource("/resources/icon_plus_40.png"))); // NOI18N
+        buttonImport.setIcon(new ImageIcon(getClass().getResource("/resources/icon_plus_40.png"))); 
         buttonImport.setText("Import");
         buttonImport.setBorder(new SoftBevelBorder(BevelBorder.RAISED));
         buttonImport.setBorderPainted(false);
         panelTemplates.add(buttonImport, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 830, 120, 40));
 
-        label1.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        label1.setFont(new java.awt.Font("SansSerif", 1, 14)); 
         label1.setForeground(java.awt.Color.white);
-        label1.setText("Templates Type:");
+        label1.setText("Type:");
         panelTemplates.add(label1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 830, -1, 40));
 
-        labelTemplatesType.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
-        labelTemplatesType.setForeground(java.awt.Color.white);
-        labelTemplatesType.setText(". . .");
-        panelTemplates.add(labelTemplatesType, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 830, 100, 40));
+        cboxTypes.setFont(new java.awt.Font("SansSerif", 0, 14)); 
+        cboxTypes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Singular", "Tabular"}));
+        add(cboxTypes, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 830, 160, 40));
 
         add(panelTemplates, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 440, -1));
 
@@ -162,7 +164,7 @@ public class PanelImportedTemplates extends JPanel {
                         if (!templateController.processImportingTemplateFromFile(!isSingular, fileChooser.getSelectedFile())) {
                             JOptionPane.showMessageDialog(null, templateController.getResultMessage());
                         } else {
-                            initViewData();
+                            initViewData(isSingular);
                         }
                     }
 
@@ -190,6 +192,19 @@ public class PanelImportedTemplates extends JPanel {
         };
         this.tfieldSearch.addKeyListener(this.listenerField);
 
+        this.listenerItem = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                String value = String.valueOf(e.getItem());
+                if (value.equalsIgnoreCase("Singular")) {
+                    initViewData(true);
+                } else {
+                    initViewData(false);
+                }
+            }
+        };
+        this.cboxTypes.addItemListener(this.listenerItem);
+        
         this.listenerListTemplates = new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -229,9 +244,17 @@ public class PanelImportedTemplates extends JPanel {
         this.labelTemplates = new ArrayList<LabelTemplate>();
     }
 
-    public void initViewData() {
+    public void initViewData(boolean isSingular) {
         hidePanelTemplateInfo();
         hidePanelItemInfo();
+        
+        if (isSingular) {
+            this.cboxTypes.setSelectedIndex(0);
+        } else {
+            this.cboxTypes.setSelectedIndex(1);
+        }
+        this.isSingular = isSingular;
+        
         initTemplateList();
     }
 
@@ -304,15 +327,6 @@ public class PanelImportedTemplates extends JPanel {
 
             this.revalidate();
             this.repaint();
-        }
-    }
-
-    public void setIsSingular(boolean isSingular) {
-        this.isSingular = isSingular;
-        if (this.isSingular) {
-            this.labelTemplatesType.setText(TemplateType.SINGULAR.getValue());
-        } else {
-            this.labelTemplatesType.setText(TemplateType.TABULAR.getValue());
         }
     }
 
